@@ -1,0 +1,17 @@
+{
+  "name": "com.carbonfibergames.vapornetcode",
+  "version": "1.0.0",
+  "displayName": "Vapor Netcode",
+  "description": "Simple Networking Client-Server Networking Package built with KCP UPD",
+  "unity": "2021.3",
+  "keywords": [
+    "Networking",
+    "Client_Server",
+    "UDP"
+  ],
+  "author": {
+    "name": "Carbon Fiber Games LLC"
+  },
+  "hideInEditor": false,
+  "type": "library"
+}
