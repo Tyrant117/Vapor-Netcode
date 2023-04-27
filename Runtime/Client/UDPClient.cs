@@ -10,24 +10,38 @@ namespace VaporNetcode
     public class ClientConfig
     {
         #region Inspector
-        public bool connectOnStart;
+#if ODIN_INSPECTOR
+        [FoldoutGroup("Properties")]
+#else
+        [Header("Properties")]
+#endif
+        [Tooltip("Should client connect by itself.")]
+        public bool AutoConnect;
 
-        public int clientUpdateRate = 30;
-
-        [Tooltip("Log level of this script")]
-        public NetLogFilter.LogLevel logLevel;
-        [Tooltip("Spews debug info that comes from update calls. Could be a lot of messages.")]
-        public bool spewDebug;
-        [Tooltip("True if you want to recieve diagnostics on the messages being sent and recieved.")]
-        public bool messageDiagnostics;
-
+#if ODIN_INSPECTOR
+        [FoldoutGroup("Properties")]
+#endif
         [Tooltip("Address to the server")]
-        public string gameServerIp = "127.0.0.1";
+        public string GameServerIp = "127.0.0.1";
 
+#if ODIN_INSPECTOR
+        [FoldoutGroup("Properties")]
+#endif
         [Tooltip("Port of the server")]
-        public int gameServerPort = 7777;
+        public int GameServerPort = 7777;
 
-        public bool isSimulated;
+#if ODIN_INSPECTOR
+        [FoldoutGroup("Properties")]
+#endif
+        [Tooltip("Client Target Send Rate")]
+        public int ClientUpdateRate = 30;
+
+#if ODIN_INSPECTOR
+        [FoldoutGroup("Properties")]
+#else
+        [Header("Debug")]
+#endif
+        public bool IsSimulated;
         #endregion
     }
 
@@ -39,7 +53,7 @@ namespace VaporNetcode
         private static bool isSimulated;
 
         private static readonly bool retryOnTimeout = true;
-        public static float SendInterval => 1f / _config.clientUpdateRate; // for 30 Hz, that's 33ms
+        public static float SendInterval => 1f / _config.ClientUpdateRate; // for 30 Hz, that's 33ms
         private static double _lastSendTime;
 
         private static ClientConfig _config;
@@ -133,11 +147,8 @@ namespace VaporNetcode
         {
             isInitialized = false;
 
-            _config = config;
-            NetLogFilter.CurrentLogLevel = (int)_config.logLevel;
-            NetLogFilter.spew = _config.spewDebug;
-            NetLogFilter.messageDiagnostics = _config.messageDiagnostics;
-            isSimulated = _config.isSimulated;
+            _config = config;            
+            isSimulated = _config.IsSimulated;
 
             handlers = new Dictionary<ushort, IPacketHandler>();
             modules = new Dictionary<Type, ClientModule>();
@@ -412,8 +423,8 @@ namespace VaporNetcode
             Status = ConnectionStatus.Disconnected;
             if (timedOut && retryOnTimeout)
             {
-                if (NetLogFilter.logInfo) { Debug.LogFormat("{2} Retrying to connect to server at || {0}:{1}", _config.gameServerIp, _config.gameServerPort, TAG); }
-                Connect(_config.gameServerIp, _config.gameServerPort);
+                if (NetLogFilter.logInfo) { Debug.LogFormat("{2} Retrying to connect to server at || {0}:{1}", _config.GameServerIp, _config.GameServerPort, TAG); }
+                Connect(_config.GameServerIp, _config.GameServerPort);
             }
         }
 
@@ -458,7 +469,7 @@ namespace VaporNetcode
 
         private static void OnDisconnected()
         {
-            if (NetLogFilter.logInfo) { Debug.LogFormat("Disconnected from || {0}:{1}", _config.gameServerIp, _config.gameServerPort); }
+            if (NetLogFilter.logInfo) { Debug.LogFormat("Disconnected from || {0}:{1}", _config.GameServerIp, _config.GameServerPort); }
 
             if (!isAttemptingReconnect)
             {
@@ -469,7 +480,7 @@ namespace VaporNetcode
 
         private static void OnConnected()
         {
-            if (NetLogFilter.logInfo) { Debug.LogFormat("Connected to || {0}:{1}", _config.gameServerIp, _config.gameServerPort); }
+            if (NetLogFilter.logInfo) { Debug.LogFormat("Connected to || {0}:{1}", _config.GameServerIp, _config.GameServerPort); }
         }
         #endregion
 

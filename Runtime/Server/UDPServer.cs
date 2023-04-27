@@ -46,25 +46,6 @@ namespace VaporNetcode
         public int serverUpdateRate = 30;
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Logging")]
-#else
-        [Header("Logging")]
-#endif
-        [Tooltip("Log level for network debugging")]
-        public NetLogFilter.LogLevel logLevel;
-#if ODIN_INSPECTOR
-        [FoldoutGroup("Logging")]
-#endif
-        [Tooltip("Spews all debug logs that come from update methods. Warning: could be a lot of messages")]
-        public bool debugSpew;
-#if ODIN_INSPECTOR
-        [FoldoutGroup("Logging")]
-#endif
-        [Tooltip("True if you want to recieve diagnostics on the messages being sent and recieved.")]
-        public bool messageDiagnostics;
-
-
-#if ODIN_INSPECTOR
         [FoldoutGroup("Debug")]
 #else
         [Header("Debug")]
@@ -152,9 +133,6 @@ namespace VaporNetcode
         {
             isInitialized = false;
             _config = config;
-            NetLogFilter.CurrentLogLevel = (int)_config.logLevel;
-            NetLogFilter.spew = _config.debugSpew;
-            NetLogFilter.messageDiagnostics = _config.messageDiagnostics;
             Application.targetFrameRate = _config.serverUpdateRate;
             QualitySettings.vSyncCount = 0;
             isSimulated = _config.isSimulated;
