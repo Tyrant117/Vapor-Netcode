@@ -198,6 +198,7 @@ namespace VaporNetcode
             Started = null;
             PeerConnected = null;
             PeerDisconnected = null;
+            PeerCreator = null;
 
             _config = null;
             isInitialized = false;

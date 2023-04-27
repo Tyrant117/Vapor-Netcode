@@ -71,12 +71,12 @@ namespace VaporNetcode
         #endregion
 
         #region Modules
-        private static Dictionary<Type, ClientModule> modules; // Modules added to the network manager
-        private static HashSet<Type> initializedModules; // set of initialized modules on the network manager
+        private static Dictionary<Type, ClientModule> modules = new(); // Modules added to the network manager
+        private static HashSet<Type> initializedModules = new(); // set of initialized modules on the network manager
         #endregion
 
         #region Messaging
-        private static Dictionary<ushort, IPacketHandler> handlers; // key value pair to handle messages.
+        private static Dictionary<ushort, IPacketHandler> handlers = new(); // key value pair to handle messages.
         #endregion
 
         #region Current Connection
@@ -150,10 +150,6 @@ namespace VaporNetcode
             _config = config;            
             isSimulated = _config.IsSimulated;
 
-            handlers = new Dictionary<ushort, IPacketHandler>();
-            modules = new Dictionary<Type, ClientModule>();
-            initializedModules = new HashSet<Type>();
-
             PeerCreator = peerCreator;
             Connected += OnConnected;
             Disconnected += OnDisconnected;
@@ -192,6 +188,7 @@ namespace VaporNetcode
             Connected = null;
             Disconnected = null;
             StatusChanged = null;
+            PeerCreator = null;
 
             _config = null;
             isInitialized = false;
