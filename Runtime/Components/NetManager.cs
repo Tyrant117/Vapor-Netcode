@@ -19,10 +19,15 @@ namespace VaporNetcode
         [SerializeField]
         private bool _isClient;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Client"), InlineProperty]
+        [FoldoutGroup("Client"), InlineProperty, HideLabel]
 #endif
         [SerializeField]
         private ClientConfig _clientConfig;
+#if ODIN_INSPECTOR
+        [FoldoutGroup("Server")]
+#endif
+        [SerializeReference]
+        public List<ClientModule> ClientModules = new();
 
 #if ODIN_INSPECTOR
         [FoldoutGroup("Server")]
@@ -32,15 +37,15 @@ namespace VaporNetcode
         [SerializeField]
         private bool _isServer;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Server"), InlineProperty]
+        [FoldoutGroup("Server"), InlineProperty, HideLabel]
 #endif
         [SerializeField]
         private ServerConfig _serverConfig;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Server"), InlineProperty]
+        [FoldoutGroup("Server")]
 #endif
         [SerializeReference]
-        public List<ServerModule> ServerModules = new List<ServerModule>();
+        public List<ServerModule> ServerModules = new();
 
 #if ODIN_INSPECTOR
         [FoldoutGroup("Logging")]
@@ -97,14 +102,14 @@ namespace VaporNetcode
 
             if (_isServer)
             {
-                var serverMods = GetComponentsInChildren<ServerModule>();
-                UDPServer.Listen(_serverConfig, UDPServer.GeneratePeer, serverMods);
+                //var serverMods = GetComponentsInChildren<ServerModule>();
+                UDPServer.Listen(_serverConfig, UDPServer.GeneratePeer, ServerModules.ToArray());
             }
 
             if (_isClient)
             {
-                var clientMods = GetComponentsInChildren<ClientModule>();
-                UDPClient.Initialize(_clientConfig, UDPClient.GeneratePeer, clientMods);
+                //var clientMods = GetComponentsInChildren<ClientModule>();
+                UDPClient.Initialize(_clientConfig, UDPClient.GeneratePeer, ClientModules.ToArray());
                 if (_clientConfig.AutoConnect)
                 {
                     StartCoroutine(WaitToAutoConnect());

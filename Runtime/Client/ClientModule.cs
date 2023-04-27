@@ -2,24 +2,21 @@
 
 namespace VaporNetcode
 {
-    public class ClientModule : MonoBehaviour
+    public class ClientModule
     {
         /// <summary>
         ///     Called by master server when module should be started
         /// </summary>
-        /// <param name="manager"></param>
-        public virtual void Initialize()
-        {
+        public virtual void Initialize() { }
 
-        }
+        /// <summary>
+        ///     Called when the manager updates all the modules.
+        /// </summary>
+        public virtual void Update() { }
 
         /// <summary>
         ///     Called when the manager unloads all the modules.
         /// </summary>
-        /// <param name="manager"></param>
-        public virtual void Unload()
-        {
-
-        }
+        public virtual void Unload() { }
     }
 }

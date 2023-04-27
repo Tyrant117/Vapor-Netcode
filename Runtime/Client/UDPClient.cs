@@ -67,8 +67,6 @@ namespace VaporNetcode
 
         public static Peer ServerPeer { get; private set; }
 
-        private static readonly float pingFrequency = 2.0f;
-        private static double lastPingTime;
         public static double LocalTimeline { get; private set; }
         #endregion
 
