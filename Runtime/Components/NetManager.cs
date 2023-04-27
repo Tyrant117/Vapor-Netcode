@@ -24,7 +24,7 @@ namespace VaporNetcode
         [SerializeField]
         private ClientConfig _clientConfig;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Server")]
+        [FoldoutGroup("Client")]
 #endif
         [SerializeReference]
         public List<ClientModule> ClientModules = new();
