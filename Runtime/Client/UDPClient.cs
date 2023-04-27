@@ -176,6 +176,36 @@ namespace VaporNetcode
             isInitialized = true;            
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Shutdown()
+        {
+            if (isInitialized)
+            {
+                Disconnect();
+            }
+
+            UDPTransport.OnClientConnected = null;
+            UDPTransport.OnClientDataReceived = null;
+            UDPTransport.OnClientDisconnected = null;
+            UDPTransport.OnClientError = null;
+
+            Connected = null;
+            Disconnected = null;
+            StatusChanged = null;
+
+            _config = null;
+            isInitialized = false;
+            isSimulated = false;
+
+            ServerPeer = null;
+            modules.Clear();
+            initializedModules.Clear();
+            handlers.Clear();
+
+
+            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Client Shutdown"); }
+        }
+
         internal static void NetworkEarlyUpdate()
         {
             // process all incoming messages first before updating the world

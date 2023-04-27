@@ -117,6 +117,19 @@ namespace VaporNetcode
             }
         }
 
+        private void OnDestroy()
+        {
+            if (_isServer)
+            {
+                UDPServer.Shutdown();
+            }
+
+            if (_isClient)
+            {
+                UDPClient.Shutdown();
+            }
+        }
+
         private IEnumerator WaitToAutoConnect()
         {
             yield return new WaitForSeconds(0.2f);
