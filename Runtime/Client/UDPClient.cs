@@ -403,14 +403,14 @@ namespace VaporNetcode
 
 
             IsConnecting = true;
-            if (!isSimulated)
+            if (isSimulated)
             {
-                UDPTransport.Connect(ip);
+                UDPTransport.SimulatedConnect(connectionID);
+                //HandleConnect();
             }
             else
             {
-                UDPTransport.SimulatedConnect(connectionID);
-                HandleConnect();
+                UDPTransport.Connect(ip);
             }
         }
 
@@ -428,7 +428,7 @@ namespace VaporNetcode
                 UDPTransport.Disconnect();
             }
 
-            HandleDisconnect();
+            //HandleDisconnect();
         }
 
         /// <summary>
@@ -613,9 +613,9 @@ namespace VaporNetcode
         /// </summary>
         /// <param name="opCode"></param>
         /// <returns></returns>
-        public static bool RemoveHandler(ushort opCode)
+        public static bool RemoveHandler<T>() where T : struct, INetMessage
         {
-            return handlers.Remove(opCode);
+            return handlers.Remove(NetworkMessageId<T>.Id);
         }
         #endregion
 
@@ -643,9 +643,17 @@ namespace VaporNetcode
             NetDiagnostics.OnSend(message, channelId, w.Position, 1);
         }
 
-        public static int RegisterResponse(ResponseCallback callback, int timeout = 5)
+        public static ushort RegisterResponse<T>(int timeout = 5) where T : struct, INetMessage
         {
-            return ServerPeer.RegisterResponse(callback, timeout);
+            return ServerPeer.RegisterResponse(NetworkMessageId<T>.Id, timeout);
+        }
+
+        public static void TimeoutResponse(ushort opCode)
+        {
+            if (handlers.TryGetValue(opCode, out var handler))
+            {
+                handler.TimeoutResponse(ServerPeer);
+            }
         }
         #endregion
     }

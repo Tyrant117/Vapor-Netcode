@@ -564,9 +564,9 @@ namespace VaporNetcode
         /// </summary>
         /// <param name="opCode"></param>
         /// <returns></returns>
-        public static bool RemoveHandler(ushort opCode)
+        public static bool RemoveHandler<T>() where T : struct, INetMessage
         {
-            return handlers.Remove(opCode);
+            return handlers.Remove(NetworkMessageId<T>.Id);
         }
         #endregion
 
@@ -616,6 +616,15 @@ namespace VaporNetcode
                 }
             }
             NetDiagnostics.OnSend(message, channelId, segment.Count, 1);
+        }
+
+        /// <summary>
+        ///     Response message to the sender
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void Respond<T>(INetConnection conn, T message) where T : struct, INetMessage
+        {
+            Send(conn, message);
         }
         #endregion
     }

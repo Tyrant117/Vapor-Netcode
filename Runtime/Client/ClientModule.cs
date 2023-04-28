@@ -2,6 +2,7 @@
 
 namespace VaporNetcode
 {
+    [System.Serializable]
     public class ClientModule
     {
         /// <summary>

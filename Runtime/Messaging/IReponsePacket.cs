@@ -9,12 +9,7 @@ namespace VaporNetcode
         /// <summary>
         ///     ID of the response callback.
         /// </summary>
-        int ResponseID { get; set; }
-
-        /// <summary>
-        ///     If the message response is complete this is true.
-        /// </summary>
-        bool CompleteResponse { get; set; }
+        ushort ResponseID { get; set; }
 
         /// <summary>
         ///     Message status code

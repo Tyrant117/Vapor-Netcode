@@ -11,6 +11,7 @@ namespace VaporNetcode
     public interface IPacketHandler
     {
         void Handle(INetConnection conn, NetworkReader reader, int channelID);
+        void TimeoutResponse(INetConnection conn);
     }
 
     public class PacketHandler<T> : IPacketHandler where T : struct, INetMessage
@@ -75,6 +76,11 @@ namespace VaporNetcode
                 Debug.LogError($"Disconnecting connId={conn.ConnectionID} to prevent exploits from an Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
                 conn.Disconnect();
             }            
+        }
+
+        public void TimeoutResponse(INetConnection conn)
+        {
+            handler(conn, default);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace VaporNetcode
         // Server and Connection Info
         public readonly int connectionID;
         public bool IsConnected { get; set; }
-        public bool IsAuthenticated { get; set; }
+        public bool IsAuthenticated { get; private set; }
         public int ConnectionID => connectionID;
         public ulong GenericULongID { get; set; }
         public string GenericStringID { get; set; }
@@ -32,6 +32,14 @@ namespace VaporNetcode
         public ObservableBatcher SyncBatcher { get; private set; }
         public SyncDataMessage CurrentSyncBatch { get; private set; }
 
+        #region Responses
+        protected readonly Dictionary<ushort, long> responseTimeoutQueue; // queue to handle when messages timeout
+        protected readonly List<ushort> timedOutResponses;
+
+        protected int nextResponseID = 1; // incrementor to give unique ids
+        protected ResponseTimeoutPacket timeoutMessage; // message to send when a response times out
+        #endregion
+
         public Peer(int connectionID, UDPTransport.Source source)
         {
             this.connectionID = connectionID;
@@ -41,6 +49,13 @@ namespace VaporNetcode
             UnreliableBatcher = new Batcher(UDPTransport.GetBatchThreshold(Channels.Unreliable));
 
             SyncBatcher = new();
+
+            if(source == UDPTransport.Source.Client)
+            {
+                responseTimeoutQueue = new();
+                timedOutResponses = new();
+                CallbackTimer.Instance.OnTick += HandleResponseDisposalTick;
+            }
         }
 
         public virtual void Authenticated()
@@ -54,7 +69,13 @@ namespace VaporNetcode
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool dispose) { }
+        protected virtual void Dispose(bool dispose) 
+        {
+            if(source == UDPTransport.Source.Client)
+            {
+                CallbackTimer.Instance.OnTick -= HandleResponseDisposalTick;
+            }
+        }
 
         #region - Connection -
         /// <summary>
@@ -63,64 +84,22 @@ namespace VaporNetcode
         /// <param name="reason">Reason error code</param>
         public void Disconnect(int reason = 0)
         {
-            IsConnected = false;
-            UDPTransport.DisconnectPeer(connectionID);
+            switch (source)
+            {
+                case UDPTransport.Source.Default:
+                    break;
+                case UDPTransport.Source.Client:
+                    UDPClient.Disconnect();
+                    break;
+                case UDPTransport.Source.Server:
+                    IsConnected = false;
+                    UDPTransport.DisconnectPeer(connectionID);
+                    break;
+            }
         }
         #endregion
 
         #region - Messaging -
-        /// <summary>
-        ///     General implentation to send a message over the network. 
-        /// </summary>
-        public void SendMessage(ArraySegment<byte> msg, int channelID)
-        {
-            if(channelID == Channels.Reliable)
-            {
-                ReliableBatcher.AddMessage(msg, NetworkTime.localTime);
-            }
-            else
-            {
-                UnreliableBatcher.AddMessage(msg, NetworkTime.localTime);
-            }
-        }
-
-        private void SendToTransport(ArraySegment<byte> segment, int channelId)
-        {
-            UDPTransport.Send(connectionID, segment, source, channelId);
-        }
-
-        public bool SendSimulatedMessage(ArraySegment<byte> msg)
-        {
-            return IsConnected && UDPTransport.SendSimulated(connectionID, msg, source);
-        }
-
-        public void SendSteamPeerToPeer(short opcode, ISerializablePacket packet, ulong steamGenericID)
-        {
-
-        }
-        #endregion
-
-        #region - Response Management -
-        /// <summary>
-        ///     Registers a response.
-        /// </summary>
-        /// <param name="callback"></param>
-        /// <param name="timeout">Seconds</param>
-        /// <returns></returns>
-        public virtual int RegisterResponse(ResponseCallback callback, int timeout)
-        {
-            return -1;
-        }
-
-        /// <summary>
-        ///     Triggers the response if the msg has one.
-        /// </summary>
-        /// <param name="msg"></param>
-        public virtual void TriggerResponse(int responseID, ResponseStatus status, ISerializablePacket msg)
-        {
-
-        }
-
         public void Update()
         {
             // make and send as many batches as necessary from the stored
@@ -182,6 +161,89 @@ namespace VaporNetcode
             // good size
             return true;
         }
+
+        /// <summary>
+        ///     General implentation to send a message over the network. 
+        /// </summary>
+        public void SendMessage(ArraySegment<byte> msg, int channelID)
+        {
+            if(channelID == Channels.Reliable)
+            {
+                ReliableBatcher.AddMessage(msg, NetworkTime.localTime);
+            }
+            else
+            {
+                UnreliableBatcher.AddMessage(msg, NetworkTime.localTime);
+            }
+        }
+
+        private void SendToTransport(ArraySegment<byte> segment, int channelId)
+        {
+            UDPTransport.Send(connectionID, segment, source, channelId);
+        }
+
+        public bool SendSimulatedMessage(ArraySegment<byte> msg)
+        {
+            return IsConnected && UDPTransport.SendSimulated(connectionID, msg, source);
+        }
+
+        public void SendSteamPeerToPeer(short opcode, ISerializablePacket packet, ulong steamGenericID)
+        {
+
+        }
+        #endregion
+
+        #region - Response Management -
+        /// <summary>
+        ///     Registers a response.
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="timeout">Seconds</param>
+        /// <returns></returns>
+        public virtual ushort RegisterResponse(ushort id, int timeout)
+        {
+            // +1, because it might be about to tick in a few miliseconds
+            responseTimeoutQueue[id] = CallbackTimer.CurrentTick + timeout + 1;
+            return id;
+        }
+
+        /// <summary>
+        ///     Used for logging the timeout.
+        /// </summary>
+        /// <param name="currentTick"></param>
+        protected void HandleResponseDisposalTick(long currentTick)
+        {
+            timedOutResponses.Clear();
+            foreach (var endTick in responseTimeoutQueue)
+            {
+                if (endTick.Value > currentTick)
+                {
+                    timedOutResponses.Add(endTick.Key);
+                }
+            }
+
+            foreach (var over in timedOutResponses)
+            {
+                UDPClient.TimeoutResponse(over);
+            }
+        }
+
+        /// <summary>
+        ///     Triggers the response if the msg has one.
+        /// </summary>
+        /// <param name="msg"></param>
+        public bool TriggerResponse(ushort responseID, ResponseStatus status)
+        {
+            if (status == ResponseStatus.Timeout)
+            {
+                responseTimeoutQueue.Remove(responseID);
+                return false;
+            }
+            else
+            {
+                return responseTimeoutQueue.Remove(responseID);
+            }
+        }        
         #endregion
     }
 }

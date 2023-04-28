@@ -1,6 +1,6 @@
 {
-    "name": "VaporMMO",
-    "rootNamespace": "",
+    "name": "CarbonFiberGames.VaporMMO",
+    "rootNamespace": "VaporMMO",
     "references": [
         "GUID:857facbc9bdda6849ae5db4eb107298f"
     ],

@@ -71,71 +71,67 @@ namespace VaporNetcode
         #region - Batching -
         public SyncDataMessage Batch()
         {
-            using (var w = NetworkWriterPool.Get())
+            using var w = NetworkWriterPool.Get();
+            w.WriteInt(dirtyClasses.Count);
+            foreach (var oc in dirtyClasses)
             {
-                w.WriteInt(dirtyClasses.Count);
-                foreach (var oc in dirtyClasses)
-                {
-                    oc.Serialize(w);
-                }
-
-                w.WriteInt(dirtyFields.Count);
-                foreach (var of in dirtyFields)
-                {
-                    of.Serialize(w);
-                }
-
-                dirtyClasses.Clear();
-                dirtyFields.Clear();
-
-                var packet = new SyncDataMessage
-                {
-                    data = w.ToArraySegment()
-                };
-
-                return packet;
+                oc.Serialize(w);
             }
+
+            w.WriteInt(dirtyFields.Count);
+            foreach (var of in dirtyFields)
+            {
+                of.Serialize(w);
+            }
+
+            dirtyClasses.Clear();
+            dirtyFields.Clear();
+
+            var packet = new SyncDataMessage
+            {
+                data = w.ToArraySegment()
+            };
+
+            return packet;
         }
 
         public void Unbatch(SyncDataMessage packet)
         {
-            using (var r = NetworkReaderPool.Get(packet.data))
+            using var r = NetworkReaderPool.Get(packet.data);
+            int classCount = r.ReadInt();
+            for (int i = 0; i < classCount; i++)
             {
-                int classCount = r.ReadInt();
-                for (int i = 0; i < classCount; i++)
+                ObservableClass.StartDeserialize(r, out int type, out int id);
+                var key = new Vector2Int(type, id);
+                if (classMap.TryGetValue(key, out var @class))
                 {
-                    ObservableClass.StartDeserialize(r, out int type, out int id);
-                    var key = new Vector2Int(type, id);
-                    if (classMap.TryGetValue(key, out var @class))
+                    @class.Deserialize(r);
+                }
+                else
+                {
+                    if (ObservableFactory.TryCreateObservable(type, id, out ObservableClass newClass))
                     {
-                        @class.Deserialize(r);
-                    }
-                    else
-                    {
-                        if (ObservableFactory.TryCreateObservable(type, id, out ObservableClass newClass))
-                        {
-                            classMap[key] = newClass;
-                            newClass.Deserialize(r);
-                            ClassCreated?.Invoke(newClass);
-                        }
+                        classMap[key] = newClass;
+                        newClass.Deserialize(r);
+                        ClassCreated?.Invoke(newClass);
                     }
                 }
+            }
 
-                int fieldCount = r.ReadInt();
-                for (int i = 0; i < fieldCount; i++)
+            int fieldCount = r.ReadInt();
+            for (int i = 0; i < fieldCount; i++)
+            {
+                ObservableField.StartDeserialize(r, out int id, out var type);
+                if (fieldMap.TryGetValue(id, out var field))
                 {
-                    ObservableField.StartDeserialize(r, out int id, out var type);
-                    if (fieldMap.TryGetValue(id, out var field))
-                    {
-                        field.Deserialize(r);
-                    }
-                    else
-                    {
-                        var newField = ObservableField.GetFieldByType(id, type, false, true, false);
-                        fieldMap[id] = newField;
-                        newField.Deserialize(r);
-                        FieldCreated?.Invoke(newField);
-                    }
+                    field.Deserialize(r);
+                }
+                else
+                {
+                    var newField = ObservableField.GetFieldByType(id, type, false, true, false);
+                    fieldMap[id] = newField;
+                    newField.Deserialize(r);
+                    FieldCreated?.Invoke(newField);
                 }
             }
         }

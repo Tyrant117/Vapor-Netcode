@@ -87,22 +87,19 @@ namespace VaporNetcode
 
     public struct ResponseTimeoutPacket : INetMessage, IResponsePacket
     {
-        public int ResponseID { get; set; }
-        public bool CompleteResponse { get; set; }
+        public ushort ResponseID { get; set; }
         public ResponseStatus Status { get; set; }
 
         public ResponseTimeoutPacket(NetworkReader r)
         {
-            ResponseID = r.ReadInt();
-            CompleteResponse = r.ReadBool();
-            Status = (ResponseStatus)r.ReadInt();
+            ResponseID = r.ReadUShort();
+            Status = (ResponseStatus)r.ReadByte();
         }
 
         public void Serialize(NetworkWriter w)
         {
-            w.WriteInt(ResponseID);
-            w.WriteBool(CompleteResponse);
-            w.WriteInt((int)Status);
+            w.WriteUShort(ResponseID);
+            w.WriteByte((byte)Status);
         }
     }
 

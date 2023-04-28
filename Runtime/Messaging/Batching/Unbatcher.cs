@@ -20,7 +20,7 @@ namespace VaporNetcode
 
         // NetworkReader is only created once,
         // then pointed to the first batch.
-        NetworkReader reader = new NetworkReader(new byte[0]);
+        private readonly NetworkReader reader = new(new byte[0]);
 
         // timestamp that was written into the batch remotely.
         // for the batch that our reader is currently pointed at.
