@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using VaporNetcode;
 
 namespace VaporMMO
@@ -31,17 +28,32 @@ namespace VaporMMO
                 {
                     case 1:
                         if (entity.ConnectionID == conn.ConnectionID) { continue; } // Don't care about yourself.
-                        UpdatePlayer.Invoke(entity);
+                        OnUpdatePlayer(entity);
                         break;
                     case 2:
-                        UpdateCreature.Invoke(entity);
+                        OnUpdateCreature(entity);
                         break;
                     case 3:
-                        UpdateInteractable.Invoke(entity);
+                        OnUpdateInteractable(entity);
                         break;
 
                 }
             }
+        }
+
+        protected virtual void OnUpdatePlayer(EntityInterestPacket player)
+        {
+
+        }
+
+        protected virtual void OnUpdateCreature(EntityInterestPacket creature)
+        {
+
+        }
+
+        protected virtual void OnUpdateInteractable(EntityInterestPacket interactable)
+        {
+
         }
     }
 }
