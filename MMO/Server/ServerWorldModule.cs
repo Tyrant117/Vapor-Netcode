@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using VaporNetcode;
 
 namespace VaporMMO
@@ -9,7 +6,17 @@ namespace VaporMMO
     {
         public override void Initialize()
         {
-            
+
+        }
+
+        public virtual JoinWithCharacterResponseMessage Join(INetConnection conn, AccountDataSpecification character, ushort responseID)
+        {
+            return new JoinWithCharacterResponseMessage()
+            {
+                Scene = string.Empty,
+                ResponseID = responseID,
+                Status = ResponseStatus.Failed,
+            };
         }
     }
 }

@@ -42,6 +42,7 @@ namespace VaporMMO.Servers
             UDPServer.RegisterHandler<RegistrationRequestMessage>(OnHandleRegistration, false);
             UDPServer.RegisterHandler<AuthenticationMessage>(OnHandleLogin, false);
             UDPServer.RegisterHandler<InitializationRequestMessage>(OnHandleInitializationData);
+            UDPServer.RegisterHandler<JoinWithCharacterRequestMessage>(OnHandleJoinWithCharacter);
 
             switch (_authenticationService)
             {
@@ -145,6 +146,8 @@ namespace VaporMMO.Servers
         {
             var respPacket = new ServerLoginReponseMessage()
             {
+                AuthenticationService = _authenticationService,
+                ConnectionID = 0,
                 ResponseID = msg.ResponseID,
                 Status = ResponseStatus.Failed
             };
@@ -155,7 +158,8 @@ namespace VaporMMO.Servers
                 // Need to respond to the login success with the list of characters and names for the player.
                 respPacket = new ServerLoginReponseMessage()
                 {
-                    authenticationService = _authenticationService,
+                    AuthenticationService = _authenticationService,
+                    ConnectionID = conn.ConnectionID,
                     ResponseID = msg.ResponseID,
                     Status = ResponseStatus.Success
                 };
@@ -163,19 +167,22 @@ namespace VaporMMO.Servers
                 switch (_authenticationService)
                 {
                     case AuthenticationServiceType.None:
+                        respPacket.StringID = conn.GenericStringID;
                         break;
                     case AuthenticationServiceType.Unity:
+                        respPacket.StringID = conn.GenericStringID;
                         break;
                     case AuthenticationServiceType.Playfab:
-                        respPacket.stringID = conn.GenericStringID;
+                        respPacket.StringID = conn.GenericStringID;
                         break;
                     case AuthenticationServiceType.Steam:
-                        respPacket.steamID = conn.GenericULongID;
+                        respPacket.SteamID = conn.GenericULongID;
                         break;
                     case AuthenticationServiceType.Epic:
-                        respPacket.stringID = conn.GenericStringID;
+                        respPacket.StringID = conn.GenericStringID;
                         break;
                     case AuthenticationServiceType.Custom:
+                        respPacket.StringID = conn.GenericStringID;
                         break;
                 }
             }
@@ -257,6 +264,29 @@ namespace VaporMMO.Servers
                 };
                 respPacket.FormatAccountData(characters[conn.GenericStringID]);
                 UDPServer.Respond(conn, respPacket);
+            }
+        }
+
+        private void OnHandleJoinWithCharacter(INetConnection conn, JoinWithCharacterRequestMessage msg)
+        {
+            if (characters.TryGetValue(conn.GenericStringID, out var c))
+            {
+                bool found = false;
+                foreach (var character in c)
+                {
+                    if (character.CharacterName == msg.CharacterName)
+                    {
+                        found = true;
+                        var response = UDPServer.GetModule<ServerWorldModule>().Join(conn, character, msg.ResponseID);
+                        UDPServer.Send(conn, response);
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    conn.Disconnect();
+                }
             }
         }
         #endregion

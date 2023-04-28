@@ -4,63 +4,74 @@ namespace VaporMMO
 {
     public struct ServerLoginReponseMessage : INetMessage, IResponsePacket
     {
-        public AuthenticationServiceType authenticationService;
-        public ulong steamID;
-        public string stringID;
+        public AuthenticationServiceType AuthenticationService;
+        public int ConnectionID;
+        public ulong SteamID;
+        public string StringID;
 
         public ushort ResponseID { get; set; }
         public ResponseStatus Status { get; set; }
 
-        public ServerLoginReponseMessage(NetworkReader reader)
+        public ServerLoginReponseMessage(NetworkReader r)
         {
-            authenticationService = (AuthenticationServiceType)reader.ReadByte();
-            steamID = 0;
-            stringID = string.Empty;
-            switch (authenticationService)
-            {
-                case AuthenticationServiceType.Unity:
-                    break;
-                case AuthenticationServiceType.Playfab:
-                    stringID = reader.ReadString();
-                    break;
-                case AuthenticationServiceType.Steam:
-                    steamID = Compression.DecompressVarUInt(reader);
-                    break;
-                case AuthenticationServiceType.Epic:
-                    stringID = reader.ReadString();
-                    break;
-                case AuthenticationServiceType.Custom:
-                    break;
-            }
-
-            ResponseID = reader.ReadUShort();
-            Status = (ResponseStatus)reader.ReadByte();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteByte((byte)authenticationService);
-            switch (authenticationService)
+            AuthenticationService = (AuthenticationServiceType)r.ReadByte();
+            ConnectionID = r.ReadInt();
+            SteamID = 0;
+            StringID = string.Empty;
+            switch (AuthenticationService)
             {
                 case AuthenticationServiceType.None:
+                    StringID = r.ReadString();
                     break;
                 case AuthenticationServiceType.Unity:
+                    StringID = r.ReadString();
                     break;
                 case AuthenticationServiceType.Playfab:
-                    writer.WriteString(stringID);
+                    StringID = r.ReadString();
                     break;
                 case AuthenticationServiceType.Steam:
-                    Compression.CompressVarUInt(writer, steamID);
+                    SteamID = Compression.DecompressVarUInt(r);
                     break;
                 case AuthenticationServiceType.Epic:
-                    writer.WriteString(stringID);
+                    StringID = r.ReadString();
                     break;
                 case AuthenticationServiceType.Custom:
+                    StringID = r.ReadString();
                     break;                
             }
 
-            writer.WriteUShort(ResponseID);
-            writer.WriteByte((byte)Status);
+            ResponseID = r.ReadUShort();
+            Status = (ResponseStatus)r.ReadByte();
+        }
+
+        public void Serialize(NetworkWriter w)
+        {
+            w.WriteByte((byte)AuthenticationService);
+            w.WriteInt(ConnectionID);
+            switch (AuthenticationService)
+            {
+                case AuthenticationServiceType.None:
+                    w.WriteString(StringID);
+                    break;
+                case AuthenticationServiceType.Unity:
+                    w.WriteString(StringID);
+                    break;
+                case AuthenticationServiceType.Playfab:
+                    w.WriteString(StringID);
+                    break;
+                case AuthenticationServiceType.Steam:
+                    Compression.CompressVarUInt(w, SteamID);
+                    break;
+                case AuthenticationServiceType.Epic:
+                    w.WriteString(StringID);
+                    break;
+                case AuthenticationServiceType.Custom:
+                    w.WriteString(StringID);
+                    break;                
+            }
+
+            w.WriteUShort(ResponseID);
+            w.WriteByte((byte)Status);
         }
     }
 }
