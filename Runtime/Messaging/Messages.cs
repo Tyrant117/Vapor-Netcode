@@ -19,26 +19,26 @@ namespace VaporNetcode
         }
     }
 
-    public struct CommandMessage : INetMessage, ICommandPacket
+    public struct CommandMessage : INetMessage
     {
-        public byte Command { get; set; }
-        public ArraySegment<byte> data; // Recieves The Data
+        public int Command;
+        public byte[] Packet; // Recieves The Data
 
         public CommandMessage(NetworkReader r)
         {
-            Command = r.ReadByte();
-            data = r.ReadBytesAndSizeSegment();
+            Command = r.ReadInt();
+            Packet = r.ReadBytesAndSize();
         }
 
         public void Serialize(NetworkWriter w)
         {
-            w.WriteByte(Command);
-            w.WriteBytesAndSizeSegment(data);
+            w.WriteInt(Command);
+            w.WriteBytesAndSize(Packet);
         }
 
-        public T GetPacket<T>() where T : struct, INetMessage
+        public T GetPacket<T>() where T : struct, ISerializablePacket
         {
-            using var r = NetworkReaderPool.Get(data);
+            using var r = NetworkReaderPool.Get(Packet);
             return PacketHelper.Deserialize<T>(r);
         }
     }

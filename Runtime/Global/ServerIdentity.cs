@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,9 +37,13 @@ namespace VaporNetcode
         /// <param name="serverTick"></param>
         public virtual void Tick(long serverTick) { }
 
+        #region - Messages -
+        public virtual void AddPacket(CommandMessage msg) { }
+        #endregion
+
 
         #region - Interest Management -
-        internal void AddToObserving(ServerIdentity netIdentity)
+        public void AddToObserving(ServerIdentity netIdentity)
         {
             if (observing.Add(netIdentity))
             {
@@ -46,10 +51,10 @@ namespace VaporNetcode
             }
         }
 
-        internal void RemoveFromObserving(ServerIdentity netIdentity)
+        public void RemoveFromObserving(ServerIdentity netIdentity)
         {
             observing.Remove(netIdentity);
-        }
+        }        
         #endregion
     }
 }
