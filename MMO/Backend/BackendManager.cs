@@ -32,8 +32,8 @@ namespace VaporMMO.Backend
         public event Action<LoginInfoResult> LoggedIn;
         public Func<PlayFabLoginInfoResult> PollPlayFabLogin;
 
-        public event Action<AuthenticationMessage, INetConnection, Action<INetConnection, AuthenticationMessage>> AuthenticateConnection;
-        public void OnAuthenticateConnection(INetConnection conn, AuthenticationMessage packet, Action<INetConnection, AuthenticationMessage> callback)
+        public event Action<LoginRequestMessage, INetConnection, Action<INetConnection, LoginRequestMessage>> AuthenticateConnection;
+        public void OnAuthenticateConnection(INetConnection conn, LoginRequestMessage packet, Action<INetConnection, LoginRequestMessage> callback)
         {
             if (AuthenticateConnection != null)
             {
@@ -61,9 +61,9 @@ namespace VaporMMO.Backend
 
         #region Database
         // Server Only
-        public event Action<string, INetConnection, Action<INetConnection, InitializationRequestMessage, AccountSpecifcation?>, Action<INetConnection, InitializationRequestMessage, int>, Action<INetConnection, InitializationRequestMessage, AccountDataSpecification?>> RequestPlayFabCharacterData;
+        public event Action<string, INetConnection, Action<INetConnection, GetAccountDataRequestMessage, AccountSpecifcation?>, Action<INetConnection, GetAccountDataRequestMessage, int>, Action<INetConnection, GetAccountDataRequestMessage, AccountDataSpecification?>> RequestPlayFabCharacterData;
 
-        public void GetAccountAndCharacterData(string stringID, INetConnection conn, Action<INetConnection, InitializationRequestMessage, AccountSpecifcation?> accountCallback, Action<INetConnection, InitializationRequestMessage, int> characterCountCallback, Action<INetConnection, InitializationRequestMessage, AccountDataSpecification?> characterCallback)
+        public void GetAccountAndCharacterData(string stringID, INetConnection conn, Action<INetConnection, GetAccountDataRequestMessage, AccountSpecifcation?> accountCallback, Action<INetConnection, GetAccountDataRequestMessage, int> characterCountCallback, Action<INetConnection, GetAccountDataRequestMessage, AccountDataSpecification?> characterCallback)
         {
             switch (backend)
             {

@@ -13,12 +13,11 @@ namespace VaporMMO
             UDPServer.RegisterHandler<CommandMessage>(OnHandleCommand);
         }
 
-        public virtual JoinWithCharacterResponseMessage Join(INetConnection conn, AccountDataSpecification character, ushort responseID)
+        public virtual JoinWithCharacterResponseMessage Join(INetConnection conn, AccountDataSpecification character)
         {
             return new JoinWithCharacterResponseMessage()
             {
                 Scene = string.Empty,
-                ResponseID = responseID,
                 Status = ResponseStatus.Failed,
             };
         }

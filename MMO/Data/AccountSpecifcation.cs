@@ -28,6 +28,10 @@ namespace VaporMMO
         /// </summary>
         public string Password;
         /// <summary>
+        /// Hashed and salted password string.
+        /// </summary>
+        public string Salt;
+        /// <summary>
         /// Last time this account logged in.
         /// </summary>
         public DateTimeOffset? LastLoggedIn;

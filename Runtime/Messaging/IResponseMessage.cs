@@ -4,13 +4,8 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public interface IResponsePacket
+    public interface IResponseMessage : INetMessage
     {
-        /// <summary>
-        ///     ID of the response callback.
-        /// </summary>
-        ushort ResponseID { get; set; }
-
         /// <summary>
         ///     Message status code
         /// </summary>

@@ -33,7 +33,8 @@ namespace VaporNetcode
         public SyncDataMessage CurrentSyncBatch { get; private set; }
 
         #region Responses
-        protected readonly Dictionary<ushort, long> responseTimeoutQueue; // queue to handle when messages timeout
+        private float _lastResponseCheckTime;
+        protected readonly Dictionary<ushort, float> responseTimeoutQueue; // queue to handle when messages timeout
         protected readonly List<ushort> timedOutResponses;
 
         protected int nextResponseID = 1; // incrementor to give unique ids
@@ -50,11 +51,10 @@ namespace VaporNetcode
 
             SyncBatcher = new();
 
-            if(source == UDPTransport.Source.Client)
+            if (source == UDPTransport.Source.Client)
             {
                 responseTimeoutQueue = new();
                 timedOutResponses = new();
-                CallbackTimer.Instance.OnTick += HandleResponseDisposalTick;
             }
         }
 
@@ -73,7 +73,7 @@ namespace VaporNetcode
         {
             if(source == UDPTransport.Source.Client)
             {
-                CallbackTimer.Instance.OnTick -= HandleResponseDisposalTick;
+
             }
         }
 
@@ -102,6 +102,11 @@ namespace VaporNetcode
         #region - Messaging -
         public void Update()
         {
+            if(source == UDPTransport.Source.Client)
+            {
+                ClientUpdate();
+            }
+            
             // make and send as many batches as necessary from the stored
             // messages.
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
@@ -139,6 +144,15 @@ namespace VaporNetcode
                         writer.Position = 0;
                     }
                 }
+            }
+        }
+
+        private void ClientUpdate()
+        {
+            if (Time.time - _lastResponseCheckTime > 1f)
+            {
+                HandleResponseDisposalTick();
+                _lastResponseCheckTime = Time.time;
             }
         }
 
@@ -200,10 +214,10 @@ namespace VaporNetcode
         /// <param name="callback"></param>
         /// <param name="timeout">Seconds</param>
         /// <returns></returns>
-        public virtual ushort RegisterResponse(ushort id, int timeout)
+        public ushort RegisterResponse(ushort id, float timeout)
         {
             // +1, because it might be about to tick in a few miliseconds
-            responseTimeoutQueue[id] = CallbackTimer.CurrentTick + timeout + 1;
+            responseTimeoutQueue[id] = Time.time + timeout;
             return id;
         }
 
@@ -211,12 +225,12 @@ namespace VaporNetcode
         ///     Used for logging the timeout.
         /// </summary>
         /// <param name="currentTick"></param>
-        protected void HandleResponseDisposalTick(long currentTick)
+        private void HandleResponseDisposalTick()
         {
             timedOutResponses.Clear();
             foreach (var endTick in responseTimeoutQueue)
             {
-                if (endTick.Value > currentTick)
+                if (Time.timeAsDouble > endTick.Value)
                 {
                     timedOutResponses.Add(endTick.Key);
                 }
@@ -232,8 +246,9 @@ namespace VaporNetcode
         ///     Triggers the response if the msg has one.
         /// </summary>
         /// <param name="msg"></param>
-        public bool TriggerResponse(ushort responseID, ResponseStatus status)
+        public bool TriggerResponse<T>(ResponseStatus status) where T : struct, IResponseMessage
         {
+            ushort responseID = NetworkMessageId<T>.Id;
             if (status == ResponseStatus.Timeout)
             {
                 responseTimeoutQueue.Remove(responseID);

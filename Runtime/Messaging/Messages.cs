@@ -85,7 +85,7 @@ namespace VaporNetcode
         }
     }
 
-    public struct ResponseTimeoutPacket : INetMessage, IResponsePacket
+    public struct ResponseTimeoutPacket : INetMessage, IResponseMessage
     {
         public ushort ResponseID { get; set; }
         public ResponseStatus Status { get; set; }

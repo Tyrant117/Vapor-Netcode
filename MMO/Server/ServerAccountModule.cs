@@ -4,14 +4,17 @@ using VaporNetcode;
 using UnityEngine;
 using System.Linq;
 using VaporMMO.Backend;
+using Sirenix.OdinInspector;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace VaporMMO.Servers
 {
     public class ServerAccountModule : ServerModule
     {
-        private delegate void AccountSpecificationLookup(INetConnection conn, InitializationRequestMessage msg, AccountSpecifcation? account);
-        private delegate void AccountCharacterLookup(INetConnection conn, InitializationRequestMessage msg, int characterCount);
-        private delegate void AccountDataLookup(INetConnection conn, InitializationRequestMessage msg, AccountDataSpecification? accountData);        
+        private delegate void AccountSpecificationLookup(INetConnection conn, GetAccountDataRequestMessage msg, AccountSpecifcation? account);
+        private delegate void AccountCharacterLookup(INetConnection conn, GetAccountDataRequestMessage msg, int characterCount);
+        private delegate void AccountDataLookup(INetConnection conn, GetAccountDataRequestMessage msg, AccountDataSpecification? accountData);        
 
         // Authenticate with external service, unity or playfab.
         // Request ServerInfo to connect to, either this will be known because its hosted or youll get it from playfab.
@@ -22,16 +25,35 @@ namespace VaporMMO.Servers
         [SerializeField]
         public BackendType _backend;
 
+        [SerializeField]
+        public string _publicRSAKey;
+        [SerializeField]
+        public string _privateRSAKey;
+
+        [Button]
+        private void GenerateRSAKeys()
+        {
+            var rsa = System.Security.Cryptography.RSA.Create(2048);
+
+            //how to get the private key
+            _privateRSAKey = rsa.ToXmlString(true);
+
+            //and the public key ...
+            _publicRSAKey = rsa.ToXmlString(false);
+        }
+
         private readonly Dictionary<string, AccountSpecifcation> accounts = new();
         private readonly Dictionary<string, List<AccountDataSpecification>> characters = new();
         private readonly Dictionary<string, Peer> connectedPeers = new();
         private readonly Dictionary<string, int> pendingCharacterDataCount = new();
 
         // Authentication
-        private Action<INetConnection, AuthenticationMessage> AuthenticateConnection;
+        private Action<INetConnection, LoginRequestMessage> AuthenticateConnection;
+
+        public Action<INetConnection, CreateCharacterRequestMessage> CreateCharacter;
 
         // Database
-        private Action<INetConnection, InitializationRequestMessage,
+        private Action<INetConnection, GetAccountDataRequestMessage,
             AccountSpecificationLookup, // Account Lookup
             AccountCharacterLookup, // Character Lookup
             AccountDataLookup> AccountLookup; // Characters Returned
@@ -40,8 +62,8 @@ namespace VaporMMO.Servers
         public override void Initialize()
         {
             UDPServer.RegisterHandler<RegistrationRequestMessage>(OnHandleRegistration, false);
-            UDPServer.RegisterHandler<AuthenticationMessage>(OnHandleLogin, false);
-            UDPServer.RegisterHandler<InitializationRequestMessage>(OnHandleInitializationData);
+            UDPServer.RegisterHandler<LoginRequestMessage>(OnHandleLogin, false);
+            UDPServer.RegisterHandler<GetAccountDataRequestMessage>(OnHandleInitializationData);
             UDPServer.RegisterHandler<JoinWithCharacterRequestMessage>(OnHandleJoinWithCharacter);
 
             switch (_authenticationService)
@@ -100,13 +122,18 @@ namespace VaporMMO.Servers
                     break;
             }
 
+            var decrypt = Decrypt(msg.Password);
+            Debug.Log(decrypt);
+            var password = Hash(decrypt, out var salt);
+
             AccountSpecifcation account = new()
             {
                 StringID = accountID,
                 LinkedSteamID = msg.SteamID,
                 LinkedEpicProductUserID = msg.EpicUserID,
                 Email = msg.Email,
-                Password = msg.Password,
+                Password = password,
+                Salt = salt,
                 Permissions = PermisisonLevel.None,
                 EndOfBan = DateTimeOffset.MinValue,
                 LastLoggedIn = DateTimeOffset.UtcNow,
@@ -118,16 +145,50 @@ namespace VaporMMO.Servers
 
             RegistrationResponseMessage respPacket = new()
             {
-                ResponseID = msg.ResponseID,
+                AccountName = accountID,
+                Password = msg.Password,
                 Status = ResponseStatus.Success
             };
 
             UDPServer.Respond(conn, respPacket);
         }
+
+        private string Decrypt(byte[] bytes)
+        {
+            var rsa = RSA.Create();
+            rsa.FromXmlString(_privateRSAKey);
+            return Encoding.UTF8.GetString(rsa.Decrypt(bytes, RSAEncryptionPadding.Pkcs1));
+        }
+
+        private string Hash(string password, out string salt)
+        {
+            var rng = RandomNumberGenerator.Create();
+            var bytes = new byte[64];
+            rng.GetBytes(bytes);
+            var hash = new Rfc2898DeriveBytes(password, bytes, 350000, HashAlgorithmName.SHA512);
+            salt = BitConverter.ToString(hash.Salt).Replace("-", string.Empty);
+            return BitConverter.ToString(hash.GetBytes(64)).Replace("-", string.Empty);
+        }
+
+        private bool VerifyPassword(string password, string hash, string salt)
+        {
+            var bytes = StringToByteArray(salt);
+            var hashToCompare = new Rfc2898DeriveBytes(password, bytes, 350000, HashAlgorithmName.SHA512);
+            return hashToCompare.GetBytes(64).SequenceEqual(StringToByteArray(hash));
+        }
+
+        public static byte[] StringToByteArray(string hex)
+        {
+            int NumberChars = hex.Length;
+            byte[] bytes = new byte[NumberChars / 2];
+            for (int i = 0; i < NumberChars; i += 2)
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
+        }
         #endregion
 
         #region - Login -
-        private void OnHandleLogin(INetConnection conn, AuthenticationMessage msg)
+        private void OnHandleLogin(INetConnection conn, LoginRequestMessage msg)
         {
             if (!conn.IsAuthenticated)
             {
@@ -135,20 +196,31 @@ namespace VaporMMO.Servers
             }
         }
 
-        private void HandleAuthenticationNone(INetConnection conn, AuthenticationMessage msg)
+        private void HandleAuthenticationNone(INetConnection conn, LoginRequestMessage msg)
         {
-            conn.Authenticated();
-            conn.GenericStringID = msg.accountName;
-            OnAuthenticatedResult(conn, msg);
+            var account = GetAccount(msg.accountName);
+            if (account.HasValue)
+            {
+                var password = Decrypt(msg.Password);
+                if (VerifyPassword(password, account.Value.Password, account.Value.Salt))
+                {
+                    conn.Authenticated();
+                    conn.GenericStringID = msg.accountName;
+                    OnAuthenticatedResult(conn, msg);
+                }
+                else
+                {
+                    Debug.Log($"Unable to verify password: {password}");
+                }
+            }
         }
 
-        private void OnAuthenticatedResult(INetConnection conn, AuthenticationMessage msg)
+        private void OnAuthenticatedResult(INetConnection conn, LoginRequestMessage msg)
         {
-            var respPacket = new ServerLoginReponseMessage()
+            var respPacket = new LoginReponseMessage()
             {
                 AuthenticationService = _authenticationService,
                 ConnectionID = 0,
-                ResponseID = msg.ResponseID,
                 Status = ResponseStatus.Failed
             };
 
@@ -156,11 +228,10 @@ namespace VaporMMO.Servers
             {
                 connectedPeers[conn.GenericStringID] = (Peer)conn;
                 // Need to respond to the login success with the list of characters and names for the player.
-                respPacket = new ServerLoginReponseMessage()
+                respPacket = new LoginReponseMessage()
                 {
                     AuthenticationService = _authenticationService,
                     ConnectionID = conn.ConnectionID,
-                    ResponseID = msg.ResponseID,
                     Status = ResponseStatus.Success
                 };
 
@@ -189,11 +260,11 @@ namespace VaporMMO.Servers
             UDPServer.Respond(conn, respPacket);
         }
 
-        private void OnHandleInitializationData(INetConnection conn, InitializationRequestMessage msg)
+        private void OnHandleInitializationData(INetConnection conn, GetAccountDataRequestMessage msg)
         {
             if (conn.IsAuthenticated)
             {
-                AccountLookup?.Invoke(conn, msg, OnAccoundDataResult, OnCharacterCountResult, OnCharacterDataResult);
+                AccountLookup?.Invoke(conn, msg, OnAccountDataResult, OnCharacterCountResult, OnCharacterDataResult);
             }
             else
             {
@@ -201,14 +272,13 @@ namespace VaporMMO.Servers
             }
         }
 
-        private void OnAccoundDataResult(INetConnection conn, InitializationRequestMessage msg, AccountSpecifcation? account)
+        private void OnAccountDataResult(INetConnection conn, GetAccountDataRequestMessage msg, AccountSpecifcation? account)
         {
             if (account == null)
             {
-                InitializedDataResponseMessage respPacket = new()
+                GetAccountDataResponseMessage respPacket = new()
                 {
-                    result = InitializedDataResponseMessage.InitializationResult.NoAccountFound,
-                    ResponseID = msg.ResponseID,
+                    result = GetAccountDataResponseMessage.InitializationResult.NoAccountFound,
                     Status = ResponseStatus.Success,
                     characters = new(),
                 };
@@ -221,16 +291,15 @@ namespace VaporMMO.Servers
             }
         }
 
-        private void OnCharacterCountResult(INetConnection conn, InitializationRequestMessage msg, int characterCount)
+        private void OnCharacterCountResult(INetConnection conn, GetAccountDataRequestMessage msg, int characterCount)
         {
             if (characterCount == 0)
             {
-                InitializedDataResponseMessage respPacket = new()
+                GetAccountDataResponseMessage respPacket = new()
                 {
-                    result = InitializedDataResponseMessage.InitializationResult.NoCharactersFound,
+                    result = GetAccountDataResponseMessage.InitializationResult.NoCharactersFound,
                     permissions = accounts[conn.GenericStringID].Permissions,
                     endOfBan = accounts[conn.GenericStringID].EndOfBan ?? default,
-                    ResponseID = msg.ResponseID,
                     Status = ResponseStatus.Success,
                     characters = new(),
                 };
@@ -242,7 +311,7 @@ namespace VaporMMO.Servers
             }
         }
 
-        private void OnCharacterDataResult(INetConnection conn, InitializationRequestMessage msg, AccountDataSpecification? character)
+        private void OnCharacterDataResult(INetConnection conn, GetAccountDataRequestMessage msg, AccountDataSpecification? character)
         {
             if (character != null)
             {
@@ -253,12 +322,11 @@ namespace VaporMMO.Servers
 
             if (c == 0)
             {
-                InitializedDataResponseMessage respPacket = new()
+                GetAccountDataResponseMessage respPacket = new()
                 {
-                    result = InitializedDataResponseMessage.InitializationResult.AccountWithCharactersFound,
+                    result = GetAccountDataResponseMessage.InitializationResult.AccountWithCharactersFound,
                     permissions = accounts[conn.GenericStringID].Permissions,
                     endOfBan = (DateTimeOffset)(accounts[conn.GenericStringID].EndOfBan != null ? accounts[conn.GenericStringID].EndOfBan : default),
-                    ResponseID = msg.ResponseID,
                     Status = ResponseStatus.Success,
                     characters = new(),
                 };
@@ -277,7 +345,7 @@ namespace VaporMMO.Servers
                     if (character.CharacterName == msg.CharacterName)
                     {
                         found = true;
-                        var response = UDPServer.GetModule<ServerWorldModule>().Join(conn, character, msg.ResponseID);
+                        var response = UDPServer.GetModule<ServerWorldModule>().Join(conn, character);
                         UDPServer.Send(conn, response);
                         break;
                     }
@@ -292,7 +360,28 @@ namespace VaporMMO.Servers
         #endregion
 
         #region - Database -
-        private void HandleAccountLookupLocal(INetConnection conn, InitializationRequestMessage msg, AccountSpecificationLookup lookup, AccountCharacterLookup characterCount, AccountDataLookup characterCallback)
+        private AccountSpecifcation? GetAccount(string accountName)
+        {
+            string localDataPath = Application.persistentDataPath + "/Accounts.json";
+            AccountSpecifcation? foundAccount = null;
+            if (System.IO.File.Exists(localDataPath))
+            {
+                string jsonFile = System.IO.File.ReadAllText(localDataPath);
+                var db = JsonUtility.FromJson<AccountSpecJSON>(jsonFile);
+
+                foreach (var account in db.Specifcations)
+                {
+                    if (accountName == account.StringID)
+                    {
+                        foundAccount = account;
+                        break;
+                    }
+                }
+            }
+            return foundAccount;
+        }
+
+        private void HandleAccountLookupLocal(INetConnection conn, GetAccountDataRequestMessage msg, AccountSpecificationLookup lookup, AccountCharacterLookup characterCount, AccountDataLookup characterCallback)
         {
             string localDataPath = Application.persistentDataPath + "/Accounts.json";
             string localCharacterPath = Application.persistentDataPath + "/Characters.json";

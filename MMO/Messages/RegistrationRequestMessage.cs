@@ -5,16 +5,13 @@ using VaporNetcode;
 
 namespace VaporMMO
 {
-    public struct RegistrationRequestMessage : INetMessage, IResponsePacket
+    public struct RegistrationRequestMessage : INetMessage
     {
         public string AccountName;
         public ulong SteamID;
         public string EpicUserID;
         public string Email;
-        public string Password;
-
-        public ushort ResponseID { get; set; }
-        public ResponseStatus Status { get; set; }
+        public byte[] Password;
 
         public RegistrationRequestMessage(NetworkReader r)
         {
@@ -22,10 +19,7 @@ namespace VaporMMO
             SteamID = Compression.DecompressVarUInt(r);
             EpicUserID = r.ReadString();
             Email = r.ReadString();
-            Password = r.ReadString();
-
-            ResponseID = r.ReadUShort();
-            Status = (ResponseStatus)r.ReadByte();
+            Password = r.ReadBytesAndSize();
         }
 
         public void Serialize(NetworkWriter w)
@@ -34,29 +28,28 @@ namespace VaporMMO
             Compression.CompressVarUInt(w, SteamID);
             w.WriteString(EpicUserID);
             w.WriteString(Email);
-            w.WriteString(Password);
-
-            w.WriteUShort(ResponseID);
-            w.WriteByte((byte)Status);
+            w.WriteBytesAndSize(Password);
         }
     }
 
-    public struct RegistrationResponseMessage : INetMessage, IResponsePacket
+    public struct RegistrationResponseMessage : IResponseMessage
     {
-
-        public ushort ResponseID { get; set; }
+        public string AccountName;
+        public byte[] Password;
         public ResponseStatus Status { get; set; }
 
 
         public RegistrationResponseMessage(NetworkReader r)
         {
-            ResponseID = r.ReadUShort();
+            AccountName = r.ReadString();
+            Password = r.ReadBytesAndSize();
             Status = (ResponseStatus)r.ReadByte();
         }
 
         public void Serialize(NetworkWriter w)
         {
-            w.WriteUShort(ResponseID);
+            w.WriteString(AccountName);
+            w.WriteBytesAndSize(Password);
             w.WriteByte((byte)Status);
         }
     }

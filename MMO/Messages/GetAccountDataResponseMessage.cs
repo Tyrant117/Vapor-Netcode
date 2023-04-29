@@ -4,7 +4,20 @@ using VaporNetcode;
 
 namespace VaporMMO
 {
-    public struct InitializedDataResponseMessage : INetMessage, IResponsePacket
+    public struct GetAccountDataRequestMessage : INetMessage
+    {
+        public GetAccountDataRequestMessage(NetworkReader r)
+        {
+
+        }
+
+        public void Serialize(NetworkWriter w)
+        {
+
+        }
+    }
+
+    public struct GetAccountDataResponseMessage : IResponseMessage
     {
         public enum InitializationResult : byte
         {
@@ -72,7 +85,6 @@ namespace VaporMMO
         /// </summary>
         public List<FormattedData> characters;
 
-        public ushort ResponseID { get; set; }
         public ResponseStatus Status { get; set; }
 
         public void FormatAccountData(List<AccountDataSpecification> ads)
@@ -91,7 +103,7 @@ namespace VaporMMO
             }
         }
 
-        public InitializedDataResponseMessage(NetworkReader r)
+        public GetAccountDataResponseMessage(NetworkReader r)
         {
             result = (InitializationResult)r.ReadByte();
             permissions = (PermisisonLevel)r.ReadInt();
@@ -103,7 +115,6 @@ namespace VaporMMO
                 characters.Add(FormattedData.Read(r));
             }
 
-            ResponseID = r.ReadUShort();
             Status = (ResponseStatus)r.ReadByte();
         }
 
@@ -121,7 +132,6 @@ namespace VaporMMO
                 characters[i].Write(w);
             }
 
-            w.WriteUShort(ResponseID);
             w.WriteByte((byte)Status);
         }
     }

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using VaporMMO.Backend;
 using VaporNetcode;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace VaporMMO.Clients
 {
@@ -13,35 +15,66 @@ namespace VaporMMO.Clients
         public AuthenticationServiceType _authenticationService;
         [SerializeField]
         public BackendType _backend;
+        [SerializeField]
+        public string _rsaPublicKey;
 
-        public event Action<InitializedDataResponseMessage> OnRecievedLoginData;
+        public event Action<GetAccountDataResponseMessage> OnRecievedLoginData;
 
         public override void Initialize()
         {
             UDPClient.RegisterHandler<RegistrationResponseMessage>(OnRegistrationResponse, false);
-            UDPClient.RegisterHandler<ServerLoginReponseMessage>(OnLoginResponse, false);
-            UDPClient.RegisterHandler<InitializedDataResponseMessage>(OnDataResponse);
-        }        
+            UDPClient.RegisterHandler<LoginReponseMessage>(OnLoginResponse, false);
+            UDPClient.RegisterHandler<GetAccountDataResponseMessage>(OnGetAccountDataResponse);
+            UDPClient.RegisterHandler<CreateCharacterResponseMessage>(OnCharacterCreateResponse);
+        }
 
-        public void RegisterAccount()
+        public void RegisterAccount(string accountName, string password)
         {
+            var rsa = RSA.Create();
+            rsa.FromXmlString(_rsaPublicKey);
+            var encrypted = rsa.Encrypt(Encoding.UTF8.GetBytes(password), RSAEncryptionPadding.Pkcs1);
             var msg = new RegistrationRequestMessage()
             {
-                AccountName = "Dev Account",
-                ResponseID = UDPClient.RegisterResponse<RegistrationRequestMessage>(10),
+                AccountName = accountName,
+                Password = encrypted,
             };
 
+            UDPClient.RegisterResponse<RegistrationResponseMessage>(10);
             UDPClient.Send(msg);
         }
 
-        public void Login()
+        public void Login(string accountName, string password)
         {
-            var msg = new AuthenticationMessage()
+            var rsa = RSA.Create();
+            rsa.FromXmlString(_rsaPublicKey);
+            var encrypted = rsa.Encrypt(Encoding.UTF8.GetBytes(password), RSAEncryptionPadding.Pkcs1);
+            var msg = new LoginRequestMessage()
             {
-                accountName = "Dev Account",
-                ResponseID = UDPClient.RegisterResponse<AuthenticationMessage>(10)
+                accountName = accountName,
+                Password = encrypted,
             };
+            UDPClient.RegisterResponse<LoginReponseMessage>(10);
+            UDPClient.Send(msg);
+        }
 
+        private void Login(string accountName, byte[] password)
+        {
+            var msg = new LoginRequestMessage()
+            {
+                accountName = accountName,
+                Password = password,
+            };
+            UDPClient.RegisterResponse<LoginReponseMessage>(10);
+            UDPClient.Send(msg);
+        }
+
+        public void Join(string characterName)
+        {
+            var msg = new JoinWithCharacterRequestMessage()
+            {
+                CharacterName = characterName
+            };
+            UDPClient.RegisterResponse<JoinWithCharacterResponseMessage>(10);
             UDPClient.Send(msg);
         }
 
@@ -53,77 +86,74 @@ namespace VaporMMO.Clients
                 Debug.Log($"Registration Response: {msg.Status}");
             }
 
-            var success = UDPClient.ServerPeer.TriggerResponse(msg.ResponseID, msg.Status);
-            if (msg.Status == ResponseStatus.Timeout)
+            var success = UDPClient.ServerPeer.TriggerResponse<RegistrationResponseMessage>(msg.Status);
+            if (success)
             {
-                UDPClient.ServerPeer.TriggerResponse(msg.ResponseID, msg.Status);
-            }
-            else
-            {
-                if (success)
+                if (msg.Status == ResponseStatus.Success)
                 {
-                    if (msg.Status == ResponseStatus.Success)
-                    {
-                        Login();
-                    }
+
+                    Login(msg.AccountName, msg.Password);
                 }
             }
         }
 
-        private void OnLoginResponse(INetConnection conn, ServerLoginReponseMessage msg)
+        private void OnLoginResponse(INetConnection conn, LoginReponseMessage msg)
         {
             if (NetLogFilter.logInfo)
             {
                 Debug.Log($"Login Response: {msg.Status}");
             }
 
-            var success = UDPClient.ServerPeer.TriggerResponse(msg.ResponseID, msg.Status);
-            if (msg.Status == ResponseStatus.Timeout)
+            var success = UDPClient.ServerPeer.TriggerResponse<ServerLoginReponseMessage>(msg.Status);
+            if (success)
             {
-                
-            }
-            else
-            {
-                if (success)
+                if (msg.Status == ResponseStatus.Success)
                 {
-                    if (msg.Status == ResponseStatus.Success)
+                    conn.Authenticated();
+                    var requestData = new GetAccountDataRequestMessage()
                     {
-                        conn.Authenticated();
-                        var requestData = new InitializationRequestMessage()
-                        {
-                            ResponseID = UDPClient.RegisterResponse<InitializationRequestMessage>(10)
-                        };
 
-                        UDPClient.Send(requestData);
-                    }
+                    };
+                    UDPClient.RegisterResponse<GetAccountDataResponseMessage>(10);
+                    UDPClient.Send(requestData);
                 }
             }
         }
 
-        private void OnDataResponse(INetConnection conn, InitializedDataResponseMessage msg)
+        private void OnGetAccountDataResponse(INetConnection conn, GetAccountDataResponseMessage msg)
         {
             if (NetLogFilter.logInfo)
             {
                 Debug.Log($"Login Data Response: {msg.Status}");
             }
 
-            var success = UDPClient.ServerPeer.TriggerResponse(msg.ResponseID, msg.Status);
-            if (msg.Status == ResponseStatus.Timeout)
+            var success = UDPClient.ServerPeer.TriggerResponse<GetAccountDataResponseMessage>(msg.Status);
+            if (success)
             {
-                UDPClient.ServerPeer.TriggerResponse(msg.ResponseID, msg.Status);
-            }
-            else
-            {
-                if (success)
+                if (msg.Status == ResponseStatus.Success)
                 {
-                    if (msg.Status == ResponseStatus.Success)
+                    if (NetLogFilter.logInfo)
                     {
-                        if (NetLogFilter.logInfo)
-                        {
-                            Debug.Log($"Login Data Result: {msg.result}");
-                        }
-                        OnRecievedLoginData?.Invoke(msg);
+                        Debug.Log($"Login Data Result: {msg.result}");
                     }
+                    OnRecievedLoginData?.Invoke(msg);
+                }
+            }
+        }
+
+        private void OnCharacterCreateResponse(INetConnection conn, CreateCharacterResponseMessage msg)
+        {
+            var success = UDPClient.ServerPeer.TriggerResponse<CreateCharacterResponseMessage>(msg.Status);
+            if (success)
+            {
+                if (msg.Status == ResponseStatus.Success)
+                {
+                    var join = new JoinWithCharacterRequestMessage()
+                    {
+                        CharacterName = msg.CharacterName,
+                    };
+                    UDPClient.RegisterResponse<JoinWithCharacterResponseMessage>(10);
+                    UDPClient.Send(join);
                 }
             }
         }

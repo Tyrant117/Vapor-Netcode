@@ -2,7 +2,7 @@ using VaporNetcode;
 
 namespace VaporMMO
 {
-    public struct ServerLoginReponseMessage : INetMessage, IResponsePacket
+    public struct ServerLoginReponseMessage : INetMessage, IResponseMessage
     {
         public AuthenticationServiceType AuthenticationService;
         public int ConnectionID;
