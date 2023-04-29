@@ -51,8 +51,8 @@ namespace VaporNetcode
     public abstract class ObservableClass
     {
         public bool Dirty => dirtyFields.Count > 0;
-        public int Type { get; }
-        public int ID { get; }
+        public int Type { get; protected set; }
+        public int ID { get; protected set; }
         public bool IsNetworkSynced { get; }
         public bool IsServer { get; }
         public ObservableField GetField(int fieldID) => fields[fieldID];
@@ -64,6 +64,14 @@ namespace VaporNetcode
 
         public event Action<ObservableClass> Dirtied;
         public event Action<ObservableClass> Changed;
+
+        public ObservableClass(int unqiueID, bool isNetworkSynced, bool isServer)
+        {
+            Type = GetType().Name.GetStableHashCode();
+            ID = unqiueID;
+            IsNetworkSynced = isNetworkSynced;
+            IsServer = isServer;
+        }
 
         public ObservableClass(int containerType, int unqiueID, bool isNetworkSynced, bool isServer)
         {
