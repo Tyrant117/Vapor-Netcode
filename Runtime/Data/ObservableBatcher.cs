@@ -150,7 +150,10 @@ namespace VaporNetcode
 
             foreach (var field in fieldMap.Values)
             {
-                fields.Add(field.Save());
+                if (field.SaveValue)
+                {
+                    fields.Add(field.Save());
+                }
             }
         }
 

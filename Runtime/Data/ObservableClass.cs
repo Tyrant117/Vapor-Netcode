@@ -48,6 +48,11 @@ namespace VaporNetcode
         }
     }
 
+    public static class ObservableClassID<T> where T : ObservableClass
+    {
+        public static readonly int ID = typeof(T).Name.GetStableHashCode();
+    }
+
     public abstract class ObservableClass
     {
         public bool Dirty => dirtyFields.Count > 0;
@@ -67,7 +72,6 @@ namespace VaporNetcode
 
         public ObservableClass(int unqiueID, bool isNetworkSynced, bool isServer)
         {
-            Type = GetType().Name.GetStableHashCode();
             ID = unqiueID;
             IsNetworkSynced = isNetworkSynced;
             IsServer = isServer;
