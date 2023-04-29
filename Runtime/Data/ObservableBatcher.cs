@@ -136,5 +136,43 @@ namespace VaporNetcode
             }
         }
         #endregion
+
+        #region - Saving and Loading -
+        public void Save(out List<SavedObservableClass> classes, out List<SavedObservable> fields)
+        {
+            classes = new(classMap.Values.Count);
+            fields = new(fieldMap.Values.Count);
+
+            foreach (var @class in classMap.Values)
+            {
+                classes.Add(@class.Save());
+            }
+
+            foreach (var field in fieldMap.Values)
+            {
+                fields.Add(field.Save());
+            }
+        }
+
+        public void Load(List<SavedObservableClass> classes, List<SavedObservable> fields)
+        {
+            foreach (var @class in classes)
+            {
+                Vector2Int key = new(@class.Type, @class.ID);
+                if (classMap.TryGetValue(key, out var observable))
+                {
+                    observable.Load(@class);
+                }
+            }
+
+            foreach (var field in fields)
+            {
+                if (fieldMap.TryGetValue(field.ID, out var observable))
+                {
+                    observable.Load(field);
+                }
+            }
+        }
+        #endregion
     }
 }
