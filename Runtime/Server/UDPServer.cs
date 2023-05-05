@@ -153,7 +153,9 @@ namespace VaporNetcode
             {
                 StartServer();
             }
+            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Server Listening"); }
 
+            // ---------------------------------------------------------------//
             static void _SetupServer()
             {
                 if (isSetup) { return; }

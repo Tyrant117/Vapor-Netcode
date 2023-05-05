@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
 
 namespace VaporNetcode
 {
+    [DefaultExecutionOrder(-1000)]
     public class NetManager : MonoBehaviour
     {
         public static NetManager Instance;
@@ -65,6 +67,9 @@ namespace VaporNetcode
         [Tooltip("True if you want to recieve diagnostics on the messages being sent and recieved.")]
         public bool messageDiagnostics;
 
+        public event Action ServerInitialized;
+        public event Action ClientInitialized;
+
         private void OnValidate()
         {
             var serverMods = transform.Find("Server Modules");
@@ -104,12 +109,14 @@ namespace VaporNetcode
             {
                 //var serverMods = GetComponentsInChildren<ServerModule>();
                 UDPServer.Listen(_serverConfig, UDPServer.GeneratePeer, ServerModules.ToArray());
+                ServerInitialized?.Invoke();
             }
 
             if (_isClient)
             {
                 //var clientMods = GetComponentsInChildren<ClientModule>();
                 UDPClient.Initialize(_clientConfig, UDPClient.GeneratePeer, ClientModules.ToArray());
+                ClientInitialized?.Invoke();
                 if (_clientConfig.AutoConnect)
                 {
                     StartCoroutine(WaitToAutoConnect());

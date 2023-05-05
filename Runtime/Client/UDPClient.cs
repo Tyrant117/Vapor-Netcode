@@ -169,7 +169,8 @@ namespace VaporNetcode
 
 
             UDPTransport.Init(false, true, isSimulated);
-            isInitialized = true;            
+            isInitialized = true;
+            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Client Initialized"); }
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
