@@ -393,7 +393,7 @@ namespace VaporNetcode
         #region - Remote Connection Methods -
         private static void HandleConnect(int connectionID)
         {
-            if (NetLogFilter.logDebug) { Debug.Log($"Connection ID: {connectionID} Connected"); }
+            if (NetLogFilter.logDebug) { Debug.Log($"{TAG} Connection ID: {connectionID} Connected"); }
 
             if (connectionID == 0)
             {
@@ -433,7 +433,7 @@ namespace VaporNetcode
 
         private static void HandleDisconnect(int connectionID)
         {
-            if (NetLogFilter.logDebug) { Debug.Log($"Connection ID: {connectionID} Disconnected"); }
+            if (NetLogFilter.logDebug) { Debug.Log($"{TAG} Connection ID: {connectionID} Disconnected"); }
             if (connectedPeers.TryGetValue(connectionID, out Peer peer))
             {
                 peer.Dispose();

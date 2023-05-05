@@ -141,7 +141,7 @@ namespace VaporNetcode
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void RuntimeInitializeOnLoad()
         {
-            Debug.Log("Adding Network[Early/Late]Update to Unity...");
+            Debug.Log("Adding Network[Early/Late]Update to Unity");
 
             // get loop
             // 2019 has GetCURRENTPlayerLoop which is safe to use without

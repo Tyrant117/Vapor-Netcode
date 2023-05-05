@@ -11,6 +11,8 @@ namespace VaporMMO.Clients
 {
     public class ClientLoginModule : ClientModule
     {
+        private const string TAG = "<color=orange><b>[Client Login]</b></color>";
+
         [SerializeField]
         public AuthenticationServiceType _authenticationService;
         [SerializeField]
@@ -83,7 +85,7 @@ namespace VaporMMO.Clients
         {
             if (NetLogFilter.logInfo)
             {
-                Debug.Log($"Registration Response: {msg.Status}");
+                Debug.Log($"{TAG} Registration Response: {msg.Status}");
             }
 
             var success = UDPClient.ServerPeer.TriggerResponse<RegistrationResponseMessage>(msg.Status);
@@ -101,10 +103,10 @@ namespace VaporMMO.Clients
         {
             if (NetLogFilter.logInfo)
             {
-                Debug.Log($"Login Response: {msg.Status}");
+                Debug.Log($"{TAG} Login Response: {msg.Status}");
             }
 
-            var success = UDPClient.ServerPeer.TriggerResponse<ServerLoginReponseMessage>(msg.Status);
+            var success = UDPClient.ServerPeer.TriggerResponse<LoginReponseMessage>(msg.Status);
             if (success)
             {
                 if (msg.Status == ResponseStatus.Success)
@@ -124,7 +126,7 @@ namespace VaporMMO.Clients
         {
             if (NetLogFilter.logInfo)
             {
-                Debug.Log($"Login Data Response: {msg.Status}");
+                Debug.Log($"{TAG} Login Data Response: {msg.Status}");
             }
 
             var success = UDPClient.ServerPeer.TriggerResponse<GetAccountDataResponseMessage>(msg.Status);
@@ -134,7 +136,7 @@ namespace VaporMMO.Clients
                 {
                     if (NetLogFilter.logInfo)
                     {
-                        Debug.Log($"Login Data Result: {msg.result}");
+                        Debug.Log($"{TAG} Login Data Result: {msg.result}");
                     }
                     OnRecievedLoginData?.Invoke(msg);
                 }

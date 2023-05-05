@@ -49,7 +49,7 @@ namespace VaporNetcode
 
     public static class UDPClient
     {
-        public const string TAG = "<color=cyan><b>[Client]</b></color>";        
+        public const string TAG = "<color=olive><b>[Client]</b></color>";        
 
         private static bool isInitialized;
         private static bool isSimulated;
@@ -463,7 +463,7 @@ namespace VaporNetcode
 
             NetworkTime.ResetStatics();
 
-            Debug.Log($"[{TAG}] Connected");
+            Debug.Log($"{TAG} Connected");
 
             Status = ConnectionStatus.Connected;
             NetworkTime.UpdateClient();
@@ -497,7 +497,7 @@ namespace VaporNetcode
 
         private static void OnDisconnected()
         {
-            if (NetLogFilter.logInfo) { Debug.LogFormat("Disconnected from || {0}:{1}", _config.GameServerIp, _config.GameServerPort); }
+            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Disconnected from || {_config.GameServerIp}:{_config.GameServerPort}"); }
 
             if (!isAttemptingReconnect)
             {
@@ -508,7 +508,7 @@ namespace VaporNetcode
 
         private static void OnConnected()
         {
-            if (NetLogFilter.logInfo) { Debug.LogFormat("Connected to || {0}:{1}", _config.GameServerIp, _config.GameServerPort); }
+            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Connected to || {_config.GameServerIp}:{_config.GameServerPort}"); }
         }
         #endregion
 

@@ -28,6 +28,8 @@ namespace VaporNetcode
 
     public class UDPTransport
     {
+        public const string TAG = "<color=teal><b>[Transport]</b></color>";
+
         public enum TransportEvent { Connected, Data, Disconnected }
         public enum Source { Default = 0, Client = 1, Server = 2 }
 
@@ -122,7 +124,7 @@ namespace VaporNetcode
 
             if (isSimulated)
             {
-                if (NetLogFilter.logInfo) { Debug.Log($"Transport Layer Initialized: Simulation"); }
+                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Transport Layer Initialized: Simulation"); }
                 return;
             }
 
@@ -136,7 +138,7 @@ namespace VaporNetcode
                 (connectionId, error, reason) => OnServerError.Invoke(connectionId, ToTransportError(error), reason),
                 _serverConfig);
 
-                if (NetLogFilter.logInfo) { Debug.Log("Transport Layer Initialized: Server"); }
+                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Transport Layer Initialized: Server"); }
             }
 
             if (IsClient && client == null)
@@ -149,7 +151,7 @@ namespace VaporNetcode
                 (error, reason) => OnClientError.Invoke(ToTransportError(error), reason),
                 _clientConfig);
 
-                if (NetLogFilter.logInfo) { Debug.Log($"Transport Layer Initialized: Client"); }
+                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Transport Layer Initialized: Client"); }
             }
         }
 
@@ -346,7 +348,7 @@ namespace VaporNetcode
         public static void StartServer() => server.Start(Port);
         public static void StopServer()
         {
-            if (NetLogFilter.logInfo) { Debug.Log("Server Stopped"); }
+            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Server Stopped"); }
             server?.Stop();
         }
         public static void DisconnectPeer(int connectionId) => server.Disconnect(connectionId);

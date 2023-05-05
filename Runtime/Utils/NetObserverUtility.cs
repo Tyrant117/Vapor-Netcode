@@ -58,7 +58,8 @@ namespace VaporNetcode
 
         private void NetDiagnostics_InMessageEvent(NetDiagnostics.MessageInfo msg)
         {
-            if(inMessages.Count > 14)
+            if (msg.message is NetworkPingMessage or NetworkPongMessage) { return; }
+            if (inMessages.Count > 14)
             {
                 inMessages.Clear();
             }
@@ -67,6 +68,7 @@ namespace VaporNetcode
 
         private void NetDiagnostics_OutMessageEvent(NetDiagnostics.MessageInfo msg)
         {
+            if (msg.message is NetworkPingMessage or NetworkPongMessage) { return; }
             if (outMessages.Count > 14)
             {
                 outMessages.Clear();
