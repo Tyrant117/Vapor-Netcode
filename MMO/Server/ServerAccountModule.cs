@@ -165,7 +165,7 @@ namespace VaporMMO.Servers
             var rng = RandomNumberGenerator.Create();
             var bytes = new byte[64];
             rng.GetBytes(bytes);
-            var hash = new Rfc2898DeriveBytes(password, bytes, 350000, HashAlgorithmName.SHA512);
+            var hash = new Rfc2898DeriveBytes(password, bytes, 10000, HashAlgorithmName.SHA512);
             salt = BitConverter.ToString(hash.Salt).Replace("-", string.Empty);
             return BitConverter.ToString(hash.GetBytes(64)).Replace("-", string.Empty);
         }
@@ -173,7 +173,7 @@ namespace VaporMMO.Servers
         private bool VerifyPassword(string password, string hash, string salt)
         {
             var bytes = StringToByteArray(salt);
-            var hashToCompare = new Rfc2898DeriveBytes(password, bytes, 350000, HashAlgorithmName.SHA512);
+            var hashToCompare = new Rfc2898DeriveBytes(password, bytes, 10000, HashAlgorithmName.SHA512);
             return hashToCompare.GetBytes(64).SequenceEqual(StringToByteArray(hash));
         }
 
@@ -182,7 +182,10 @@ namespace VaporMMO.Servers
             int NumberChars = hex.Length;
             byte[] bytes = new byte[NumberChars / 2];
             for (int i = 0; i < NumberChars; i += 2)
+            {
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
+
             return bytes;
         }
         #endregion

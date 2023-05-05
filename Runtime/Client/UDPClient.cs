@@ -13,7 +13,7 @@ namespace VaporNetcode
     {
         #region Inspector
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #else
         [Header("Properties")]
 #endif
@@ -21,25 +21,25 @@ namespace VaporNetcode
         public bool AutoConnect;
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #endif
         [Tooltip("Address to the server")]
         public string GameServerIp = "127.0.0.1";
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #endif
         [Tooltip("Port of the server")]
         public int GameServerPort = 7777;
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #endif
         [Tooltip("Client Target Send Rate")]
         public int ClientUpdateRate = 30;
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Debug")]
 #else
         [Header("Debug")]
 #endif

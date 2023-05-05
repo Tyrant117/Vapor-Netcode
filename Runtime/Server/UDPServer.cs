@@ -15,35 +15,35 @@ namespace VaporNetcode
     {
         #region Inspector
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #else
         [Header("Properties")]
 #endif
         [Tooltip("Should server start by itself.")]
         public bool autoStart;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #endif
         [Tooltip("Max connections the server can have")]
         public int maxServerPlayers = 2000;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #endif
         [Tooltip("Server Address")]
         public string address = "127.0.0.1";
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #endif
         [Tooltip("Server Port")]
         public int port = 7777;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Properties")]
+        [TitleGroup("Properties")]
 #endif
         [Tooltip("Server Target Framerate")]
         public int serverUpdateRate = 30;
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Debug")]
+        [TitleGroup("Debug")]
 #else
         [Header("Debug")]
 #endif

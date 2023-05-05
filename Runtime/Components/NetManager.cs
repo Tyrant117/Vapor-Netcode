@@ -14,55 +14,55 @@ namespace VaporNetcode
         public static NetManager Instance;
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Client")]
+        [TabGroup("Tabs", "Client")]
 #else
         [Header("Client")]
 #endif
         [SerializeField]
         private bool _isClient;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Client"), InlineProperty, HideLabel]
+        [TabGroup("Tabs", "Client"), InlineProperty, HideLabel]
 #endif
         [SerializeField]
         private ClientConfig _clientConfig;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Client")]
+        [TitleGroup("Tabs/Client/Modules")]
 #endif
         [SerializeReference]
         public List<ClientModule> ClientModules = new();
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Server")]
+        [TabGroup("Tabs", "Server")]
 #else
         [Header("Server")]
 #endif
         [SerializeField]
         private bool _isServer;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Server"), InlineProperty, HideLabel]
+        [TabGroup("Tabs", "Server"), InlineProperty, HideLabel]
 #endif
         [SerializeField]
         private ServerConfig _serverConfig;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Server")]
+        [TitleGroup("Tabs/Server/Modules")]
 #endif
         [SerializeReference]
         public List<ServerModule> ServerModules = new();
 
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Logging")]
+        [TabGroup("Tabs", "Logging")]
 #else
         [Header("Logging")]
 #endif
         [Tooltip("Log level for network debugging")]
         public NetLogFilter.LogLevel logLevel;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Logging")]
+        [TabGroup("Tabs", "Logging")]
 #endif
         [Tooltip("Spews all debug logs that come from update methods. Warning: could be a lot of messages")]
         public bool spewDebug;
 #if ODIN_INSPECTOR
-        [FoldoutGroup("Logging")]
+        [TabGroup("Tabs", "Logging")]
 #endif
         [Tooltip("True if you want to recieve diagnostics on the messages being sent and recieved.")]
         public bool messageDiagnostics;
