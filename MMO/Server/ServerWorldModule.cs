@@ -7,6 +7,9 @@ namespace VaporMMO
     public class ServerWorldModule : ServerModule
     {
         public readonly Dictionary<int, ServerIdentity> Players = new();
+        public readonly Dictionary<uint, ServerIdentity> Entities = new();
+
+        private readonly DictionaryCleanupList<uint, ServerIdentity> _cleanup = new(200);
 
         public override void Initialize()
         {
@@ -16,6 +19,35 @@ namespace VaporMMO
 
         public override void Update()
         {
+            foreach (var plr in Players.Values)
+            {
+                if (plr.IsReady)
+                {
+                    plr.Tick();
+                }
+            }
+
+            foreach (var entity in Entities.Values)
+            {
+                if (entity.Cleanup)
+                {
+                    ReturnEntity(entity);
+                    continue;
+                }
+
+                if (entity.Active)
+                {
+                    entity.Tick();
+                }
+            }
+
+            foreach (var entity in Entities.Values)
+            {
+                entity.CreateInterestPacket();
+            }
+
+            _cleanup.RemoveAll(Entities);
+
             foreach (var plr in Players.Values)
             {
                 if (plr.IsReady)
@@ -70,6 +102,11 @@ namespace VaporMMO
             {
                 conn.Disconnect();
             }
+        }
+
+        public void ReturnEntity(ServerIdentity entity)
+        {
+
         }
     }
 }

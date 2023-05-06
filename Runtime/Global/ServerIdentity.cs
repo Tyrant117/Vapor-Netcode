@@ -38,10 +38,12 @@ namespace VaporNetcode
         /// Called on all entities every server tick.
         /// </summary>
         /// <param name="serverTick"></param>
-        public virtual void Tick(long serverTick) { }
+        public virtual void Tick() { }
 
         #region - Messages -
         public virtual void AddPacket(CommandMessage msg) { }
+
+        public virtual void CreateInterestPacket() { }
 
         public virtual void SendInterestPacket() { }
         #endregion

@@ -81,6 +81,7 @@ namespace VaporNetcode
         public static int actualTickRate;
         private static double actualTickRateStart;   // start time when counting
         private static int actualTickRateCounter; // current counter since start
+        public static long tick;
 
         // profiling
         // includes transport update time, because transport calls handlers etc.
@@ -232,6 +233,7 @@ namespace VaporNetcode
                 earlyUpdateDuration.Begin();
                 fullUpdateDuration.Begin();
 
+                tick++;
                 UDPTransport.ServerEarlyUpdate();
 
                 earlyUpdateDuration.End();

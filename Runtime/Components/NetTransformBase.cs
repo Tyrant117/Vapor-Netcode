@@ -12,12 +12,11 @@ namespace VaporNetcode
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
 
-        public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
-        public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
+        public readonly SortedList<double, TransformSnapshot> clientSnapshots = new();
+        public readonly SortedList<double, TransformSnapshot> serverSnapshots = new();
 
         // selective sync //////////////////////////////////////////////////////
-        [Header("Selective Sync\nDon't change these at Runtime")]
-        [Space(8)]
+        [Header("Selective Sync [Don't change these at Runtime]")]
         public bool syncPosition = true;  // do not change at runtime!
         public bool syncRotation = true;  // do not change at runtime!
         public bool syncScale = false; // do not change at runtime! rare. off by default.
