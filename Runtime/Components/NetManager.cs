@@ -66,6 +66,30 @@ namespace VaporNetcode
 #endif
         [Tooltip("True if you want to recieve diagnostics on the messages being sent and recieved.")]
         public bool messageDiagnostics;
+#if ODIN_INSPECTOR
+        [TabGroup("Tabs", "Logging"), Button, PropertyOrder(1)]
+#endif
+        private void GenerateMessageLookupData()
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            _messageLookupList.Clear();
+            foreach (var assembly in assemblies)
+            {
+                foreach (var t in assembly.GetTypes())
+                {
+                    if (typeof(INetMessage).IsAssignableFrom(t))
+                    {
+                        var id = (ushort)t.FullName.GetStableHashCode();
+                        _messageLookupList.Add($"{id} - {t.Name}");
+                    }
+                }
+            }
+        }
+#if ODIN_INSPECTOR
+        [TabGroup("Tabs", "Logging"), PropertyOrder(2)]
+#endif
+        [Tooltip("List of ID:Type pairs for INetMessage"), SerializeField, Searchable]
+        private List<string> _messageLookupList = new();
 
         public event Action ServerInitialized;
         public event Action ClientInitialized;
