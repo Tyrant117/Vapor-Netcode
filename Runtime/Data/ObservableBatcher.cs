@@ -6,6 +6,8 @@ namespace VaporNetcode
 {
     public class ObservableBatcher
     {
+        public bool IsDirty { get; private set; }
+
         public Dictionary<Vector2Int, ObservableClass> classMap = new(50);
         public Dictionary<int, ObservableField> fieldMap = new(50);
 
@@ -41,6 +43,7 @@ namespace VaporNetcode
             }
             classMap[key] = observableClass;
             observableClass.Dirtied += ObservableClass_Dirtied;
+            IsDirty = true;
         }
 
         public void RegisterObservableField(ObservableField observableField)
@@ -58,6 +61,7 @@ namespace VaporNetcode
 
             fieldMap[key] = observableField;
             observableField.Dirtied += ObservableField_Dirtied;
+            IsDirty = true;
         }
         #endregion
 
@@ -69,6 +73,7 @@ namespace VaporNetcode
             {
                 dirtyClasses.Add(key, observableClass);
             }
+            IsDirty = true;
         }
 
         private void ObservableField_Dirtied(ObservableField observableField)
@@ -77,6 +82,7 @@ namespace VaporNetcode
             {
                 dirtyFields.Add(observableField.FieldID, observableField);
             }
+            IsDirty = true;
         }
         #endregion
 
@@ -98,6 +104,7 @@ namespace VaporNetcode
 
             dirtyClasses.Clear();
             dirtyFields.Clear();
+            IsDirty = false;
 
             var packet = new SyncDataMessage
             {
