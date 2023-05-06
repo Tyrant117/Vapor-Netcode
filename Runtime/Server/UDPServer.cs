@@ -429,7 +429,7 @@ namespace VaporNetcode
                 // add connection
                 var peer = PeerCreator.Invoke(connectionID, UDPTransport.Source.Server);
 
-                connectedPeers[peer.connectionID] = peer;
+                connectedPeers[peer.ConnectionID] = peer;
                 OnPeerConnected(peer);
             }
             else
@@ -453,7 +453,7 @@ namespace VaporNetcode
             {
                 peer.Dispose();
 
-                connectedPeers.Remove(peer.connectionID);
+                connectedPeers.Remove(peer.ConnectionID);
 
                 OnPeerDisconnected(peer);
             }

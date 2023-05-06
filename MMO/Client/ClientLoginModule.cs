@@ -122,7 +122,7 @@ namespace VaporMMO.Clients
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
-                    conn.Authenticated();
+                    conn.Authenticated(msg.ConnectionID);
                     var requestData = new GetAccountDataRequestMessage()
                     {
 

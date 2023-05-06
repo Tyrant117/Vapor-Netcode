@@ -13,7 +13,7 @@ namespace VaporNetcode
     public class Peer : IDisposable, INetConnection
     {
         // Server and Connection Info
-        public readonly int connectionID;
+        private int connectionID;
         public bool IsConnected { get; set; }
         public bool IsAuthenticated { get; private set; }
         public bool IsReady { get; set; }
@@ -57,9 +57,13 @@ namespace VaporNetcode
             }
         }
 
-        public virtual void Authenticated()
+        public virtual void Authenticated(int connID)
         {
             IsAuthenticated = true;
+            if (source == UDPTransport.Source.Client)
+            {
+                connectionID = connID;
+            }
         }
 
         public void Dispose()

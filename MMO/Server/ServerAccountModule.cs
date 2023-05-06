@@ -184,7 +184,7 @@ namespace VaporMMO.Servers
                 var password = Decrypt(msg.Password);
                 if (VerifyPassword(password, account.Value.Password, account.Value.Salt))
                 {
-                    conn.Authenticated();
+                    conn.Authenticated(conn.ConnectionID);
                     conn.GenericStringID = msg.accountName;
                     OnAuthenticatedResult(conn, msg);
                 }

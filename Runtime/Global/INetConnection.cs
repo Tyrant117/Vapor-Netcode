@@ -11,7 +11,7 @@ namespace VaporNetcode
         string GenericStringID { get; set; }
         int SpamCount { get; set; }
 
-        void Authenticated();
+        void Authenticated(int connID);
         void Disconnect(int reason = 0);
 
         //bool SendMessage(ArraySegment<byte> segment, int clientConnectionID = 0);

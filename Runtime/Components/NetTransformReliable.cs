@@ -50,7 +50,7 @@ namespace VaporNetcode
         protected int lastClientCount = 1;
 
         private ServerIdentity _serverID;
-        private ClientIdentity _clientID;
+        private IClientIdentity _clientID;
         private bool _isServer;
         private bool _initialSend;
 
@@ -61,7 +61,7 @@ namespace VaporNetcode
             _serverID = id;
         }
 
-        public void Setup(ClientIdentity id)
+        public void Setup(IClientIdentity id)
         {
             _isServer = false;
             _clientID = id;
