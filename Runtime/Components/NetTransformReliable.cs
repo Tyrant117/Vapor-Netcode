@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
+    [System.Serializable]
     public class NetTransformReliable : NetTransformBase
     {
         [Header("Sync Only If Changed")]
@@ -48,19 +49,19 @@ namespace VaporNetcode
 
         protected int lastClientCount = 1;
 
-        private readonly ServerIdentity _serverID;
-        private readonly ClientIdentity _clientID;
-        private readonly bool _isServer;
+        private ServerIdentity _serverID;
+        private ClientIdentity _clientID;
+        private bool _isServer;
         private bool _initialSend;
 
-        public NetTransformReliable(ServerIdentity id)
+        public void Setup(ServerIdentity id)
         {
             _isServer = true;
             _initialSend = true;
             _serverID = id;
         }
 
-        public NetTransformReliable(ClientIdentity id)
+        public void Setup(ClientIdentity id)
         {
             _isServer = false;
             _clientID = id;

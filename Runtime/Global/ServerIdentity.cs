@@ -27,8 +27,6 @@ namespace VaporNetcode
         // NetworkIdentities that this connection can see
         public readonly HashSet<ServerIdentity> observing = new();
 
-        protected NetTransformReliable _transform;
-
         public virtual void MarkActive()
         {
             Active = true;
@@ -41,11 +39,6 @@ namespace VaporNetcode
         /// </summary>
         /// <param name="serverTick"></param>
         public virtual void Tick(long serverTick) { }
-
-        public void LinkNetTransform()
-        {
-            _transform = new(this);
-        }
 
         #region - Messages -
         public virtual void AddPacket(CommandMessage msg) { }

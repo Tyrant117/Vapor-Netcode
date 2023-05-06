@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
+    [System.Serializable]
     public class NetTransformBase
     {
         // target transform to sync. can be on a child.
