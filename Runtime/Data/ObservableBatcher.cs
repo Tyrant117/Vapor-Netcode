@@ -16,7 +16,7 @@ namespace VaporNetcode
 
         public event Action<ObservableClass> ClassCreated;
         public event Action<ObservableField> FieldCreated;
-        public event Action FirstUnbatch;
+        public event Action<int, int> FirstUnbatch;
         public event Action<int, int> Unbatched;
 
         private bool isFirstUnbatch = true;
@@ -118,7 +118,6 @@ namespace VaporNetcode
         {
             using var r = NetworkReaderPool.Get(packet.data);
             int classCount = r.ReadInt();
-            Debug.Log($"Unbatch Classes: {classCount}");
             for (int i = 0; i < classCount; i++)
             {
                 ObservableClass.StartDeserialize(r, out int type, out int id);
@@ -139,7 +138,6 @@ namespace VaporNetcode
             }
 
             int fieldCount = r.ReadInt();
-            Debug.Log($"Unbatch Fields: {fieldCount}");
             for (int i = 0; i < fieldCount; i++)
             {
                 ObservableField.StartDeserialize(r, out int id, out var type);
@@ -158,7 +156,7 @@ namespace VaporNetcode
             if (isFirstUnbatch)
             {
                 isFirstUnbatch = false;
-                FirstUnbatch?.Invoke();
+                FirstUnbatch?.Invoke(classCount, fieldCount);
             }
             else
             {

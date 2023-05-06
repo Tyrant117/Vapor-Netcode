@@ -77,12 +77,6 @@ namespace VaporNetcode
         {
             w.WriteBytesAndSizeSegment(data);
         }
-
-        public T GetPacket<T>() where T : struct, INetMessage
-        {
-            using var r = NetworkReaderPool.Get(data);
-            return PacketHelper.Deserialize<T>(r);
-        }
     }
 
     // A client sends this message to the server
