@@ -15,7 +15,7 @@ namespace VaporNetcode
         /// <returns>True when <see cref="cleanup"/> is true, will remove entity from the server</returns>
         public bool Cleanup => cleanup;
 
-        public Peer Peer { get; }
+        public Peer Peer { get; protected set; }
         public bool IsPeer => Peer != null;
         public virtual bool IsReady { get; }
         public bool Active { get; protected set; }
