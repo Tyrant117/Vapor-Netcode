@@ -13,6 +13,14 @@ namespace VaporMMO
             UDPServer.RegisterHandler<CommandMessage>(OnHandleCommand);
         }
 
+        public override void Update()
+        {
+            foreach (var plr in Players.Values)
+            {
+                plr.SendInterestPacket();
+            }
+        }
+
         public virtual AccountDataSpecification CreateNewCharacter(string accountID, string characterName, byte gender)
         {
             var spec = new AccountDataSpecification()

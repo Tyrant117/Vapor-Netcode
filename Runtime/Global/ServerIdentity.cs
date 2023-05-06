@@ -39,6 +39,8 @@ namespace VaporNetcode
 
         #region - Messages -
         public virtual void AddPacket(CommandMessage msg) { }
+
+        public virtual void SendInterestPacket() { }
         #endregion
 
 

@@ -6,6 +6,7 @@ namespace VaporNetcode
 {
     public class ObservableBatcher
     {
+        public bool isFirstUnbatch = true;
         public Dictionary<Vector2Int, ObservableClass> classMap = new(50);
         public Dictionary<int, ObservableField> fieldMap = new(50);
 
@@ -14,6 +15,7 @@ namespace VaporNetcode
 
         public event Action<ObservableClass> ClassCreated;
         public event Action<ObservableField> FieldCreated;
+        public event Action FirstUnbatch;
         public event Action<int, int> Unbatched;
 
         #region - Registration -
@@ -135,7 +137,15 @@ namespace VaporNetcode
                     FieldCreated?.Invoke(newField);
                 }
             }
-            Unbatched?.Invoke(classCount, fieldCount);
+            if (isFirstUnbatch)
+            {
+                isFirstUnbatch = false;
+                FirstUnbatch?.Invoke();
+            }
+            else
+            {
+                Unbatched?.Invoke(classCount, fieldCount);
+            }
         }
         #endregion
 

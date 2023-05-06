@@ -261,6 +261,11 @@ namespace VaporNetcode
                 {
                     //Broadcast();
 
+                    foreach (var mod in modules.Values)
+                    {
+                        mod.Update();
+                    }
+
                     foreach (var peer in connectedPeers.Values)
                     {
                         peer.PreUpdate();
