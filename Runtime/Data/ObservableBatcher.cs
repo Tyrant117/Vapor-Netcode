@@ -14,6 +14,7 @@ namespace VaporNetcode
 
         public event Action<ObservableClass> ClassCreated;
         public event Action<ObservableField> FieldCreated;
+        public event Action<int, int> Unbatched;
 
         #region - Registration -
         public void RegisterObserableClass(ObservableClass observableClass)
@@ -134,6 +135,7 @@ namespace VaporNetcode
                     FieldCreated?.Invoke(newField);
                 }
             }
+            Unbatched?.Invoke(classCount, fieldCount);
         }
         #endregion
 

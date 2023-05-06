@@ -16,6 +16,7 @@ namespace VaporNetcode
         public readonly int connectionID;
         public bool IsConnected { get; set; }
         public bool IsAuthenticated { get; private set; }
+        public bool IsReady { get; private set; }
         public int ConnectionID => connectionID;
         public ulong GenericULongID { get; set; }
         public string GenericStringID { get; set; }
@@ -32,7 +33,7 @@ namespace VaporNetcode
         public ObservableBatcher SyncBatcher { get; private set; }
         public SyncDataMessage CurrentSyncBatch { get; private set; }
 
-        public event Action PreUpdated;
+        public event Action<bool, bool> PreUpdated;
 
         #region Responses
         private float _lastResponseCheckTime;
@@ -101,7 +102,7 @@ namespace VaporNetcode
         #region - Messaging -
         public void PreUpdate()
         {
-            PreUpdated?.Invoke();
+            PreUpdated?.Invoke(IsAuthenticated, IsReady);
         }
 
         public void Update()
