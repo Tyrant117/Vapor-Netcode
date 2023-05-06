@@ -16,7 +16,7 @@ namespace VaporNetcode
         public readonly int connectionID;
         public bool IsConnected { get; set; }
         public bool IsAuthenticated { get; private set; }
-        public bool IsReady { get; private set; }
+        public bool IsReady { get; set; }
         public int ConnectionID => connectionID;
         public ulong GenericULongID { get; set; }
         public string GenericStringID { get; set; }
