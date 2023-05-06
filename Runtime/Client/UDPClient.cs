@@ -49,7 +49,8 @@ namespace VaporNetcode
 
     public static class UDPClient
     {
-        public const string TAG = "<color=olive><b>[Client]</b></color>";        
+        public const string TAG = "<color=olive><b>[Client]</b></color>";
+        public const string WARNING = "<color=yellow><b>[!]</b></color>";
 
         private static bool isInitialized;
         private static bool isSimulated;
@@ -524,7 +525,7 @@ namespace VaporNetcode
 
             if (!ServerPeer.Unbatcher.AddBatch(buffer))
             {
-                Debug.LogWarning($"NetworkClient: failed to add batch, disconnecting.");
+                Debug.Log($"{WARNING} {TAG} Failed to add batch, disconnecting.");
                 Disconnect();
                 return;
             }
@@ -536,7 +537,7 @@ namespace VaporNetcode
                     ServerPeer.RemoteTimestamp = remoteTimestamp;
                     if (!PeerMessageReceived(reader, channelID))
                     {
-                        Debug.LogWarning($"NetworkClient: failed to unpack and invoke message. Disconnecting.");
+                        Debug.Log($"{WARNING} {TAG} Failed to unpack and invoke message. Disconnecting.");
                         Disconnect();
                         return;
                     }
@@ -544,7 +545,7 @@ namespace VaporNetcode
                 else
                 {
                     // WARNING, not error. can happen if attacker sends random data.
-                    Debug.LogWarning($"NetworkClient: received Message was too short (messages should start with message id)");
+                    Debug.Log($"{WARNING} {TAG} Received Message was too short (messages should start with message id)");
                     Disconnect();
                     return;
                 }
@@ -581,14 +582,14 @@ namespace VaporNetcode
                 else
                 {
                     // => WARNING, not error. can happen if attacker sends random data.
-                    Debug.LogWarning($"Unknown message id: {opCode}. This can happen if no handler was registered for this message.");
+                    Debug.Log($"{WARNING} {TAG} Unknown message id: {opCode}. This can happen if no handler was registered for this message.");
                     return false;
                 }
             }
             else
             {
                 // => WARNING, not error. can happen if attacker sends random data.
-                Debug.LogWarning("Invalid message header.");
+                Debug.Log($"{WARNING} {TAG} Invalid message header.");
                 return false;
             }
         }

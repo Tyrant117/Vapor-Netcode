@@ -28,7 +28,7 @@ namespace VaporNetcode
 
     public class UDPTransport
     {
-        public const string TAG = "<color=teal><b>[Transport]</b></color>";
+        public const string TAG = "<color=purple><b>[Transport]</b></color>";
 
         public enum TransportEvent { Connected, Data, Disconnected }
         public enum Source { Default = 0, Client = 1, Server = 2 }

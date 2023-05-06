@@ -1,12 +1,12 @@
-using System.Collections.Generic;
-using System;
-using VaporNetcode;
-using UnityEngine;
-using System.Linq;
-using VaporMMO.Backend;
 using Sirenix.OdinInspector;
-using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using UnityEngine;
+using VaporMMO.Backend;
+using VaporNetcode;
 
 namespace VaporMMO.Servers
 {
@@ -35,7 +35,7 @@ namespace VaporMMO.Servers
         [Button]
         private void GenerateRSAKeys()
         {
-            var rsa = System.Security.Cryptography.RSA.Create(2048);
+            var rsa = RSA.Create(2048);
 
             //how to get the private key
             _privateRSAKey = rsa.ToXmlString(true);
@@ -66,6 +66,7 @@ namespace VaporMMO.Servers
             UDPServer.RegisterHandler<RegistrationRequestMessage>(OnHandleRegistration, false);
             UDPServer.RegisterHandler<LoginRequestMessage>(OnHandleLogin, false);
             UDPServer.RegisterHandler<GetAccountDataRequestMessage>(OnHandleGetAccountData);
+            UDPServer.RegisterHandler<CreateCharacterRequestMessage>(OnHandleCreateCharacter);
             UDPServer.RegisterHandler<JoinWithCharacterRequestMessage>(OnHandleJoinWithCharacter);
 
             switch (_authenticationService)
@@ -123,72 +124,48 @@ namespace VaporMMO.Servers
                 case AuthenticationServiceType.Custom:
                     break;
             }
-
-            var decrypt = Decrypt(msg.Password);
-            var password = Hash(decrypt, out var salt);
-
-            AccountSpecifcation account = new()
+            if (accounts.TryGetValue(accountID, out var accSpec))
             {
-                StringID = accountID,
-                LinkedSteamID = msg.SteamID,
-                LinkedEpicProductUserID = msg.EpicUserID,
-                Email = msg.Email,
-                Password = password,
-                Salt = salt,
-                Permissions = PermisisonLevel.None,
-                EndOfBan = DateTimeOffset.MinValue,
-                LastLoggedIn = DateTimeOffset.UtcNow,
-            };
-
-            accounts[account.StringID] = account;
-
-            WriteToDatabase();
-
-            RegistrationResponseMessage respPacket = new()
-            {
-                AccountName = accountID,
-                Password = msg.Password,
-                Status = ResponseStatus.Success
-            };
-
-            UDPServer.Respond(conn, respPacket);
-        }
-
-        private string Decrypt(byte[] bytes)
-        {
-            var rsa = RSA.Create();
-            rsa.FromXmlString(_privateRSAKey);
-            return Encoding.UTF8.GetString(rsa.Decrypt(bytes, RSAEncryptionPadding.Pkcs1));
-        }
-
-        private string Hash(string password, out string salt)
-        {
-            var rng = RandomNumberGenerator.Create();
-            var bytes = new byte[64];
-            rng.GetBytes(bytes);
-            var hash = new Rfc2898DeriveBytes(password, bytes, 10000, HashAlgorithmName.SHA512);
-            salt = BitConverter.ToString(hash.Salt).Replace("-", string.Empty);
-            return BitConverter.ToString(hash.GetBytes(64)).Replace("-", string.Empty);
-        }
-
-        private bool VerifyPassword(string password, string hash, string salt)
-        {
-            var bytes = StringToByteArray(salt);
-            var hashToCompare = new Rfc2898DeriveBytes(password, bytes, 10000, HashAlgorithmName.SHA512);
-            return hashToCompare.GetBytes(64).SequenceEqual(StringToByteArray(hash));
-        }
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-            {
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} User Already Exhists: {accountID}"); }
+                RegistrationResponseMessage respPacket = new()
+                {
+                    AccountName = accountID,
+                    Password = msg.Password,
+                    Status = ResponseStatus.Failed
+                };
+                UDPServer.Respond(conn, respPacket);
             }
+            else
+            {
+                var decrypt = Decrypt(msg.Password);
+                var password = Hash(decrypt, out var salt);
 
-            return bytes;
-        }
+                AccountSpecifcation account = new()
+                {
+                    StringID = accountID,
+                    LinkedSteamID = msg.SteamID,
+                    LinkedEpicProductUserID = msg.EpicUserID,
+                    Email = msg.Email,
+                    Password = password,
+                    Salt = salt,
+                    Permissions = PermisisonLevel.None,
+                    EndOfBan = DateTimeOffset.MinValue,
+                    LastLoggedIn = DateTimeOffset.UtcNow,
+                };
+
+                accounts[account.StringID] = account;
+
+                WriteToDatabase();
+
+                RegistrationResponseMessage respPacket = new()
+                {
+                    AccountName = accountID,
+                    Password = msg.Password,
+                    Status = ResponseStatus.Success
+                };
+                UDPServer.Respond(conn, respPacket);
+            }
+        }        
         #endregion
 
         #region - Login -
@@ -348,6 +325,28 @@ namespace VaporMMO.Servers
                 UDPServer.Respond(conn, respPacket);
             }
         }
+        #endregion
+
+        #region - Joining -
+        private void OnHandleCreateCharacter(INetConnection conn, CreateCharacterRequestMessage msg)
+        {
+            var response = new CreateCharacterResponseMessage()
+            {
+                Status = ResponseStatus.Failed
+            };
+            if (characters.TryGetValue(conn.GenericStringID, out var chars) && chars.Count < 14)
+            {
+                AccountDataSpecification character = UDPServer.GetModule<ServerWorldModule>().CreateNewCharacter(msg.CharacterName, msg.Gender);
+                chars.Add(character);
+                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Character Created: {conn.GenericStringID} : {character.CharacterName}"); }
+                response = new CreateCharacterResponseMessage()
+                {
+                    CharacterName = msg.CharacterName,
+                    Status = ResponseStatus.Success
+                };
+            }
+            UDPServer.Send(conn, response);
+        }
 
         private void OnHandleJoinWithCharacter(INetConnection conn, JoinWithCharacterRequestMessage msg)
         {
@@ -359,6 +358,7 @@ namespace VaporMMO.Servers
                     if (character.CharacterName == msg.CharacterName)
                     {
                         found = true;
+                        if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Joined With Character: {conn.GenericStringID} : {msg.CharacterName}"); }
                         var response = UDPServer.GetModule<ServerWorldModule>().Join(conn, character);
                         UDPServer.Send(conn, response);
                         break;
@@ -376,23 +376,39 @@ namespace VaporMMO.Servers
         #region - Database -
         private AccountSpecifcation? GetAccount(string accountName)
         {
-            string localDataPath = Application.persistentDataPath + "/Accounts.json";
             AccountSpecifcation? foundAccount = null;
-            if (System.IO.File.Exists(localDataPath))
+            switch (_backend)
             {
-                string jsonFile = System.IO.File.ReadAllText(localDataPath);
-                var db = JsonUtility.FromJson<AccountSpecJSON>(jsonFile);
+                case BackendType.Local:
+                    _FromLocal();
+                    break;
+                case BackendType.Unisave:
+                    break;
+                case BackendType.Unity:
+                    break;
+                case BackendType.Playfab:
+                    break;
+            }
+            return foundAccount;
 
-                foreach (var account in db.Specifcations)
+            void _FromLocal()
+            {
+                string localDataPath = Application.persistentDataPath + "/Accounts.json";
+                if (System.IO.File.Exists(localDataPath))
                 {
-                    if (accountName == account.StringID)
+                    string jsonFile = System.IO.File.ReadAllText(localDataPath);
+                    var db = JsonUtility.FromJson<AccountSpecJSON>(jsonFile);
+
+                    foreach (var account in db.Specifications)
                     {
-                        foundAccount = account;
-                        break;
+                        if (accountName == account.StringID)
+                        {
+                            foundAccount = account;
+                            break;
+                        }
                     }
                 }
             }
-            return foundAccount;
         }
 
         private void HandleAccountLookupLocal(INetConnection conn, GetAccountDataRequestMessage msg, AccountSpecificationLookup lookup, AccountCharacterLookup characterCount, AccountDataLookup characterCallback)
@@ -408,7 +424,7 @@ namespace VaporMMO.Servers
                 string jsonFile = System.IO.File.ReadAllText(localDataPath);
                 var db = JsonUtility.FromJson<AccountSpecJSON>(jsonFile);
 
-                foreach (var account in db.Specifcations)
+                foreach (var account in db.Specifications)
                 {
                     if (conn.GenericStringID == account.StringID)
                     {
@@ -430,7 +446,7 @@ namespace VaporMMO.Servers
                     string jsonFile = System.IO.File.ReadAllText(localCharacterPath);
                     var db = JsonUtility.FromJson<AccountDataSpecJSON>(jsonFile);
 
-                    foreach (var character in db.Specifcations)
+                    foreach (var character in db.Specifications)
                     {
                         if (conn.GenericStringID != character.StringID)
                         {
@@ -491,33 +507,71 @@ namespace VaporMMO.Servers
         [Serializable]
         private class AccountSpecJSON
         {
-            public List<AccountSpecifcation> Specifcations;
+            public List<AccountSpecifcation> Specifications;
 
-            public AccountSpecJSON(AccountSpecifcation[] specifcations)
+            public AccountSpecJSON(AccountSpecifcation[] specifications)
             {
-                Specifcations = new(specifcations);
+                Specifications = new(specifications);
             }
         }
 
         [Serializable]
         private class AccountDataSpecJSON
         {
-            public List<AccountDataSpecification> Specifcations;
+            public List<AccountDataSpecification> Specifications;
 
             public AccountDataSpecJSON()
             {
-                Specifcations = new();
+                Specifications = new();
             }
 
-            public void AddRange(List<AccountDataSpecification> specifcations)
+            public void AddRange(List<AccountDataSpecification> specifications)
             {
-                Specifcations.AddRange(specifcations);
+                Specifications.AddRange(specifications);
             }
         }
         #endregion
 
         #region - Social -
 
+        #endregion
+
+        #region - Helpers -
+        private string Decrypt(byte[] bytes)
+        {
+            var rsa = RSA.Create();
+            rsa.FromXmlString(_privateRSAKey);
+            return Encoding.UTF8.GetString(rsa.Decrypt(bytes, RSAEncryptionPadding.Pkcs1));
+        }
+
+        private string Hash(string password, out string salt)
+        {
+            var rng = RandomNumberGenerator.Create();
+            var bytes = new byte[64];
+            rng.GetBytes(bytes);
+            var hash = new Rfc2898DeriveBytes(password, bytes, 10000, HashAlgorithmName.SHA512);
+            salt = BitConverter.ToString(hash.Salt).Replace("-", string.Empty);
+            return BitConverter.ToString(hash.GetBytes(64)).Replace("-", string.Empty);
+        }
+
+        private bool VerifyPassword(string password, string hash, string salt)
+        {
+            var bytes = StringToByteArray(salt);
+            var hashToCompare = new Rfc2898DeriveBytes(password, bytes, 10000, HashAlgorithmName.SHA512);
+            return hashToCompare.GetBytes(64).SequenceEqual(StringToByteArray(hash));
+        }
+
+        public static byte[] StringToByteArray(string hex)
+        {
+            int NumberChars = hex.Length;
+            byte[] bytes = new byte[NumberChars / 2];
+            for (int i = 0; i < NumberChars; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
+
+            return bytes;
+        }
         #endregion
     }
 }

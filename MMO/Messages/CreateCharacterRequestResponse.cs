@@ -4,9 +4,19 @@ namespace VaporMMO
 {
     public struct CreateCharacterRequestMessage : INetMessage
     {
+        public string CharacterName;
+        public byte Gender;
+
+        public CreateCharacterRequestMessage(NetworkReader r)
+        {
+            CharacterName = r.ReadString();
+            Gender = r.ReadByte();
+        }
 
         public void Serialize(NetworkWriter w)
         {
+            w.WriteString(CharacterName);
+            w.WriteByte(Gender);
         }
     }
 

@@ -13,6 +13,15 @@ namespace VaporMMO
             UDPServer.RegisterHandler<CommandMessage>(OnHandleCommand);
         }
 
+        public virtual AccountDataSpecification CreateNewCharacter(string characterName, byte gender)
+        {
+            var spec = new AccountDataSpecification()
+            {
+                CharacterName = characterName,
+            };
+            return spec;
+        }
+
         public virtual JoinWithCharacterResponseMessage Join(INetConnection conn, AccountDataSpecification character)
         {
             return new JoinWithCharacterResponseMessage()
@@ -20,8 +29,7 @@ namespace VaporMMO
                 Scene = string.Empty,
                 Status = ResponseStatus.Failed,
             };
-        }
-
+        }        
 
         private void OnHandleCommand(INetConnection conn, CommandMessage msg)
         {

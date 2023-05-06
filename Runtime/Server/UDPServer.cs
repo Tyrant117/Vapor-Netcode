@@ -54,7 +54,8 @@ namespace VaporNetcode
 
     public static class UDPServer
     {
-        private const string TAG = "<color=cyan><b>[Server]</b></color>";
+        private const string TAG = "<color=teal><b>[Server]</b></color>";
+        public const string WARNING = "<color=yellow><b>[!]</b></color>";
 
 
         public static bool isRunning;
@@ -469,7 +470,7 @@ namespace VaporNetcode
         {
             // transport errors will happen. logging a warning is enough.
             // make sure the user does not panic.
-            Debug.LogWarning($"Server Transport Error for connId={connectionId}: {error}: {reason}.");
+            Debug.LogWarning($"{WARNING} {TAG} Server Transport Error for connId={connectionId}: {error}: {reason}.");
         }
 
         private static void HandleData(int connectionID, ArraySegment<byte> buffer, int channelID)
@@ -478,7 +479,7 @@ namespace VaporNetcode
             {
                 if (!peer.Unbatcher.AddBatch(buffer))
                 {
-                    Debug.LogWarning($"NetworkServer: received Message was too short ({buffer.Count} < {Batcher.HeaderSize}) (messages should start with message id)");
+                    Debug.LogWarning($"{WARNING} {TAG} Received Message was too short ({buffer.Count} < {Batcher.HeaderSize}) (messages should start with message id)");
                     peer.Disconnect();
                     return;
                 }
@@ -493,7 +494,7 @@ namespace VaporNetcode
 
                         if (!PeerMessageReceived(peer, reader, channelID))
                         {
-                            Debug.LogWarning($"NetworkServer: failed to unpack and invoke message. Disconnecting {connectionID}.");
+                            Debug.LogWarning($"{WARNING} {TAG} Failed to unpack and invoke message. Disconnecting {connectionID}.");
                             peer.Disconnect();
                             return;
                         }
@@ -501,7 +502,7 @@ namespace VaporNetcode
                     else
                     {
                         // WARNING, not error. can happen if attacker sends random data.
-                        Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionID}");
+                        Debug.LogWarning($"{WARNING} {TAG} Received Message was too short (messages should start with message id). Disconnecting {connectionID}");
                         peer.Disconnect();
                         return;
                     }
@@ -538,14 +539,14 @@ namespace VaporNetcode
                 else
                 {
                     // => WARNING, not error. can happen if attacker sends random data.
-                    Debug.LogWarning($"Unknown message id: {opCode} for connection: {peer}. This can happen if no handler was registered for this message.");
+                    Debug.LogWarning($"{WARNING} {TAG} Unknown message id: {opCode} for connection: {peer}. This can happen if no handler was registered for this message.");
                     return false;
                 }
             }
             else
             {
                 // => WARNING, not error. can happen if attacker sends random data.
-                Debug.LogWarning($"Invalid message header for connection: {peer}.");
+                Debug.LogWarning($"{WARNING} {TAG} Invalid message header for connection: {peer}.");
                 return false;
             }
         }

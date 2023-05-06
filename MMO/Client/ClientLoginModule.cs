@@ -70,6 +70,17 @@ namespace VaporMMO.Clients
             UDPClient.Send(msg);
         }
 
+        public void Create(string characterName, byte gender)
+        {
+            var msg = new CreateCharacterRequestMessage()
+            {
+                CharacterName = characterName,
+                Gender = gender,
+            };
+            UDPClient.RegisterResponse<CreateCharacterResponseMessage>(10);
+            UDPClient.Send(msg);
+        }
+
         public void Join(string characterName)
         {
             var msg = new JoinWithCharacterRequestMessage()
@@ -145,11 +156,21 @@ namespace VaporMMO.Clients
 
         private void OnCharacterCreateResponse(INetConnection conn, CreateCharacterResponseMessage msg)
         {
+            if (NetLogFilter.logInfo)
+            {
+                Debug.Log($"{TAG} Character Create Data Response: {msg.Status}");
+            }
+
             var success = UDPClient.ServerPeer.TriggerResponse<CreateCharacterResponseMessage>(msg.Status);
             if (success)
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
+                    if (NetLogFilter.logInfo)
+                    {
+                        Debug.Log($"{TAG} Created Character: {msg.CharacterName}");
+                    }
+
                     var join = new JoinWithCharacterRequestMessage()
                     {
                         CharacterName = msg.CharacterName,
