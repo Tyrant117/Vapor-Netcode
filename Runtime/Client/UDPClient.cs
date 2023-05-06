@@ -37,6 +37,16 @@ namespace VaporNetcode
 #endif
         [Tooltip("Client Target Send Rate")]
         public int ClientUpdateRate = 30;
+#if ODIN_INSPECTOR
+        [TitleGroup("Properties")]
+#endif
+        [Tooltip("Server Target Send Rate")]
+        public int ServerUpdateRate = 30;
+#if ODIN_INSPECTOR
+        [TitleGroup("Properties")]
+#endif
+        [Tooltip("Snapshot interpolation setting")]
+        public SnapshotInterpolationSettings SnapshotSettings;
 
 #if ODIN_INSPECTOR
         [TitleGroup("Debug")]
@@ -69,6 +79,8 @@ namespace VaporNetcode
         public static Peer ServerPeer { get; private set; }
 
         public static double LocalTimeline { get; private set; }
+
+        public static double BufferTime => 1f / _config.ServerUpdateRate * _config.SnapshotSettings.bufferTimeMultiplier;
         #endregion
 
         #region Modules

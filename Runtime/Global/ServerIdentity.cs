@@ -15,6 +15,8 @@ namespace VaporNetcode
         /// <returns>True when <see cref="cleanup"/> is true, will remove entity from the server</returns>
         public bool Cleanup => cleanup;
 
+        public Peer Peer { get; }
+        public bool IsPeer => Peer != null;
         public virtual bool IsReady { get; }
         public bool Active { get; protected set; }
         public bool IsPlayer { get; protected set; }
@@ -24,6 +26,8 @@ namespace VaporNetcode
 
         // NetworkIdentities that this connection can see
         public readonly HashSet<ServerIdentity> observing = new();
+
+        protected NetTransformReliable _transform;
 
         public virtual void MarkActive()
         {
@@ -38,12 +42,16 @@ namespace VaporNetcode
         /// <param name="serverTick"></param>
         public virtual void Tick(long serverTick) { }
 
+        public void LinkNetTransform()
+        {
+            _transform = new(this);
+        }
+
         #region - Messages -
         public virtual void AddPacket(CommandMessage msg) { }
 
         public virtual void SendInterestPacket() { }
         #endregion
-
 
         #region - Interest Management -
         public void AddToObserving(ServerIdentity netIdentity)

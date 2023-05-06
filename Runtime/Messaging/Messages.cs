@@ -127,4 +127,84 @@ namespace VaporNetcode
             w.WriteString(message);
         }
     }
+
+    public struct TeleportMessage : INetMessage
+    {
+        public Vector3 Position;
+        public Quaternion? Rotation;
+
+        public TeleportMessage(NetworkReader r)
+        {
+            Position = r.ReadVector3();
+            var decompress = r.ReadUIntNullable();
+            Rotation = decompress.HasValue ? Compression.DecompressQuaternion(decompress.Value) : null;
+        }
+
+        public void Serialize(NetworkWriter w)
+        {
+            w.WriteVector3(Position);
+            if (Rotation.HasValue)
+            {
+                w.WriteUIntNullable(Compression.CompressQuaternion(Rotation.Value));
+            }
+            else
+            {
+                w.WriteUIntNullable(null);
+            }
+        }
+    }
+
+    public struct TransformSnapshotMessage : INetMessage
+    {
+        public Vector3? Position;
+        public Quaternion? Rotation;
+        public Vector3? Scale;
+
+        public TransformSnapshotMessage(NetworkReader r)
+        {
+            Position = r.ReadVector3Nullable();
+            Rotation = r.ReadQuaternionNullable();
+            Scale = r.ReadVector3Nullable();
+        }
+
+        public void Serialize(NetworkWriter w)
+        {
+            w.WriteVector3Nullable(Position);
+            w.WriteQuaternionNullable(Rotation);
+            w.WriteVector3Nullable(Scale);
+        }
+    }
+
+    public struct TransformSnapshotDeltaMessage : INetMessage
+    {
+        public Vector3Long? DeltaPosition;
+        public Quaternion? Rotation;
+        public Vector3Long? DeltaScale;
+
+        public TransformSnapshotDeltaMessage(NetworkReader r)
+        {
+            DeltaPosition = r.ReadBool() ? (new(Compression.DecompressVarInt(r), Compression.DecompressVarInt(r), Compression.DecompressVarInt(r))) : null;
+            Rotation = r.ReadQuaternionNullable();
+            DeltaScale = r.ReadBool() ? (new(Compression.DecompressVarInt(r), Compression.DecompressVarInt(r), Compression.DecompressVarInt(r))) : null;
+        }
+
+        public void Serialize(NetworkWriter w)
+        {
+            w.WriteBool(DeltaPosition.HasValue);
+            if (DeltaPosition.HasValue)
+            {
+                Compression.CompressVarInt(w, DeltaPosition.Value.x);
+                Compression.CompressVarInt(w, DeltaPosition.Value.y);
+                Compression.CompressVarInt(w, DeltaPosition.Value.z);
+            }
+            w.WriteQuaternionNullable(Rotation);
+            w.WriteBool(DeltaScale.HasValue);
+            if (DeltaScale.HasValue)
+            {
+                Compression.CompressVarInt(w, DeltaScale.Value.x);
+                Compression.CompressVarInt(w, DeltaScale.Value.y);
+                Compression.CompressVarInt(w, DeltaScale.Value.z);
+            }
+        }
+    }
 }

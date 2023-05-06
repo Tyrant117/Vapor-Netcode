@@ -41,6 +41,11 @@ namespace VaporNetcode
 #endif
         [Tooltip("Server Target Framerate")]
         public int serverUpdateRate = 30;
+#if ODIN_INSPECTOR
+        [TitleGroup("Properties")]
+#endif
+        [Tooltip("Snapshot interpolation setting")]
+        public SnapshotInterpolationSettings SnapshotSettings;
 
 #if ODIN_INSPECTOR
         [TitleGroup("Debug")]
@@ -64,6 +69,7 @@ namespace VaporNetcode
         private static bool isSimulated;
 
         public static float SendInterval => 1f / _config.serverUpdateRate; // for 30 Hz, that's 33ms
+        public static double BufferTime => SendInterval * _config.SnapshotSettings.bufferTimeMultiplier;
         private static double _lastSendTime;
 
         private static ServerConfig _config;
