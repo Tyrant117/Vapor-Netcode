@@ -103,6 +103,7 @@ namespace VaporNetcode
         {
             using var r = NetworkReaderPool.Get(packet.data);
             int classCount = r.ReadInt();
+            Debug.Log($"Unbatch Classes: {classCount}");
             for (int i = 0; i < classCount; i++)
             {
                 ObservableClass.StartDeserialize(r, out int type, out int id);
@@ -123,6 +124,7 @@ namespace VaporNetcode
             }
 
             int fieldCount = r.ReadInt();
+            Debug.Log($"Unbatch Fields: {fieldCount}");
             for (int i = 0; i < fieldCount; i++)
             {
                 ObservableField.StartDeserialize(r, out int id, out var type);

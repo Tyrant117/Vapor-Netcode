@@ -1,10 +1,13 @@
 using System;
+using UnityEngine;
 using VaporNetcode;
 
 namespace VaporMMO
 {
     public class ClientEntityModule : ClientModule
     {
+        private const string TAG = "<color=lightblue><b>[Client Entity]</b></color>";
+
         public event Action<EntityInterestPacket> UpdatePlayer;
         public event Action<EntityInterestPacket> UpdateCreature;
         public event Action<EntityInterestPacket> UpdateInteractable;
@@ -17,6 +20,10 @@ namespace VaporMMO
 
         private void OnProfileUpdate(INetConnection conn, SyncDataMessage msg)
         {
+            if (NetLogFilter.logInfo && NetLogFilter.spew)
+            {
+                Debug.Log($"{TAG} Profile Updated");
+            }
             if (conn is Peer peer && peer.IsReady)
             {
                 ((Peer)conn).SyncBatcher.Unbatch(msg);
