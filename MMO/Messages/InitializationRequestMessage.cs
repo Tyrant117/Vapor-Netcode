@@ -1,6 +1,0 @@
-using VaporNetcode;
-
-namespace VaporMMO
-{
-    
-}

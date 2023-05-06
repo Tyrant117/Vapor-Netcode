@@ -52,8 +52,6 @@ namespace VaporMMO.Servers
         // Authentication
         private Action<INetConnection, LoginRequestMessage> AuthenticateConnection;
 
-        public Action<INetConnection, CreateCharacterRequestMessage> CreateCharacter;
-
         // Database
         private Action<INetConnection, GetAccountDataRequestMessage,
             AccountSpecificationLookup, // Account Lookup

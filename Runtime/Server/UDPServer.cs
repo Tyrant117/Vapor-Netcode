@@ -110,12 +110,12 @@ namespace VaporNetcode
         #endregion
 
         #region Modules
-        private static Dictionary<Type, ServerModule> modules = new(); // Modules added to the network manager
-        private static HashSet<Type> initializedModules = new(); // set of initialized modules on the network manager
+        private static readonly Dictionary<Type, ServerModule> modules = new(); // Modules added to the network manager
+        private static readonly HashSet<Type> initializedModules = new(); // set of initialized modules on the network manager
         #endregion
 
         #region Messaging
-        private static Dictionary<ushort, IPacketHandler> handlers = new(); // key value pair to handle messages.
+        private static readonly Dictionary<ushort, IPacketHandler> handlers = new(); // key value pair to handle messages.
         #endregion
 
         #region Event Handling

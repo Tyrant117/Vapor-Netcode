@@ -36,9 +36,6 @@ namespace VaporNetcode
         private float _lastResponseCheckTime;
         protected readonly Dictionary<ushort, float> responseTimeoutQueue; // queue to handle when messages timeout
         protected readonly List<ushort> timedOutResponses;
-
-        protected int nextResponseID = 1; // incrementor to give unique ids
-        protected ResponseTimeoutPacket timeoutMessage; // message to send when a response times out
         #endregion
 
         public Peer(int connectionID, UDPTransport.Source source)

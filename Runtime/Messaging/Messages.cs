@@ -85,24 +85,6 @@ namespace VaporNetcode
         }
     }
 
-    public struct ResponseTimeoutPacket : INetMessage, IResponseMessage
-    {
-        public ushort ResponseID { get; set; }
-        public ResponseStatus Status { get; set; }
-
-        public ResponseTimeoutPacket(NetworkReader r)
-        {
-            ResponseID = r.ReadUShort();
-            Status = (ResponseStatus)r.ReadByte();
-        }
-
-        public void Serialize(NetworkWriter w)
-        {
-            w.WriteUShort(ResponseID);
-            w.WriteByte((byte)Status);
-        }
-    }
-
     // A client sends this message to the server
     // to calculate RTT and synchronize time
     public struct NetworkPingMessage : INetMessage
