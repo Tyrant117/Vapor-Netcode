@@ -10,8 +10,8 @@ namespace VaporNetcode
         public Dictionary<Vector2Int, ObservableClass> classMap = new(50);
         public Dictionary<int, ObservableField> fieldMap = new(50);
 
-        public List<ObservableClass> dirtyClasses = new(50);
-        public List<ObservableField> dirtyFields = new(50);
+        public Dictionary<Vector2Int, ObservableClass> dirtyClasses = new(50);
+        public Dictionary<int, ObservableField> dirtyFields = new(50);
 
         public event Action<ObservableClass> ClassCreated;
         public event Action<ObservableField> FieldCreated;
@@ -27,9 +27,9 @@ namespace VaporNetcode
                 if (NetLogFilter.logInfo) { Debug.Log($"Overwriting ObservableClass at Key: {key}"); }
             }
 
-            if (!dirtyClasses.Contains(observableClass))
+            if (!dirtyClasses.ContainsKey(key))
             {
-                dirtyClasses.Add(observableClass);
+                dirtyClasses.Add(key, observableClass);
             }
             classMap[key] = observableClass;
             observableClass.Dirtied += ObservableClass_Dirtied;
@@ -43,9 +43,9 @@ namespace VaporNetcode
                 if (NetLogFilter.logInfo) { Debug.Log($"Overwriting ObservableField at Key: {key}"); }
             }
 
-            if (!dirtyFields.Contains(observableField))
+            if (!dirtyFields.ContainsKey(key))
             {
-                dirtyFields.Add(observableField);
+                dirtyFields.Add(key, observableField);
             }
 
             fieldMap[key] = observableField;
@@ -56,17 +56,18 @@ namespace VaporNetcode
         #region - Dirty -
         private void ObservableClass_Dirtied(ObservableClass observableClass)
         {
-            if (!dirtyClasses.Contains(observableClass))
+            Vector2Int key = new(observableClass.Type, observableClass.ID);
+            if (!dirtyClasses.ContainsKey(key))
             {
-                dirtyClasses.Add(observableClass);
+                dirtyClasses.Add(key, observableClass);
             }
         }
 
         private void ObservableField_Dirtied(ObservableField observableField)
         {
-            if (!dirtyFields.Contains(observableField))
+            if (!dirtyFields.ContainsKey(observableField.FieldID))
             {
-                dirtyFields.Add(observableField);
+                dirtyFields.Add(observableField.FieldID, observableField);
             }
         }
         #endregion
@@ -76,13 +77,13 @@ namespace VaporNetcode
         {
             using var w = NetworkWriterPool.Get();
             w.WriteInt(dirtyClasses.Count);
-            foreach (var oc in dirtyClasses)
+            foreach (var oc in dirtyClasses.Values)
             {
                 oc.Serialize(w);
             }
 
             w.WriteInt(dirtyFields.Count);
-            foreach (var of in dirtyFields)
+            foreach (var of in dirtyFields.Values)
             {
                 of.Serialize(w);
             }
