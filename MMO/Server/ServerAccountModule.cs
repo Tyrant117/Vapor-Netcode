@@ -334,7 +334,7 @@ namespace VaporMMO.Servers
             };
             if (characters.TryGetValue(conn.GenericStringID, out var chars) && chars.Count < 14)
             {
-                AccountDataSpecification character = UDPServer.GetModule<ServerWorldModule>().CreateNewCharacter(msg.CharacterName, msg.Gender);
+                AccountDataSpecification character = UDPServer.GetModule<ServerWorldModule>().CreateNewCharacter(conn.GenericStringID, msg.CharacterName, msg.Gender);
                 chars.Add(character);
                 if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Character Created: {conn.GenericStringID} : {character.CharacterName}"); }
                 response = new CreateCharacterResponseMessage()

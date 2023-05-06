@@ -13,11 +13,16 @@ namespace VaporMMO
             UDPServer.RegisterHandler<CommandMessage>(OnHandleCommand);
         }
 
-        public virtual AccountDataSpecification CreateNewCharacter(string characterName, byte gender)
+        public virtual AccountDataSpecification CreateNewCharacter(string accountID, string characterName, byte gender)
         {
             var spec = new AccountDataSpecification()
             {
+                StringID = accountID,
                 CharacterName = characterName,
+                LastLoggedIn = DateTimeOffset.UtcNow,
+                CharacterDisplayEquipment = new(),
+                ClassData = new(),
+                FieldData = new(),
             };
             return spec;
         }
