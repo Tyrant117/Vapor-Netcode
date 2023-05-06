@@ -227,7 +227,7 @@ namespace VaporNetcode
 
         internal static void NetworkLateUpdate()
         {
-            if(isInitialized && isSimulated)
+            if (isInitialized && isSimulated)
             {
                 while (UDPTransport.ReceiveSimulatedMessage(UDPTransport.Source.Client, out int connID, out UDPTransport.TransportEvent transportEvent, out ArraySegment<byte> data))
                 {
@@ -251,6 +251,12 @@ namespace VaporNetcode
                 if (!Application.isPlaying || AccurateInterval.Elapsed(NetworkTime.localTime, SendInterval, ref _lastSendTime))
                 {
                     //Broadcast();
+                    if (IsConnected)
+                    {
+                        ServerPeer.PreUpdate();
+                        // update connection to flush out batched messages
+                        ServerPeer.Update();
+                    }
                 }
             }
 
@@ -258,9 +264,6 @@ namespace VaporNetcode
             {
                 // update NetworkTime
                 NetworkTime.UpdateClient();
-
-                // update connection to flush out batched messages
-                ServerPeer.Update();
             }
 
             UDPTransport.ClientLateUpdate();

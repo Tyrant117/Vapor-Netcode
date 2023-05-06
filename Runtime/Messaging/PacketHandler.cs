@@ -45,7 +45,7 @@ namespace VaporNetcode
                 if (_requireAuthentication && !conn.IsAuthenticated)
                 {
                     // message requires authentication, but the connection was not authenticated
-                    Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
+                    Debug.Log($"<color=yellow><b>[!]</b></color> Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
                     conn.Disconnect();
                     return;
                 }

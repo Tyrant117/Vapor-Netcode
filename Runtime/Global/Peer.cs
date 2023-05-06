@@ -32,6 +32,8 @@ namespace VaporNetcode
         public ObservableBatcher SyncBatcher { get; private set; }
         public SyncDataMessage CurrentSyncBatch { get; private set; }
 
+        public event Action PreUpdated;
+
         #region Responses
         private float _lastResponseCheckTime;
         protected readonly Dictionary<ushort, float> responseTimeoutQueue; // queue to handle when messages timeout
@@ -97,49 +99,52 @@ namespace VaporNetcode
         #endregion
 
         #region - Messaging -
+        public void PreUpdate()
+        {
+            PreUpdated?.Invoke();
+        }
+
         public void Update()
         {
             if(source == UDPTransport.Source.Client)
             {
                 ClientUpdate();
             }
-            
+
             // make and send as many batches as necessary from the stored
             // messages.
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            using NetworkWriterPooled writer = NetworkWriterPool.Get();
+            // make a batch with our local time (double precision)
+            while (ReliableBatcher.GetBatch(writer))
             {
-                // make a batch with our local time (double precision)
-                while (ReliableBatcher.GetBatch(writer))
+                // validate packet before handing the batch to the
+                // transport. this guarantees that we always stay
+                // within transport's max message size limit.
+                // => just in case transport forgets to check it
+                // => just in case mirror miscalulated it etc.
+                ArraySegment<byte> segment = writer.ToArraySegment();
+                if (ValidatePacketSize(segment, Channels.Reliable))
                 {
-                    // validate packet before handing the batch to the
-                    // transport. this guarantees that we always stay
-                    // within transport's max message size limit.
-                    // => just in case transport forgets to check it
-                    // => just in case mirror miscalulated it etc.
-                    ArraySegment<byte> segment = writer.ToArraySegment();
-                    if (ValidatePacketSize(segment, Channels.Reliable))
-                    {
-                        // send to transport
-                        SendToTransport(segment, Channels.Reliable);
-                        //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+                    // send to transport
+                    SendToTransport(segment, Channels.Reliable);
+                    //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
-                        // reset writer for each new batch
-                        writer.Position = 0;
-                    }
+                    // reset writer for each new batch
+                    writer.Position = 0;
                 }
+            }
 
-                while (UnreliableBatcher.GetBatch(writer))
+            while (UnreliableBatcher.GetBatch(writer))
+            {
+                ArraySegment<byte> segment = writer.ToArraySegment();
+                if (ValidatePacketSize(segment, Channels.Unreliable))
                 {
-                    ArraySegment<byte> segment = writer.ToArraySegment();
-                    if (ValidatePacketSize(segment, Channels.Unreliable))
-                    {
-                        // send to transport
-                        SendToTransport(segment, Channels.Unreliable);
-                        //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+                    // send to transport
+                    SendToTransport(segment, Channels.Unreliable);
+                    //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
-                        // reset writer for each new batch
-                        writer.Position = 0;
-                    }
+                    // reset writer for each new batch
+                    writer.Position = 0;
                 }
             }
         }
