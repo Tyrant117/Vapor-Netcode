@@ -6,7 +6,6 @@ namespace VaporNetcode
 {
     public class ObservableBatcher
     {
-        public bool isFirstUnbatch = true;
         public Dictionary<Vector2Int, ObservableClass> classMap = new(50);
         public Dictionary<int, ObservableField> fieldMap = new(50);
 
@@ -17,6 +16,15 @@ namespace VaporNetcode
         public event Action<ObservableField> FieldCreated;
         public event Action FirstUnbatch;
         public event Action<int, int> Unbatched;
+
+        private bool isFirstUnbatch = true;
+        private readonly NetworkWriter w;
+
+        public ObservableBatcher()
+        {
+            isFirstUnbatch = true;
+            w = new();
+        }
 
         #region - Registration -
         public void RegisterObserableClass(ObservableClass observableClass)
@@ -75,7 +83,7 @@ namespace VaporNetcode
         #region - Batching -
         public SyncDataMessage Batch()
         {
-            using var w = NetworkWriterPool.Get();
+            w.Reset();
             w.WriteInt(dirtyClasses.Count);
             foreach (var oc in dirtyClasses.Values)
             {
