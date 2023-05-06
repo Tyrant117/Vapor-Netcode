@@ -17,7 +17,10 @@ namespace VaporMMO
 
         private void OnProfileUpdate(INetConnection conn, SyncDataMessage msg)
         {
-            ((Peer)conn).SyncBatcher.Unbatch(msg);
+            if (conn is Peer peer && peer.IsReady)
+            {
+                ((Peer)conn).SyncBatcher.Unbatch(msg);
+            }
         }
 
         private void OnInterestUpdate(INetConnection conn, InterestMessage msg)

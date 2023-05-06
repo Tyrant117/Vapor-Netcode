@@ -10,6 +10,7 @@ namespace VaporMMO
 
         public override void Initialize()
         {
+            UDPServer.RegisterHandler<ClientReadyMessage>(OnHandleReady);
             UDPServer.RegisterHandler<CommandMessage>(OnHandleCommand);
         }
 
@@ -17,7 +18,10 @@ namespace VaporMMO
         {
             foreach (var plr in Players.Values)
             {
-                plr.SendInterestPacket();
+                if (plr.IsReady)
+                {
+                    plr.SendInterestPacket();
+                }
             }
         }
 
@@ -42,7 +46,19 @@ namespace VaporMMO
                 Scene = string.Empty,
                 Status = ResponseStatus.Failed,
             };
-        }        
+        }
+
+        private void OnHandleReady(INetConnection conn, ClientReadyMessage msg)
+        {
+            if (Players.ContainsKey(conn.ConnectionID))
+            {
+                ((Peer)conn).IsReady = true;
+            }
+            else
+            {
+                conn.Disconnect();
+            }
+        }
 
         private void OnHandleCommand(INetConnection conn, CommandMessage msg)
         {
