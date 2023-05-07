@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using UnityEditorInternal;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
@@ -84,7 +85,7 @@ namespace VaporNetcode
         public static double BufferTime => 1f / _config.ServerUpdateRate * _config.SnapshotSettings.bufferTimeMultiplier;
 
         // <servertime, snaps>
-        public static SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
+        public static SortedList<double, TimeSnapshot> snapshots = new();
 
         // catchup / slowdown adjustments are applied to timescale,
         // to be adjusted in every update instead of when receiving messages.
@@ -136,7 +137,7 @@ namespace VaporNetcode
             }
         }
 
-        public static bool IsActive => status == ConnectionStatus.Connecting || status == ConnectionStatus.Connected;
+        public static bool IsActive => status is ConnectionStatus.Connecting or ConnectionStatus.Connected;
 
         /// <summary>
         ///     True if we are connected to another socket
@@ -209,6 +210,7 @@ namespace VaporNetcode
 
 
             UDPTransport.Init(false, true, isSimulated);
+            _lastSendTime = 0;
             isInitialized = true;
             if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Client Initialized"); }
 
@@ -242,6 +244,11 @@ namespace VaporNetcode
             UDPTransport.OnClientDisconnected = null;
             UDPTransport.OnClientError = null;
 
+            connectionID = -1;
+            stopConnectingTime = 0;
+            isAttemptingReconnect = false;
+
+            status = ConnectionStatus.None;
             Connected = null;
             Disconnected = null;
             StatusChanged = null;
@@ -250,7 +257,20 @@ namespace VaporNetcode
             _config = null;
             isInitialized = false;
             isSimulated = false;
+            IsConnected = false;
+            IsConnecting = false;
+            ConnectionIP = string.Empty;
+            ConnectionPort = 0;
+            _lastSendTime = 0;
 
+            LocalTimeline = 0;
+            snapshots.Clear();
+            localTimescale = 1f;
+            dynamicAdjustment = true;
+            dynamicAdjustmentTolerance = 1f;
+            deliveryTimeEmaDuration = 2;
+
+            ServerPeer.Dispose();
             ServerPeer = null;
             modules.Clear();
             initializedModules.Clear();
@@ -723,9 +743,9 @@ namespace VaporNetcode
             NetDiagnostics.OnSend(message, channelId, w.Position, 1);
         }
 
-        public static ushort RegisterResponse<T>(int timeout = 5) where T : struct, INetMessage
+        public static void RegisterResponse<T>(int timeout = 5) where T : struct, INetMessage
         {
-            return ServerPeer.RegisterResponse(NetworkMessageId<T>.Id, timeout);
+            ServerPeer.RegisterResponse(NetworkMessageId<T>.Id, timeout);
         }
 
         public static void TimeoutResponse(ushort opCode)

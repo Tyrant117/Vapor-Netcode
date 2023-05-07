@@ -76,11 +76,11 @@ namespace VaporNetcode
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool dispose) 
+        protected virtual void Dispose(bool dispose)
         {
-            if(source == UDPTransport.Source.Client)
+            if (source == UDPTransport.Source.Client)
             {
-
+                responseTimeoutQueue.Clear();
             }
         }
 
@@ -224,11 +224,10 @@ namespace VaporNetcode
         /// <param name="callback"></param>
         /// <param name="timeout">Seconds</param>
         /// <returns></returns>
-        public ushort RegisterResponse(ushort id, float timeout)
+        public void RegisterResponse(ushort id, float timeout)
         {
             // +1, because it might be about to tick in a few miliseconds
             responseTimeoutQueue[id] = Time.time + timeout;
-            return id;
         }
 
         /// <summary>

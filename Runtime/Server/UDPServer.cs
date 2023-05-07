@@ -176,6 +176,7 @@ namespace VaporNetcode
 
 
                 RegisterHandler<NetworkPingMessage>(NetTime.OnServerPing, false);
+                _lastSendTime = 0;
                 isSetup = true;
             }
         }
@@ -201,6 +202,12 @@ namespace VaporNetcode
             {
                 UDPTransport.StopServer();
             }
+            _lastSendTime = 0;
+
+            actualTickRate = 0;
+            actualTickRateStart = 0;
+            actualTickRateCounter = 0;
+            tick = 0;
 
             UDPTransport.OnServerConnected = null;
             UDPTransport.OnServerDataReceived = null;
