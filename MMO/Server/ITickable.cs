@@ -2,9 +2,13 @@ namespace VaporMMO
 {
     public interface ITickable
     {
-        public bool IsRegistered { get; }
-        public uint NetID { get; }
-        public void Register(uint netID);
+        public bool IsRegistered { get; set; }
+        public uint NetID { get; set; }
+        public void Register(uint netID)
+        {
+            NetID = netID;
+            IsRegistered = true;
+        }
         public void Tick();
     }
 }
