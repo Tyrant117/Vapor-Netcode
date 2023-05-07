@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using VaporNetcode;
 
-namespace VaporMMO
+namespace VaporNetcode
 {
     public struct EntityInterestPacket : ISerializablePacket
     {

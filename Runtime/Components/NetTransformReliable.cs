@@ -86,10 +86,10 @@ namespace VaporNetcode
                             Scale = syncScale ? snapshot.scale : null,
                         };
                         _initialSend = false;
-                        if (_serverID.IsPeer)
-                        {
-                            UDPServer.Send(_serverID.Peer, snapshotMsg);
-                        }
+                        //if (_serverID.IsPeer)
+                        //{
+                        //    UDPServer.Send(_serverID.Peer, snapshotMsg);
+                        //}
                         UDPServer.SendToObservers(_serverID, snapshotMsg);
                     }
                     else
@@ -116,10 +116,10 @@ namespace VaporNetcode
                             DeltaScale = deltaScale ?? null,
                         };
 
-                        if (_serverID.IsPeer)
-                        {
-                            UDPServer.Send(_serverID.Peer, snapshotDeltaMsg);
-                        }
+                        //if (_serverID.IsPeer)
+                        //{
+                        //    UDPServer.Send(_serverID.Peer, snapshotDeltaMsg);
+                        //}
                         UDPServer.SendToObservers(_serverID, snapshotDeltaMsg);
                     }
 

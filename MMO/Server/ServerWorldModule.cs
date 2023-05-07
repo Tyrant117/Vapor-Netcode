@@ -64,6 +64,8 @@ namespace VaporMMO
 
             foreach (var entity in Entities.Values)
             {
+                if (entity.IsPlayer) { continue; }
+
                 if (entity.Cleanup)
                 {
                     ReturnEntity(entity);
