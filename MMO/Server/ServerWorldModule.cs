@@ -1,13 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using UnityEngine;
 using VaporNetcode;
 
 namespace VaporMMO
 {
     public class ServerWorldModule : ServerModule
     {
+        public const string TAG = "<color=cyan><b>[Client]</b></color>";
+        public const string WARNING = "<color=yellow><b>[!]</b></color>";
+
+        //Network IDs for Objects
+        private uint _idCounter = 0;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public uint NextNetID()
+        {
+            _idCounter++;
+            if (NetLogFilter.logInfo && NetLogFilter.spew) { Debug.Log($"{TAG} Generated ID: {0}"); }
+            return _idCounter;
+        }
+
         public readonly Dictionary<int, ServerIdentity> Players = new();
         public readonly Dictionary<uint, ServerIdentity> Entities = new();
+        public readonly Dictionary<uint, ITickable> Tickables = new();
 
         private readonly DictionaryCleanupList<uint, ServerIdentity> _cleanup = new(200);
 
@@ -25,6 +42,11 @@ namespace VaporMMO
                 {
                     plr.Tick();
                 }
+            }
+
+            foreach (var tickable in Tickables.Values)
+            {
+                tickable.Tick();
             }
 
             foreach (var entity in Entities.Values)
@@ -46,8 +68,6 @@ namespace VaporMMO
                 entity.CreateInterestPacket();
             }
 
-            _cleanup.RemoveAll(Entities);
-
             foreach (var plr in Players.Values)
             {
                 if (plr.IsReady)
@@ -55,8 +75,10 @@ namespace VaporMMO
                     plr.SendInterestPacket();
                 }
             }
+            _cleanup.RemoveAll(Entities);
         }
 
+        #region - Creation and Joining -
         public virtual AccountDataSpecification CreateNewCharacter(string accountID, string characterName, byte gender)
         {
             var spec = new AccountDataSpecification()
@@ -79,7 +101,30 @@ namespace VaporMMO
                 Status = ResponseStatus.Failed,
             };
         }
+        #endregion
 
+        #region - Registration -
+        public void RegisterTickable(ITickable tickable)
+        {
+            if (tickable.IsRegistered) { return; }
+            tickable.Register(NextNetID());
+            Tickables.Add(tickable.NetID, tickable);
+        }
+
+        public void RemoveTickable(uint netID)
+        {
+            Tickables.Remove(netID);
+        }
+
+        public void RegisterEntity(ServerIdentity entity)
+        {
+            if (entity.IsRegistered) { return; }
+            entity.Register(NextNetID());
+            Entities.Add(entity.NetID, entity);
+        }
+        #endregion
+
+        #region - Messages -
         private void OnHandleReady(INetConnection conn, ClientReadyMessage msg)
         {
             if (Players.ContainsKey(conn.ConnectionID))
@@ -103,10 +148,13 @@ namespace VaporMMO
                 conn.Disconnect();
             }
         }
+        #endregion
 
-        public void ReturnEntity(ServerIdentity entity)
+        #region - Pools -
+        public virtual void ReturnEntity(ServerIdentity entity)
         {
-
+            _cleanup.Add(entity.NetID);
         }
+        #endregion
     }
 }
