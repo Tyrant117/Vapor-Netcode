@@ -22,11 +22,11 @@ namespace VaporMMO
             return _idCounter;
         }
 
-        public readonly Dictionary<int, ServerIdentity> Players = new();
-        public readonly Dictionary<uint, ServerIdentity> Entities = new();
+        public readonly Dictionary<int, IServerIdentity> Players = new();
+        public readonly Dictionary<uint, IServerIdentity> Entities = new();
         public readonly Dictionary<uint, ITickable> Tickables = new();
 
-        private readonly DictionaryCleanupList<uint, ServerIdentity> _cleanup = new(200);
+        private readonly DictionaryCleanupList<uint, IServerIdentity> _cleanup = new(200);
 
         public override void Initialize()
         {
@@ -116,7 +116,7 @@ namespace VaporMMO
             Tickables.Remove(netID);
         }
 
-        public void RegisterEntity(ServerIdentity entity)
+        public void RegisterEntity(IServerIdentity entity)
         {
             if (entity.IsRegistered) { return; }
             entity.Register(NextNetID());
@@ -151,7 +151,7 @@ namespace VaporMMO
         #endregion
 
         #region - Pools -
-        public virtual void ReturnEntity(ServerIdentity entity)
+        public virtual void ReturnEntity(IServerIdentity entity)
         {
             _cleanup.Add(entity.NetID);
         }

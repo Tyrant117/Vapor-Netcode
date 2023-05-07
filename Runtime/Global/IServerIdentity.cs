@@ -5,28 +5,27 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class ServerIdentity
+    public interface IServerIdentity
     {
-        protected bool cleanup;     // Flag that causes the entity to be cleaned from the server when set to true.
         /// <summary>
         /// Called after the entity was updated during this server tick. If the entity is ready to be cleaned from the server it will return true.
         /// </summary>
         /// <returns>True when <see cref="cleanup"/> is true, will remove entity from the server</returns>
-        public bool Cleanup => cleanup;
+        public bool Cleanup { get; }
 
-        public bool IsRegistered { get; private set; }
-        public uint NetID { get; private set; }        
+        public bool IsRegistered { get; protected set; }
+        public uint NetID { get; protected set; }
         public Peer Peer { get; protected set; }
         public bool IsPeer => Peer != null;
-        public virtual bool IsReady { get; }
+        public bool IsReady { get; }
         public bool Active { get; protected set; }
         public bool IsPlayer { get; protected set; }
 
         // <summary>The set of network connections (players) that can see this object.</summary>
-        public Dictionary<int, ServerIdentity> observers = new();
+        public Dictionary<int, IServerIdentity> Observers { get; set; }
 
         // NetworkIdentities that this connection can see
-        public readonly HashSet<ServerIdentity> observing = new();
+        public HashSet<IServerIdentity> Observing { get; }
 
         public void Register(uint netID)
         {
@@ -34,39 +33,39 @@ namespace VaporNetcode
             IsRegistered = true;
         }
 
-        public virtual void MarkActive()
+        public void MarkActive()
         {
             Active = true;
         }
 
-        public virtual void MarkSpawnerActive() { }
+        public void MarkSpawnerActive();
 
         /// <summary>
         /// Called on all entities every server tick.
         /// </summary>
         /// <param name="serverTick"></param>
-        public virtual void Tick() { }
+        public void Tick();
 
         #region - Messages -
-        public virtual void AddPacket(CommandMessage msg) { }
+        public void AddPacket(CommandMessage msg);
 
-        public virtual void CreateInterestPacket() { }
+        public void CreateInterestPacket();
 
-        public virtual void SendInterestPacket() { }
+        public void SendInterestPacket();
         #endregion
 
         #region - Interest Management -
-        public void AddToObserving(ServerIdentity netIdentity)
+        public void AddToObserving(IServerIdentity netIdentity)
         {
-            if (observing.Add(netIdentity))
+            if (Observing.Add(netIdentity))
             {
                 netIdentity.MarkSpawnerActive();
             }
         }
 
-        public void RemoveFromObserving(ServerIdentity netIdentity)
+        public void RemoveFromObserving(IServerIdentity netIdentity)
         {
-            observing.Remove(netIdentity);
+            Observing.Remove(netIdentity);
         }        
         #endregion
     }

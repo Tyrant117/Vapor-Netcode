@@ -49,12 +49,12 @@ namespace VaporNetcode
 
         protected int lastClientCount = 1;
 
-        private ServerIdentity _serverID;
+        private IServerIdentity _serverID;
         private IClientIdentity _clientID;
         private bool _isServer;
         private bool _initialSend;
 
-        public void Setup(ServerIdentity id)
+        public void Setup(IServerIdentity id)
         {
             _isServer = true;
             _initialSend = true;
