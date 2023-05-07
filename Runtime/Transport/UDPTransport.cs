@@ -90,6 +90,30 @@ namespace VaporNetcode
         private static readonly ConcurrentQueue<SimulatedMessage> simulatedServerQueue = new();
         private static readonly ConcurrentQueue<SimulatedMessage> simulatedClientQueue = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init()
+        {
+            _serverConfig = null;
+            _clientConfig = null;
+            server = null;
+            client = null;
+            IsServer = false;
+            IsClient = false;
+            IsSimulated = false;
+            simulatedServerQueue.Clear();
+            simulatedClientQueue.Clear();
+
+            OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
+            OnClientDataReceived = (data, channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
+            OnClientError = (error, msg) => Debug.LogWarning("OnClientError called with no handler");
+            OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
+
+            OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
+            OnServerDataReceived = (connId, data, channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
+            OnServerError = (connId, error, msg) => Debug.LogWarning("OnServerError called with no handler");
+            OnServerDisconnected = (connId) => Debug.LogWarning("OnServerDisconnected called with no handler");
+        }
+
         // translate Kcp <-> Mirror channels
         public static int FromKcpChannel(KcpChannel channel) =>
             channel == KcpChannel.Reliable ? Channels.Reliable : Channels.Unreliable;
@@ -238,13 +262,13 @@ namespace VaporNetcode
         /// Notify subscribers when when this client establish a successful connection to the server
         /// <para>callback()</para>
         /// </summary>
-        public static Action OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
+        public static Action OnClientConnected;
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// <para>callback(ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public static Action<ArraySegment<byte>, int> OnClientDataReceived = (data, channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
+        public static Action<ArraySegment<byte>, int> OnClientDataReceived;
 
         /// <summary>Called by Transport when the client sent a message to the server.</summary>
         // Transports are responsible for calling it because:
@@ -254,13 +278,13 @@ namespace VaporNetcode
         public static Action<ArraySegment<byte>, int> OnClientDataSent;
 
         /// <summary>Called by Transport when the client encountered an error.</summary>
-        public static Action<TransportError, string> OnClientError = (error, msg) => Debug.LogWarning("OnClientError called with no handler");
+        public static Action<TransportError, string> OnClientError;
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// <para>callback()</para>
         /// </summary>
-        public static Action OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
+        public static Action OnClientDisconnected;
 
         public bool Connected() => client.connected;
         public static void Connect(string address)
@@ -309,13 +333,13 @@ namespace VaporNetcode
         /// Notify subscribers when a client connects to this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public static Action<int> OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
+        public static Action<int> OnServerConnected;
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// <para>callback(int connId, ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public static Action<int, ArraySegment<byte>, int> OnServerDataReceived = (connId, data, channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
+        public static Action<int, ArraySegment<byte>, int> OnServerDataReceived;
 
         /// <summary>Called by Transport when the server sent a message to a client.</summary>
         // Transports are responsible for calling it because:
@@ -326,13 +350,13 @@ namespace VaporNetcode
 
         /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
         /// If a Disconnect will also be raised, raise the Error first.
-        public static Action<int, TransportError, string> OnServerError = (connId, error, msg) => Debug.LogWarning("OnServerError called with no handler");
+        public static Action<int, TransportError, string> OnServerError;
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public static Action<int> OnServerDisconnected = (connId) => Debug.LogWarning("OnServerDisconnected called with no handler");
+        public static Action<int> OnServerDisconnected;
 
         public static Uri ServerUri()
         {
