@@ -274,11 +274,14 @@ namespace VaporNetcode
                     foreach (var mod in modules.Values)
                     {
                         mod.Update();
-                    }                    
+                    }
 
                     foreach (var peer in connectedPeers.Values)
                     {
-                        Send(peer, new TimeSnapshotMessage(), Channels.Unreliable);
+                        if (peer.IsAuthenticated)
+                        {
+                            Send(peer, new TimeSnapshotMessage(), Channels.Unreliable);
+                        }
 
                         peer.PreUpdate();
                         peer.Update();
