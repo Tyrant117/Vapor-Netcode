@@ -5,7 +5,7 @@ using UnityEngine;
 namespace VaporNetcode
 {
     /// <summary>Synchronizes server time to clients.</summary>
-    public static class NetworkTime
+    public static class NetTime
     {
         /// <summary>Ping message frequency, used to calculate network time and RTT</summary>
         public static float PingFrequency = 2;
@@ -13,7 +13,7 @@ namespace VaporNetcode
         /// <summary>Average out the last few results from Ping</summary>
         public static int PingWindowSize = 6;
 
-        private static double lastPingTime;
+        private static double _lastPingTime;
 
         private static ExponentialMovingAverage _rtt = new(PingWindowSize);
 
@@ -29,16 +29,16 @@ namespace VaporNetcode
         // after 60 days, accuracy is 454 ms
         // in other words,  if the server is running for 2 months,
         // and you cast down to float,  then the time will jump in 0.4s intervals.
-        public static double time
+        public static double Time
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => UDPServer.isRunning
-                ? Time.timeAsDouble
+                ? UnityEngine.Time.timeAsDouble
                 : UDPClient.LocalTimeline;
         }
 
         /// <summary>Round trip time (in seconds) that it takes a message to go client->server->client.</summary>
-        public static double rtt => _rtt.Value;
+        public static double Rtt => _rtt.Value;
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
@@ -46,18 +46,18 @@ namespace VaporNetcode
         {
             PingFrequency = 2;
             PingWindowSize = 6;
-            lastPingTime = 0;
+            _lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
         }
 
         internal static void UpdateClient()
         {
             // localTime (double) instead of Time.time for accuracy over days
-            if (Time.timeAsDouble - lastPingTime >= PingFrequency)
+            if (UnityEngine.Time.timeAsDouble - _lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = new() { clientTime = Time.timeAsDouble };
+                NetworkPingMessage pingMessage = new() { clientTime = UnityEngine.Time.timeAsDouble };
                 UDPClient.Send(pingMessage, Channels.Unreliable);
-                lastPingTime = Time.timeAsDouble;
+                _lastPingTime = UnityEngine.Time.timeAsDouble;
             }
         }
 
@@ -80,7 +80,7 @@ namespace VaporNetcode
         internal static void OnClientPong(INetConnection _, NetworkPongMessage message)
         {
             // how long did this message take to come back
-            double newRtt = Time.timeAsDouble - message.clientTime;
+            double newRtt = UnityEngine.Time.timeAsDouble - message.clientTime;
             _rtt.Add(newRtt);
         }
     }

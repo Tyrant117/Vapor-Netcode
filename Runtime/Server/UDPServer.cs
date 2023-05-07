@@ -146,7 +146,7 @@ namespace VaporNetcode
 
             PeerCreator = peerCreator;
 
-            NetworkTime.ResetStatics();
+            NetTime.ResetStatics();
             // profiling
             earlyUpdateDuration = new TimeSample(_config.serverUpdateRate);
             lateUpdateDuration = new TimeSample(_config.serverUpdateRate);
@@ -175,7 +175,7 @@ namespace VaporNetcode
                 UDPTransport.OnServerError = HandleTransportError;
 
 
-                RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
+                RegisterHandler<NetworkPingMessage>(NetTime.OnServerPing, false);
                 isSetup = true;
             }
         }

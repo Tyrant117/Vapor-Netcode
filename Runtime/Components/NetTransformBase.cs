@@ -37,7 +37,7 @@ namespace VaporNetcode
         public uint sendIntervalMultiplier = 1; // not implemented yet
 
         [Header("Timeline Offset")]
-        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
+        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
         public bool timelineOffset = false;
 
         // Ninja's Notes on offset & mulitplier:

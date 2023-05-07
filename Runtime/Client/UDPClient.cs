@@ -204,7 +204,7 @@ namespace VaporNetcode
             UDPTransport.OnClientDisconnected = HandleDisconnect;
             UDPTransport.OnClientError = HandleTransportError;
 
-            RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
+            RegisterHandler<NetworkPongMessage>(NetTime.OnClientPong, false);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
 
 
@@ -338,7 +338,7 @@ namespace VaporNetcode
             if (IsConnected)
             {
                 // update NetworkTime
-                NetworkTime.UpdateClient();
+                NetTime.UpdateClient();
             }
 
             UDPTransport.ClientLateUpdate();
@@ -540,12 +540,12 @@ namespace VaporNetcode
             IsConnecting = false;
             IsConnected = true;
 
-            NetworkTime.ResetStatics();
+            NetTime.ResetStatics();
 
             Debug.Log($"{TAG} Connected");
 
             Status = ConnectionStatus.Connected;
-            NetworkTime.UpdateClient();
+            NetTime.UpdateClient();
 
             ServerPeer = PeerCreator.Invoke(connectionID, UDPTransport.Source.Client);
 

@@ -78,7 +78,7 @@ namespace VaporNetcode
 
         private void Update()
         {
-            ping = (float)NetworkTime.rtt * 0.5f;
+            ping = (float)NetTime.Rtt * 0.5f;
             if (NetLogFilter.messageDiagnostics)
             {
                 NetDiagnostics.AverageThroughput(Time.time);
