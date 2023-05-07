@@ -270,7 +270,6 @@ namespace VaporNetcode
             dynamicAdjustmentTolerance = 1f;
             deliveryTimeEmaDuration = 2;
 
-            ServerPeer.Dispose();
             ServerPeer = null;
             modules.Clear();
             initializedModules.Clear();
