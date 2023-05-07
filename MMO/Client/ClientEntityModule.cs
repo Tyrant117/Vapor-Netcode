@@ -37,7 +37,7 @@ namespace VaporMMO
                 switch (entity.InterestType)
                 {
                     case 1:
-                        if (entity.ConnectionID == conn.ConnectionID) { continue; } // Don't care about yourself.
+                        if (entity.NetID == conn.ConnectionID) { continue; } // Don't care about yourself.
                         OnUpdatePlayer(entity);
                         break;
                     case 2:

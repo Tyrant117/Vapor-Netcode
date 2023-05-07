@@ -86,7 +86,11 @@ namespace VaporNetcode
                             Scale = syncScale ? snapshot.scale : null,
                         };
                         _initialSend = false;
-                        UDPServer.Send(_serverID.Peer, snapshotMsg);
+                        if (_serverID.IsPeer)
+                        {
+                            UDPServer.Send(_serverID.Peer, snapshotMsg);
+                        }
+                        UDPServer.SendToObservers(_serverID, snapshotMsg);
                     }
                     else
                     {
@@ -111,7 +115,12 @@ namespace VaporNetcode
                             Rotation = syncRotation ? snapshot.rotation : null,
                             DeltaScale = deltaScale ?? null,
                         };
-                        UDPServer.Send(_serverID.Peer, snapshotDeltaMsg);
+
+                        if (_serverID.IsPeer)
+                        {
+                            UDPServer.Send(_serverID.Peer, snapshotDeltaMsg);
+                        }
+                        UDPServer.SendToObservers(_serverID, snapshotDeltaMsg);
                     }
 
                     // save serialized as 'last' for next delta compression

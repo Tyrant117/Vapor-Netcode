@@ -11,6 +11,7 @@ namespace VaporNetcode
         string GenericStringID { get; set; }
         int SpamCount { get; set; }
         double RemoteTimestamp { get; set; }
+        bool IsReady { get; set; }
 
         void Authenticated(int connID);
         void Disconnect(int reason = 0);

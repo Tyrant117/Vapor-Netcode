@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -11,6 +12,13 @@ namespace VaporMMO
     {
         public const string TAG = "<color=cyan><b>[Client]</b></color>";
         public const string WARNING = "<color=yellow><b>[!]</b></color>";
+
+        [FoldoutGroup("Interest Management"), SerializeField]
+        private int _navigationLayers = 1;
+        [FoldoutGroup("Interest Management"), SerializeField]
+        private int _playerViewRange = 100;
+        [FoldoutGroup("Interest Management"), SerializeField]
+        private float _aoiRebuildInterval = 1f;
 
         //Network IDs for Objects
         private uint _idCounter = 0;
@@ -26,10 +34,13 @@ namespace VaporMMO
         public readonly Dictionary<uint, IServerIdentity> Entities = new();
         public readonly Dictionary<uint, ITickable> Tickables = new();
 
+        private InterestManagement aoi;
         private readonly DictionaryCleanupList<uint, IServerIdentity> _cleanup = new(200);
 
         public override void Initialize()
         {
+            aoi = new InterestManagement(this, _navigationLayers, _playerViewRange, _aoiRebuildInterval);
+
             UDPServer.RegisterHandler<ClientReadyMessage>(OnHandleReady);
             UDPServer.RegisterHandler<CommandMessage>(OnHandleCommand);
         }
@@ -48,6 +59,8 @@ namespace VaporMMO
             {
                 tickable.Tick();
             }
+
+            aoi.Tick();
 
             foreach (var entity in Entities.Values)
             {

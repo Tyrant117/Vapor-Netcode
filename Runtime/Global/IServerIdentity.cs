@@ -11,21 +11,25 @@ namespace VaporNetcode
         /// Called after the entity was updated during this server tick. If the entity is ready to be cleaned from the server it will return true.
         /// </summary>
         /// <returns>True when <see cref="cleanup"/> is true, will remove entity from the server</returns>
-        public bool Cleanup { get; }
+        bool Cleanup { get; }
 
-        public bool IsRegistered { get; set; }
-        public uint NetID { get; set; }
-        public Peer Peer { get; }
-        public bool IsPeer => Peer != null;
-        public bool IsReady { get; }
-        public bool Active { get; set; }
-        public bool IsPlayer { get; }
+        bool IsRegistered { get; set; }
+        uint NetID { get; set; }
+        Peer Peer { get; }
+        bool IsPeer => Peer != null;
+        bool IsReady { get; }
+        bool Active { get; set; }
+        bool IsPlayer { get; }
+
+        int NavigationLayer { get; set; }
+        Vector3 Position { get; set; }
 
         // <summary>The set of network connections (players) that can see this object.</summary>
-        public Dictionary<int, IServerIdentity> Observers { get; set; }
+        Dictionary<int, IServerIdentity> Observers { get; set; }
 
         // NetworkIdentities that this connection can see
-        public HashSet<IServerIdentity> Observing { get; }
+        HashSet<IServerIdentity> Observing { get; }
+        
 
         public void Register(uint netID)
         {

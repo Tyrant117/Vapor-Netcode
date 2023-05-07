@@ -8,22 +8,27 @@ namespace VaporMMO
 {
     public struct EntityInterestPacket : ISerializablePacket
     {
-        public int ConnectionID;
         public byte InterestType;
+        public uint NetID;
         public ArraySegment<byte> Data;
 
         public EntityInterestPacket(NetworkReader r)
         {
-            ConnectionID = r.ReadInt();
             InterestType = r.ReadByte();
+            NetID = r.ReadUInt();
             Data = r.ReadBytesAndSizeSegment();
         }
 
         public void Serialize(NetworkWriter w)
         {
-            w.WriteInt(ConnectionID);
             w.WriteByte(InterestType);
+            w.WriteUInt(NetID);
             w.WriteBytesAndSizeSegment(Data);
+        }
+
+        public int AsConnectionID()
+        {
+            return Convert.ToInt32(NetID);
         }
     }
 }

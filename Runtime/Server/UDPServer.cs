@@ -627,6 +627,37 @@ namespace VaporNetcode
             NetDiagnostics.OnSend(message, channelId, segment.Count, count);
         }
 
+        public static void SendToObservers<T>(IServerIdentity identity, T message, int channelId = Channels.Reliable) where T : struct, INetMessage
+        {
+            if (identity == null || identity.Observers.Count == 0)
+            {
+                return;
+            }
+
+            using var w = NetworkWriterPool.Get();
+            // pack message into byte[] once
+            NetworkMessages.Pack(message, w);
+            ArraySegment<byte> segment = w.ToArraySegment();
+
+            int count = 0;
+            if (!isSimulated)
+            {
+                foreach (var id in identity.Observers.Values)
+                {
+                    count++;
+                    id.Peer.SendMessage(segment, channelId);
+                }
+            }
+            else
+            {
+                foreach (var id in identity.Observers.Values)
+                {
+                    id.Peer.SendSimulatedMessage(segment);
+                }
+            }
+            NetDiagnostics.OnSend(message, channelId, segment.Count, count);
+        }
+
         public static void Send<T>(INetConnection conn, T message, int channelId = Channels.Reliable) where T : struct, INetMessage
         {
             if (conn == null || !conn.IsConnected) { return; }
