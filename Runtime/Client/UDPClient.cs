@@ -205,7 +205,7 @@ namespace VaporNetcode
             UDPTransport.OnClientError = HandleTransportError;
 
             RegisterHandler<NetworkPongMessage>(NetTime.OnClientPong, false);
-            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
+            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, false);
 
 
             UDPTransport.Init(false, true, isSimulated);
