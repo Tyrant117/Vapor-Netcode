@@ -89,9 +89,20 @@ namespace VaporNetcode
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue) scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.localScale;
+            if (!position.HasValue)
+            {
+                position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.localPosition;
+            }
+
+            if (!rotation.HasValue)
+            {
+                rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.localRotation;
+            }
+
+            if (!scale.HasValue)
+            {
+                scale = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale : target.localScale;
+            }
 
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(snapshots, new TransformSnapshot(

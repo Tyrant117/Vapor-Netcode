@@ -28,6 +28,45 @@ namespace VaporNetcode
             w = new();
         }
 
+        #region - Getters -
+        public bool TryGetClass<T>(int uniqueID, out T sync) where T : ObservableClass
+        {
+            var key = new Vector2Int(ObservableClassID<T>.ID, uniqueID);
+            if (classMap.TryGetValue(key, out var @class))
+            {
+                sync = @class as T;
+                return true;
+            }
+            else
+            {
+                if (NetLogFilter.logError)
+                {
+                    Debug.Log($"{nameof(T)} not found.");
+                }
+                sync = default;
+                return false;
+            }
+        }
+
+        public bool TryGetField<T>(int fieldKey, out T sync) where T : ObservableField
+        {
+            if (fieldMap.TryGetValue(fieldKey, out var field))
+            {
+                sync = field as T;
+                return true;
+            }
+            else
+            {
+                if (NetLogFilter.logError)
+                {
+                    Debug.Log($"{nameof(T)} not found.");
+                }
+                sync = default;
+                return false;
+            }
+        }
+        #endregion
+
         #region - Registration -
         public void RegisterObserableClass(ObservableClass observableClass)
         {
