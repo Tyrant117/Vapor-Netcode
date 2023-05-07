@@ -10,12 +10,9 @@ namespace VaporNetcode
         ulong GenericULongID { get; set; }
         string GenericStringID { get; set; }
         int SpamCount { get; set; }
+        double RemoteTimestamp { get; set; }
 
         void Authenticated(int connID);
         void Disconnect(int reason = 0);
-
-        //bool SendMessage(ArraySegment<byte> segment, int clientConnectionID = 0);
-        //bool SendSimulatedMessage(ArraySegment<byte> segment, int clientConnectionID = 0);
-        //void Authenticated();
     }
 }

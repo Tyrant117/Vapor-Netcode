@@ -154,6 +154,19 @@ namespace VaporNetcode
         }
     }
 
+    public struct TimeSnapshotMessage : INetMessage
+    {
+        public TimeSnapshotMessage(NetworkReader r)
+        {
+
+        }
+
+        public void Serialize(NetworkWriter w)
+        {
+
+        }
+    }
+
     public struct TransformSnapshotMessage : INetMessage
     {
         public Vector3? Position;

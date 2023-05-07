@@ -70,7 +70,7 @@ namespace VaporNetcode
             // NetworkTime.localTime for double precision until Unity has it too
             return new TransformSnapshot(
                 // our local time is what the other end uses as remote time
-                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                Time.timeAsDouble, // Unity 2019 doesn't have timeAsDouble yet
                 0,                     // the other end fills out local time itself
                 target.localPosition,
                 target.localRotation,
@@ -107,7 +107,7 @@ namespace VaporNetcode
             // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(snapshots, new TransformSnapshot(
                 timeStamp, // arrival remote timestamp. NOT remote time.
-                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+                Time.timeAsDouble, // Unity 2019 doesn't have timeAsDouble yet
                 position.Value,
                 rotation.Value,
                 scale.Value

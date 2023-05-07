@@ -55,6 +55,10 @@ namespace VaporNetcode
                 responseTimeoutQueue = new();
                 timedOutResponses = new();
             }
+            else
+            {
+
+            }
         }
 
         public virtual void Authenticated(int connID)
@@ -189,11 +193,11 @@ namespace VaporNetcode
         {
             if(channelID == Channels.Reliable)
             {
-                ReliableBatcher.AddMessage(msg, NetworkTime.localTime);
+                ReliableBatcher.AddMessage(msg, Time.timeAsDouble);
             }
             else
             {
-                UnreliableBatcher.AddMessage(msg, NetworkTime.localTime);
+                UnreliableBatcher.AddMessage(msg, Time.timeAsDouble);
             }
         }
 
@@ -264,7 +268,7 @@ namespace VaporNetcode
             {
                 return responseTimeoutQueue.Remove(responseID);
             }
-        }        
+        }
         #endregion
     }
 }

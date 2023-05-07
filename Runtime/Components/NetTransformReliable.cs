@@ -132,7 +132,7 @@ namespace VaporNetcode
             void _CheckLastSendTime()
             {
                 // timeAsDouble not available in older Unity versions.
-                if (AccurateInterval.Elapsed(NetworkTime.localTime, UDPServer.SendInterval, ref lastSendIntervalTime))
+                if (AccurateInterval.Elapsed(Time.timeAsDouble, UDPServer.SendInterval, ref lastSendIntervalTime))
                 {
                     if (sendIntervalCounter == sendIntervalMultiplier)
                     {
@@ -230,7 +230,7 @@ namespace VaporNetcode
                 RewriteHistory(
                     clientSnapshots,
                     UDPClient.ServerPeer.RemoteTimestamp,               // arrival remote timestamp. NOT remote timeline.
-                    NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
+                    Time.timeAsDouble,                                  // Unity 2019 doesn't have timeAsDouble yet
                     UDPClient.SendInterval * sendIntervalMultiplier,
                     target.localPosition,
                     target.localRotation,

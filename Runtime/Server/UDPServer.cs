@@ -68,8 +68,10 @@ namespace VaporNetcode
         private static bool isSetup;
         private static bool isSimulated;
 
+        public static int SendRate => _config.serverUpdateRate;
         public static float SendInterval => 1f / _config.serverUpdateRate; // for 30 Hz, that's 33ms
         public static double BufferTime => SendInterval * _config.SnapshotSettings.bufferTimeMultiplier;
+        public static SnapshotInterpolationSettings SnapshotSettings => _config.SnapshotSettings;
         private static double _lastSendTime;
 
         private static ServerConfig _config;
@@ -265,17 +267,19 @@ namespace VaporNetcode
             {
                 lateUpdateDuration.Begin();
 
-                if (!Application.isPlaying || AccurateInterval.Elapsed(NetworkTime.localTime, SendInterval, ref _lastSendTime))
+                if (!Application.isPlaying || AccurateInterval.Elapsed(Time.timeAsDouble, SendInterval, ref _lastSendTime))
                 {
                     //Broadcast();
 
                     foreach (var mod in modules.Values)
                     {
                         mod.Update();
-                    }
+                    }                    
 
                     foreach (var peer in connectedPeers.Values)
                     {
+                        Send(peer, new TimeSnapshotMessage(), Channels.Unreliable);
+
                         peer.PreUpdate();
                         peer.Update();
                     }
@@ -286,13 +290,13 @@ namespace VaporNetcode
                 ++actualTickRateCounter;
 
                 // NetworkTime.localTime has defines for 2019 / 2020 compatibility
-                if (NetworkTime.localTime >= actualTickRateStart + 1)
+                if (Time.timeAsDouble >= actualTickRateStart + 1)
                 {
                     // calculate avg by exact elapsed time.
                     // assuming 1s wouldn't be accurate, usually a few more ms passed.
-                    float elapsed = (float)(NetworkTime.localTime - actualTickRateStart);
+                    float elapsed = (float)(Time.timeAsDouble - actualTickRateStart);
                     actualTickRate = Mathf.RoundToInt(actualTickRateCounter / elapsed);
-                    actualTickRateStart = NetworkTime.localTime;
+                    actualTickRateStart = Time.timeAsDouble;
                     actualTickRateCounter = 0;
                 }
 
@@ -644,5 +648,6 @@ namespace VaporNetcode
             Send(conn, message);
         }
         #endregion
+
     }
 }

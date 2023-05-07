@@ -17,13 +17,6 @@ namespace VaporNetcode
 
         private static ExponentialMovingAverage _rtt = new(PingWindowSize);
 
-        /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
-        public static double localTime
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Time.timeAsDouble;
-        }
-
         /// <summary>The time in seconds since the server started.</summary>
         // via global NetworkClient snapshot interpolated timeline (if client).
         // on server, this is simply Time.timeAsDouble.
@@ -40,14 +33,9 @@ namespace VaporNetcode
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => UDPServer.isRunning
-                ? localTime
+                ? Time.timeAsDouble
                 : UDPClient.LocalTimeline;
         }
-
-        /// <summary>Clock difference in seconds between the client and the server. Always 0 on server.</summary>
-        // original implementation used 'client - server' time. keep it this way.
-        // TODO obsolete later. people shouldn't worry about this.
-        public static double offset => localTime - time;
 
         /// <summary>Round trip time (in seconds) that it takes a message to go client->server->client.</summary>
         public static double rtt => _rtt.Value;
@@ -65,11 +53,11 @@ namespace VaporNetcode
         internal static void UpdateClient()
         {
             // localTime (double) instead of Time.time for accuracy over days
-            if (localTime - lastPingTime >= PingFrequency)
+            if (Time.timeAsDouble - lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = new() { clientTime = localTime };
+                NetworkPingMessage pingMessage = new() { clientTime = Time.timeAsDouble };
                 UDPClient.Send(pingMessage, Channels.Unreliable);
-                lastPingTime = localTime;
+                lastPingTime = Time.timeAsDouble;
             }
         }
 
@@ -79,7 +67,7 @@ namespace VaporNetcode
         internal static void OnServerPing(INetConnection conn, NetworkPingMessage message)
         {
             // Debug.Log($"OnPingServerMessage conn:{conn}");
-            NetworkPongMessage pongMessage = new NetworkPongMessage
+            var pongMessage = new NetworkPongMessage
             {
                 clientTime = message.clientTime,
             };
@@ -89,10 +77,10 @@ namespace VaporNetcode
         // Executed at the client when we receive a Pong message
         // find out how long it took since we sent the Ping
         // and update time offset
-        internal static void OnClientPong(INetConnection conn, NetworkPongMessage message)
+        internal static void OnClientPong(INetConnection _, NetworkPongMessage message)
         {
             // how long did this message take to come back
-            double newRtt = localTime - message.clientTime;
+            double newRtt = Time.timeAsDouble - message.clientTime;
             _rtt.Add(newRtt);
         }
     }

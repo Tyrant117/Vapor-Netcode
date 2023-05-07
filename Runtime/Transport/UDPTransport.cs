@@ -103,15 +103,15 @@ namespace VaporNetcode
             simulatedServerQueue.Clear();
             simulatedClientQueue.Clear();
 
-            OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
-            OnClientDataReceived = (data, channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
-            OnClientError = (error, msg) => Debug.LogWarning("OnClientError called with no handler");
-            OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
+            //OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
+            //OnClientDataReceived = (data, channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
+            //OnClientError = (error, msg) => Debug.LogWarning("OnClientError called with no handler");
+            //OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
 
-            OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
-            OnServerDataReceived = (connId, data, channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
-            OnServerError = (connId, error, msg) => Debug.LogWarning("OnServerError called with no handler");
-            OnServerDisconnected = (connId) => Debug.LogWarning("OnServerDisconnected called with no handler");
+            //OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
+            //OnServerDataReceived = (connId, data, channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
+            //OnServerError = (connId, error, msg) => Debug.LogWarning("OnServerError called with no handler");
+            //OnServerDisconnected = (connId) => Debug.LogWarning("OnServerDisconnected called with no handler");
         }
 
         // translate Kcp <-> Mirror channels
