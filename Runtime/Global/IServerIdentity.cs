@@ -13,13 +13,13 @@ namespace VaporNetcode
         /// <returns>True when <see cref="cleanup"/> is true, will remove entity from the server</returns>
         public bool Cleanup { get; }
 
-        public bool IsRegistered { get; protected set; }
-        public uint NetID { get; protected set; }
-        public Peer Peer { get; protected set; }
+        public bool IsRegistered { get; set; }
+        public uint NetID { get; set; }
+        public Peer Peer { get; }
         public bool IsPeer => Peer != null;
         public bool IsReady { get; }
-        public bool Active { get; protected set; }
-        public bool IsPlayer { get; protected set; }
+        public bool Active { get; set; }
+        public bool IsPlayer { get; }
 
         // <summary>The set of network connections (players) that can see this object.</summary>
         public Dictionary<int, IServerIdentity> Observers { get; set; }
