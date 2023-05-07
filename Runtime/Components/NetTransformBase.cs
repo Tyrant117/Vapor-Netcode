@@ -193,75 +193,75 @@ namespace VaporNetcode
             Reset();
         }
 
-        // OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // debug ///////////////////////////////////////////////////////////////
-        protected virtual void OnGUI()
-        {
-            if (!showOverlay) return;
-            if (!Camera.main) return;
+//        // OnGUI allocates even if it does nothing. avoid in release.
+//#if UNITY_EDITOR || DEVELOPMENT_BUILD
+//        // debug ///////////////////////////////////////////////////////////////
+//        protected virtual void OnGUI()
+//        {
+//            if (!showOverlay) return;
+//            if (!Camera.main) return;
 
-            // show data next to player for easier debugging. this is very useful!
-            // IMPORTANT: this is basically an ESP hack for shooter games.
-            //            DO NOT make this available with a hotkey in release builds
-            if (!Debug.isDebugBuild) return;
+//            // show data next to player for easier debugging. this is very useful!
+//            // IMPORTANT: this is basically an ESP hack for shooter games.
+//            //            DO NOT make this available with a hotkey in release builds
+//            if (!Debug.isDebugBuild) return;
 
-            // project position to screen
-            Vector3 point = Camera.main.WorldToScreenPoint(target.position);
+//            // project position to screen
+//            Vector3 point = Camera.main.WorldToScreenPoint(target.position);
 
-            // enough alpha, in front of camera and in screen?
-            if (point.z >= 0 && Convienence.IsPointInScreen(point))
-            {
-                GUI.color = overlayColor;
-                GUILayout.BeginArea(new Rect(point.x, Screen.height - point.y, 200, 100));
+//            // enough alpha, in front of camera and in screen?
+//            if (point.z >= 0 && Convienence.IsPointInScreen(point))
+//            {
+//                GUI.color = overlayColor;
+//                GUILayout.BeginArea(new Rect(point.x, Screen.height - point.y, 200, 100));
 
-                // always show both client & server buffers so it's super
-                // obvious if we accidentally populate both.
-                GUILayout.Label($"Server Buffer:{serverSnapshots.Count}");
-                GUILayout.Label($"Client Buffer:{clientSnapshots.Count}");
+//                // always show both client & server buffers so it's super
+//                // obvious if we accidentally populate both.
+//                GUILayout.Label($"Server Buffer:{serverSnapshots.Count}");
+//                GUILayout.Label($"Client Buffer:{clientSnapshots.Count}");
 
-                GUILayout.EndArea();
-                GUI.color = Color.white;
-            }
-        }
+//                GUILayout.EndArea();
+//                GUI.color = Color.white;
+//            }
+//        }
 
-        protected virtual void DrawGizmos(SortedList<double, TransformSnapshot> buffer, bool server)
-        {
-            // only draw if we have at least two entries
-            if (buffer.Count < 2) return;
+//        protected virtual void DrawGizmos(SortedList<double, TransformSnapshot> buffer, bool server)
+//        {
+//            // only draw if we have at least two entries
+//            if (buffer.Count < 2) return;
 
-            // calculate threshold for 'old enough' snapshots
-            double threshold = server ? NetworkTime.localTime - UDPServer.BufferTime : NetworkTime.localTime - UDPClient.BufferTime;
-            Color oldEnoughColor = new (0, 1, 0, 0.5f);
-            Color notOldEnoughColor = new (0.5f, 0.5f, 0.5f, 0.3f);
+//            // calculate threshold for 'old enough' snapshots
+//            double threshold = server ? NetworkTime.localTime - UDPServer.BufferTime : NetworkTime.localTime - UDPClient.BufferTime;
+//            Color oldEnoughColor = new (0, 1, 0, 0.5f);
+//            Color notOldEnoughColor = new (0.5f, 0.5f, 0.5f, 0.3f);
 
-            // draw the whole buffer for easier debugging.
-            // it's worth seeing how much we have buffered ahead already
-            for (int i = 0; i < buffer.Count; ++i)
-            {
-                // color depends on if old enough or not
-                TransformSnapshot entry = buffer.Values[i];
-                bool oldEnough = entry.localTime <= threshold;
-                Gizmos.color = oldEnough ? oldEnoughColor : notOldEnoughColor;
-                Gizmos.DrawCube(entry.position, Vector3.one);
-            }
+//            // draw the whole buffer for easier debugging.
+//            // it's worth seeing how much we have buffered ahead already
+//            for (int i = 0; i < buffer.Count; ++i)
+//            {
+//                // color depends on if old enough or not
+//                TransformSnapshot entry = buffer.Values[i];
+//                bool oldEnough = entry.localTime <= threshold;
+//                Gizmos.color = oldEnough ? oldEnoughColor : notOldEnoughColor;
+//                Gizmos.DrawCube(entry.position, Vector3.one);
+//            }
 
-            // extra: lines between start<->position<->goal
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(buffer.Values[0].position, target.position);
-            Gizmos.color = Color.white;
-            Gizmos.DrawLine(target.position, buffer.Values[1].position);
-        }
+//            // extra: lines between start<->position<->goal
+//            Gizmos.color = Color.green;
+//            Gizmos.DrawLine(buffer.Values[0].position, target.position);
+//            Gizmos.color = Color.white;
+//            Gizmos.DrawLine(target.position, buffer.Values[1].position);
+//        }
 
-        protected virtual void OnDrawGizmos()
-        {
-            // This fires in edit mode but that spams NRE's so check isPlaying
-            if (!Application.isPlaying) return;
-            if (!showGizmos) return;
+//        protected virtual void OnDrawGizmos()
+//        {
+//            // This fires in edit mode but that spams NRE's so check isPlaying
+//            if (!Application.isPlaying) return;
+//            if (!showGizmos) return;
 
-            if (UDPServer.isRunning) DrawGizmos(serverSnapshots, true);
-            if (UDPClient.IsActive) DrawGizmos(clientSnapshots, false);
-        }
-#endif
+//            if (UDPServer.isRunning) DrawGizmos(serverSnapshots, true);
+//            if (UDPClient.IsActive) DrawGizmos(clientSnapshots, false);
+//        }
+//#endif
     }
 }
