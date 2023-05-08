@@ -56,6 +56,7 @@ namespace VaporNetcode
         {
             if (SetVector3(value))
             {
+                Debug.Log("Position Set");
                 if (IsServer)
                 {
                     IsServerDirty = true;
