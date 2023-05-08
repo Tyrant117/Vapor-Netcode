@@ -152,6 +152,7 @@ namespace VaporNetcode
             void _Full()
             {
                 w.WriteInt(classMap.Count);
+                Debug.Log($"Batching Classes: {classMap.Count}");
                 foreach (var oc in classMap.Values)
                 {
                     oc.SerializeInFull(w);

@@ -228,6 +228,7 @@ namespace VaporNetcode
             w.WriteInt(ID);
             int count = fields.Count;
             w.WriteInt(count);
+            Debug.Log($"Batching Class: Type: {Type} ID: {ID} Count: {count}");
             foreach (var item in fields.Values)
             {
                 item.SerializeInFull(w);

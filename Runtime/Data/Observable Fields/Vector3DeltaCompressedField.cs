@@ -101,6 +101,7 @@ namespace VaporNetcode
                 w.WriteBool(false);
                 w.WriteVector3(Value);
                 IsServerDirty = false;
+                Debug.Log($"V3D {FieldID} {Type} {false} {Value}");
                 return true;
             }
             else
