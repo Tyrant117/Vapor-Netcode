@@ -214,6 +214,7 @@ namespace VaporNetcode
                 {
                     var newField = ObservableField.GetFieldByType(id, type, false, false);
                     fieldMap[id] = newField;
+                    Debug.Log($"{type} {id}");
                     newField.Deserialize(r);
                     FieldCreated?.Invoke(newField);
                 }
