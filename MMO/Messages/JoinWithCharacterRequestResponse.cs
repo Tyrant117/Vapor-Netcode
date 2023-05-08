@@ -21,6 +21,7 @@ namespace VaporMMO
 
     public struct JoinWithCharacterResponseMessage : IResponseMessage
     {
+        public uint NetID;
         public string Scene;
         public Vector3 Position;
         public Quaternion Rotation;
@@ -29,6 +30,7 @@ namespace VaporMMO
 
         public JoinWithCharacterResponseMessage(NetworkReader r)
         {
+            NetID = r.ReadUInt();
             Scene = r.ReadString();
             Position = r.ReadVector3();
             Rotation = r.ReadQuaternion();
@@ -38,6 +40,7 @@ namespace VaporMMO
 
         public void Serialize(NetworkWriter w)
         {
+            w.WriteUInt(NetID);
             w.WriteString(Scene);
             w.WriteVector3(Position);
             w.WriteQuaternion(Rotation);

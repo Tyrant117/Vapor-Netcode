@@ -56,6 +56,8 @@ namespace VaporNetcode
 
         public void CreateInterestPacket();
 
+        ArraySegment<byte> CreateFullInterestPacket(NetworkWriter w);
+
         public void SendInterestPacket();
         #endregion
 

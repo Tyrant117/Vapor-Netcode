@@ -81,6 +81,7 @@ namespace VaporNetcode
                         if (last.remoteTime > 0) snapshot = last;
                         var snapshotMsg = new TransformSnapshotMessage()
                         {
+                            NetID = _serverID.IsPeer ? null : _serverID.NetID,
                             Position = syncPosition ? snapshot.position : null,
                             Rotation = syncRotation ? snapshot.rotation : null,
                             Scale = syncScale ? snapshot.scale : null,
@@ -111,6 +112,7 @@ namespace VaporNetcode
 
                         var snapshotDeltaMsg = new TransformSnapshotDeltaMessage()
                         {
+                            NetID = _serverID.IsPeer ? null : _serverID.NetID,
                             DeltaPosition = deltaPos ?? null,
                             Rotation = syncRotation ? snapshot.rotation : null,
                             DeltaScale = deltaScale ?? null,

@@ -169,12 +169,14 @@ namespace VaporNetcode
 
     public struct TransformSnapshotMessage : INetMessage
     {
+        public uint? NetID;
         public Vector3? Position;
         public Quaternion? Rotation;
         public Vector3? Scale;
 
         public TransformSnapshotMessage(NetworkReader r)
         {
+            NetID = r.ReadUIntNullable();
             Position = r.ReadVector3Nullable();
             Rotation = r.ReadQuaternionNullable();
             Scale = r.ReadVector3Nullable();
@@ -182,6 +184,7 @@ namespace VaporNetcode
 
         public void Serialize(NetworkWriter w)
         {
+            w.WriteUIntNullable(NetID);
             w.WriteVector3Nullable(Position);
             w.WriteQuaternionNullable(Rotation);
             w.WriteVector3Nullable(Scale);
@@ -190,12 +193,14 @@ namespace VaporNetcode
 
     public struct TransformSnapshotDeltaMessage : INetMessage
     {
+        public uint? NetID;
         public Vector3Long? DeltaPosition;
         public Quaternion? Rotation;
         public Vector3Long? DeltaScale;
 
         public TransformSnapshotDeltaMessage(NetworkReader r)
         {
+            NetID = r.ReadUIntNullable();
             DeltaPosition = r.ReadBool() ? (new(Compression.DecompressVarInt(r), Compression.DecompressVarInt(r), Compression.DecompressVarInt(r))) : null;
             Rotation = r.ReadQuaternionNullable();
             DeltaScale = r.ReadBool() ? (new(Compression.DecompressVarInt(r), Compression.DecompressVarInt(r), Compression.DecompressVarInt(r))) : null;
@@ -203,6 +208,7 @@ namespace VaporNetcode
 
         public void Serialize(NetworkWriter w)
         {
+            w.WriteUIntNullable(NetID);
             w.WriteBool(DeltaPosition.HasValue);
             if (DeltaPosition.HasValue)
             {
