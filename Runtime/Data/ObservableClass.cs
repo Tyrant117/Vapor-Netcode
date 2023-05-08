@@ -63,8 +63,7 @@ namespace VaporNetcode
         public T GetField<T>(int fieldID) where T : ObservableField => (T)fields[fieldID];
 
         protected Dictionary<int, ObservableField> fields = new();
-        protected List<int> dirtyFields = new();
-        protected HashSet<int> hashedDirties = new();
+        protected HashSet<int> dirtyFields = new();
 
         public event Action<ObservableClass> Dirtied;
         public event Action<ObservableClass> Changed;
@@ -160,15 +159,9 @@ namespace VaporNetcode
 
         internal virtual void MarkDirty(ObservableField field)
         {
-            if (IsServer && !hashedDirties.Contains(field.FieldID))
+            if (IsServer && dirtyFields.Add(field.FieldID))
             {
-                bool wasDirty = Dirty;
-                dirtyFields.Add(field.FieldID);
-                hashedDirties.Add(field.FieldID);
-                if (Dirty && !wasDirty)
-                {
-                    Dirtied?.Invoke(this);
-                }
+                Dirtied?.Invoke(this);
             }
         }
         #endregion
@@ -182,14 +175,13 @@ namespace VaporNetcode
             w.WriteInt(ID);
             int count = dirtyFields.Count;
             w.WriteInt(count);
-            for (int i = 0; i < count; i++)
+            foreach (var df in dirtyFields)
             {
-                fields[dirtyFields[i]].Serialize(w, clearDirtyFlag);
+                fields[df].Serialize(w, clearDirtyFlag);
             }
             if (clearDirtyFlag)
             {
                 dirtyFields.Clear();
-                hashedDirties.Clear();
             }
 
             // Call this after the fields are cleared so if the contents change again it will dirty again for the next pass.
