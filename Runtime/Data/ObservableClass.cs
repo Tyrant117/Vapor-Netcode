@@ -93,7 +93,7 @@ namespace VaporNetcode
             }
             else
             {
-                Debug.Log($"Class {Type} Failed To Add Field: {type} {fieldID}");
+                Debug.Log($"Class {Type} - {ID} Failed To Add Field: {type} {fieldID}");
             }
         }
 
@@ -201,6 +201,7 @@ namespace VaporNetcode
             if (IsServer) { return; }
 
             int count = r.ReadInt();
+            Debug.Log($"{Type} - {ID} Deserializing Class Fields: {count}");
             for (int i = 0; i < count; i++)
             {
                 ObservableField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
