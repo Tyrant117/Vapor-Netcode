@@ -106,6 +106,7 @@ namespace VaporNetcode
             }
             else
             {
+                Debug.Log($"V3D Cannot Serialize {IsServer} {IsServerDirty}");
                 return false;
             }
         }
