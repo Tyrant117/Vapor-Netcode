@@ -174,7 +174,7 @@ namespace VaporNetcode
         #endregion
 
         #region - Serialization -
-        public virtual void Serialize(NetworkWriter w)
+        public virtual void Serialize(NetworkWriter w, bool doNotMarkDirty = false)
         {
             if (!IsServer || !Dirty) { return; }
 
@@ -184,10 +184,13 @@ namespace VaporNetcode
             w.WriteInt(count);
             for (int i = 0; i < count; i++)
             {
-                fields[dirtyFields[i]].Serialize(w);
+                fields[dirtyFields[i]].Serialize(w, doNotMarkDirty);
             }
-            dirtyFields.Clear();
-            hashedDirties.Clear();
+            if (doNotMarkDirty)
+            {
+                dirtyFields.Clear();
+                hashedDirties.Clear();
+            }
 
             // Call this after the fields are cleared so if the contents change again it will dirty again for the next pass.
             if (count > 0)

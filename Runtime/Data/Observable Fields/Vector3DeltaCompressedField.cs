@@ -77,7 +77,7 @@ namespace VaporNetcode
         #endregion
 
         #region - Serialization -
-        public override bool Serialize(NetworkWriter w)
+        public override bool Serialize(NetworkWriter w, bool doNotMarkDirty = false)
         {
             if (base.Serialize(w))
             {
@@ -89,7 +89,10 @@ namespace VaporNetcode
                 Compression.CompressVarInt(w, deltaPos.y);
                 Compression.CompressVarInt(w, deltaPos.z);
                 Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
-                IsServerDirty = false;
+                if (!doNotMarkDirty)
+                {
+                    IsServerDirty = false;
+                }
                 Debug.Log($"V3D Serialize {FieldID} {Type} {false} {Value}");
                 return true;
             }
@@ -106,7 +109,7 @@ namespace VaporNetcode
             {
                 w.WriteBool(false);
                 w.WriteVector3(Value);
-                IsServerDirty = false;
+                //IsServerDirty = false;
                 Debug.Log($"V3D Serialize in Full {FieldID} {Type} {false} {Value}");
                 return true;
             }
