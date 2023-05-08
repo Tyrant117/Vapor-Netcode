@@ -23,7 +23,7 @@ namespace VaporNetcode
 
         public Vector3 AtPosition => syncPos ? Position : Vector3.zero;
         public Quaternion AtRotaton => syncRot ? compressRot ? CompressedRotation : Rotation : Quaternion.identity;
-        public Vector3 AsScale => syncScale ? Scale : Vector3.one;
+        public Vector3 AtScale => syncScale ? Scale : Vector3.one;
 
         public event Action<Vector3?, Quaternion?, Vector3?> TransformChanged;
 
