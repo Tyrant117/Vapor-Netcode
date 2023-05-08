@@ -78,9 +78,9 @@ namespace VaporNetcode
                 Compression.CompressVarInt(w, deltaPos.x);
                 Compression.CompressVarInt(w, deltaPos.y);
                 Compression.CompressVarInt(w, deltaPos.z);
-                Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
                 if (clearDirtyFlag)
                 {
+                    Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
                     IsServerDirty = false;
                 }
                 return true;
