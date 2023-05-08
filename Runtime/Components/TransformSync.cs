@@ -66,7 +66,34 @@ namespace VaporNetcode
 
         private void OnSync(ObservableClass obj)
         {
-            TransformChanged?.Invoke(syncPos ? Position : null, syncRot ? compressRot ? CompressedRotation : Rotation : null, syncScale ? Scale : null);
+            Vector3? pos = null;
+            Quaternion? rot = null;
+            Vector3? scl = null;
+
+            if (syncPos)
+            {
+                Debug.Log(Position.Value);
+                pos = Position.Value;
+            }
+            if (syncRot)
+            {
+                if (compressRot)
+                {
+                    Debug.Log(CompressedRotation.Value);
+                    rot = CompressedRotation.Value;
+                }
+                else
+                {
+                    Debug.Log(Rotation.Value);
+                    rot = Rotation.Value;
+                }
+            }
+            if (syncScale)
+            {
+                Debug.Log(Scale.Value);
+                scl = Scale.Value;
+            }
+            TransformChanged?.Invoke(pos, rot, scl);
         }
     }
 }
