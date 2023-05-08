@@ -136,11 +136,11 @@ namespace VaporNetcode
             else
             {
                 _Partial();
+                dirtyClasses.Clear();
+                dirtyFields.Clear();
+                IsDirty = false;
             }
 
-            dirtyClasses.Clear();
-            dirtyFields.Clear();
-            IsDirty = false;
 
             var packet = new SyncDataMessage
             {
