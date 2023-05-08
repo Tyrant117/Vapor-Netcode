@@ -21,6 +21,10 @@ namespace VaporNetcode
         private readonly bool syncScale;
         private readonly bool compressRot;
 
+        public Vector3 AtPosition => syncPos ? Position : Vector3.zero;
+        public Quaternion AtRotaton => syncRot ? compressRot ? CompressedRotation : Rotation : Quaternion.identity;
+        public Vector3 AsScale => syncScale ? Scale : Vector3.one;
+
         public event Action<Vector3?, Quaternion?, Vector3?> TransformChanged;
 
         public TransformSync(int unqiueID, bool isServer, bool syncPos = true, bool syncRot = true, bool syncScale = false, bool compressRot = false) : base(unqiueID, isServer)
