@@ -91,6 +91,10 @@ namespace VaporNetcode
                 fields[fieldID] = field;
                 MarkDirty(fields[fieldID]);
             }
+            else
+            {
+                Debug.Log($"Class {Type} Failed To Add Field: {type} {fieldID}");
+            }
         }
 
         public void AddField(ObservableField field)
