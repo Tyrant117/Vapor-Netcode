@@ -184,7 +184,7 @@ namespace VaporNetcode
             w.WriteInt(count);
             for (int i = 0; i < count; i++)
             {
-                fields[dirtyFields[i]].Serialize(w);
+                fields[dirtyFields[i]].Serialize(w, clearDirtyFlag);
             }
             if (clearDirtyFlag)
             {
