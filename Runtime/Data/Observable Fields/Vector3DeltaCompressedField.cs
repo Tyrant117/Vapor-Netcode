@@ -80,6 +80,7 @@ namespace VaporNetcode
                 Compression.ScaleToLong(Value, Precision, out Vector3Long quantized);
                 var deltaPos = quantized - _lastSerializedValue;
 
+                w.WriteBool(true); // is delta
                 Compression.CompressVarInt(w, deltaPos.x);
                 Compression.CompressVarInt(w, deltaPos.y);
                 Compression.CompressVarInt(w, deltaPos.z);

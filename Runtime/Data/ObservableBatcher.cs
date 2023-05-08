@@ -196,6 +196,7 @@ namespace VaporNetcode
                     if (ObservableFactory.TryCreateObservable(type, id, out ObservableClass newClass))
                     {
                         classMap[key] = newClass;
+                        if (NetLogFilter.logInfo) { Debug.Log($"{newClass.GetType().Name} {id}"); }
                         newClass.Deserialize(r);
                         ClassCreated?.Invoke(newClass);
                     }
@@ -214,7 +215,7 @@ namespace VaporNetcode
                 {
                     var newField = ObservableField.GetFieldByType(id, type, false, false);
                     fieldMap[id] = newField;
-                    Debug.Log($"{type} {id}");
+                    if (NetLogFilter.logInfo) { Debug.Log($"{type} {id}"); }
                     newField.Deserialize(r);
                     FieldCreated?.Invoke(newField);
                 }
