@@ -89,12 +89,10 @@ namespace VaporNetcode
                 {
                     IsServerDirty = false;
                 }
-                Debug.Log($"V3D Serialize {FieldID} {Type} {false} {Value}");
                 return true;
             }
             else
             {
-                Debug.Log($"V3D Cannot Serialize in Full {IsServer} {IsServerDirty}");
                 return false;
             }
         }
