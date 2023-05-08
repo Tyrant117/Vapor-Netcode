@@ -35,6 +35,9 @@ namespace VaporNetcode
             this.syncRot = syncRot;
             this.syncScale = syncScale;
             this.compressRot = compressRot;
+
+            Debug.Log($"Transform Is Server {IsServer}");
+
             if (syncPos)
             {
                 Position = new Vector3DeltaCompressedField(this, PositionKey, false, default);
