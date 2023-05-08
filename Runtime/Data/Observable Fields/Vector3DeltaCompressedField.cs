@@ -90,10 +90,12 @@ namespace VaporNetcode
                 Compression.CompressVarInt(w, deltaPos.z);
                 Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
                 IsServerDirty = false;
+                Debug.Log($"V3D Serialize {FieldID} {Type} {false} {Value}");
                 return true;
             }
             else
             {
+                Debug.Log($"V3D Cannot Serialize in Full {IsServer} {IsServerDirty}");
                 return false;
             }
         }
@@ -105,12 +107,12 @@ namespace VaporNetcode
                 w.WriteBool(false);
                 w.WriteVector3(Value);
                 IsServerDirty = false;
-                Debug.Log($"V3D {FieldID} {Type} {false} {Value}");
+                Debug.Log($"V3D Serialize in Full {FieldID} {Type} {false} {Value}");
                 return true;
             }
             else
             {
-                Debug.Log($"V3D Cannot Serialize {IsServer} {IsServerDirty}");
+                Debug.Log($"V3D Cannot Serialize in Full {IsServer} {IsServerDirty}");
                 return false;
             }
         }
