@@ -39,19 +39,12 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetVector3(Vector3 value)
         {
-            if (Type == ObservableFieldType.Vector3DeltaCompressed)
+            if (Value != value)
             {
-                if (Value != value)
-                {
-                    var old = Value;
-                    Value = value;
-                    ValueChanged?.Invoke(this, Value - old);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                var old = Value;
+                Value = value;
+                ValueChanged?.Invoke(this, Value - old);
+                return true;
             }
             else
             {
@@ -103,7 +96,7 @@ namespace VaporNetcode
             {
                 w.WriteBool(false);
                 w.WriteVector3(Value);
-                //IsServerDirty = false;
+                Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
                 Debug.Log($"V3D Serialize in Full {FieldID} {Type} {false} {Value}");
                 return true;
             }

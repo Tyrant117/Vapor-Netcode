@@ -111,6 +111,7 @@ namespace VaporNetcode
             {
                 if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                 {
+                    Debug.Log("Net Transform Changed");
                     // get current snapshot for broadcasting.
                     TransformSnapshot snapshot = Construct();
                     if (syncPosition)
