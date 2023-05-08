@@ -126,19 +126,16 @@ namespace VaporNetcode
         #endregion
 
         #region - Batching -
-        public SyncDataMessage Batch()
+        public SyncDataMessage Batch(bool full)
         {
             w.Reset();
-            w.WriteInt(dirtyClasses.Count);
-            foreach (var oc in dirtyClasses.Values)
+            if (full)
             {
-                oc.Serialize(w);
+                _Full();
             }
-
-            w.WriteInt(dirtyFields.Count);
-            foreach (var of in dirtyFields.Values)
+            else
             {
-                of.Serialize(w);
+                _Partial();
             }
 
             dirtyClasses.Clear();
@@ -151,6 +148,35 @@ namespace VaporNetcode
             };
 
             return packet;
+
+            void _Full()
+            {
+                w.WriteInt(classMap.Count);
+                foreach (var oc in classMap.Values)
+                {
+                    oc.SerializeInFull(w);
+                }
+                w.WriteInt(fieldMap.Count);
+                foreach (var of in fieldMap.Values)
+                {
+                    of.SerializeInFull(w);
+                }
+            }
+
+            void _Partial()
+            {
+                w.WriteInt(dirtyClasses.Count);
+                foreach (var oc in dirtyClasses.Values)
+                {
+                    oc.Serialize(w);
+                }
+
+                w.WriteInt(dirtyFields.Count);
+                foreach (var of in dirtyFields.Values)
+                {
+                    of.Serialize(w);
+                }
+            }
         }
 
         public void Unbatch(SyncDataMessage packet)
