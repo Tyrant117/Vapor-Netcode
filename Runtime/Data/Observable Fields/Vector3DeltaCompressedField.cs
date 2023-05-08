@@ -20,9 +20,11 @@ namespace VaporNetcode
         {
             Type = ObservableFieldType.Vector3DeltaCompressed;
             Value = value;
+            Debug.Log($"V3D Created {IsServer} {IsServerDirty}");
             if (IsServer)
             {
                 IsServerDirty = true;
+                Debug.Log($"V3D Dirtied {IsServerDirty}");
             }
         }
 
@@ -30,9 +32,11 @@ namespace VaporNetcode
         {
             Type = ObservableFieldType.Vector3DeltaCompressed;
             Value = value;
+            Debug.Log($"V3D Created {IsServer} {IsServerDirty}");
             if (IsServer)
             {
                 IsServerDirty = true;
+                Debug.Log($"V3D Dirtied {IsServerDirty}");
             }
         }
 
