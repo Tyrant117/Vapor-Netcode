@@ -205,6 +205,7 @@ namespace VaporNetcode
             for (int i = 0; i < count; i++)
             {
                 ObservableField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
+                Debug.Log($"Class {Type} - {ID} Trying To Add Field: {type} {fieldID}");
                 if (fields.ContainsKey(fieldID))
                 {
                     fields[fieldID].Deserialize(r);

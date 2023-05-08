@@ -90,7 +90,6 @@ namespace VaporNetcode
             {
                 w.WriteInt(FieldID);
                 w.WriteByte((byte)Type);
-                w.WriteBool(false);
                 return true;
             }
             return false;

@@ -98,6 +98,7 @@ namespace VaporNetcode
         {
             if (base.SerializeInFull(w))
             {
+                w.WriteBool(false);
                 w.WriteVector3(Value);
                 IsServerDirty = false;
                 return true;
@@ -112,6 +113,7 @@ namespace VaporNetcode
         {
             if (!base.Deserialize(r)) { return false; }
             bool delta = r.ReadBool();
+            Debug.Log($"V3 Delta {delta}");
             bool set;
             if (delta)
             {
