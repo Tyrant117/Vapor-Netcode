@@ -73,7 +73,7 @@ namespace VaporNetcode
         }        
 
         #region - Serialization -
-        public virtual bool Serialize(NetworkWriter w, bool doNotMarkDirty = false)
+        public virtual bool Serialize(NetworkWriter w, bool clearDirtyFlag = true)
         {
             if (IsServer && IsServerDirty)
             {

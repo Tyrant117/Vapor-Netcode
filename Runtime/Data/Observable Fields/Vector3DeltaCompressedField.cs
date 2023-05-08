@@ -77,7 +77,7 @@ namespace VaporNetcode
         #endregion
 
         #region - Serialization -
-        public override bool Serialize(NetworkWriter w, bool doNotMarkDirty = false)
+        public override bool Serialize(NetworkWriter w, bool clearDirtyFlag = true)
         {
             if (base.Serialize(w))
             {
@@ -89,7 +89,7 @@ namespace VaporNetcode
                 Compression.CompressVarInt(w, deltaPos.y);
                 Compression.CompressVarInt(w, deltaPos.z);
                 Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
-                if (!doNotMarkDirty)
+                if (clearDirtyFlag)
                 {
                     IsServerDirty = false;
                 }

@@ -93,12 +93,12 @@ namespace VaporNetcode
         #endregion
 
         #region - Serialization -
-        public override bool Serialize(NetworkWriter w, bool doNotMarkDirty = false)
+        public override bool Serialize(NetworkWriter w, bool clearDirtyFlag = true)
         {
             if (base.Serialize(w))
             {
                 w.WriteByte(Value);
-                if (!doNotMarkDirty)
+                if (clearDirtyFlag)
                 {
                     IsServerDirty = false;
                 }
@@ -112,7 +112,7 @@ namespace VaporNetcode
 
         public override bool SerializeInFull(NetworkWriter w)
         {
-            return Serialize(w, true);
+            return Serialize(w, false);
         }
 
         public override bool Deserialize(NetworkReader r)
