@@ -94,6 +94,17 @@ namespace VaporNetcode
             return _sync;
         }
 
+        public TransformSync Setup(bool isServer, TransformSync sync)
+        {
+            _isServer = isServer;
+            _sync = sync;
+            if (!_isServer)
+            {
+                _sync.TransformChanged += OnServerToClientSync;
+            }
+            return _sync;
+        }
+
         public void Tick()
         {
             if (_isServer)
