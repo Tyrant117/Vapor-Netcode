@@ -21,7 +21,7 @@ namespace VaporNetcode
             }
         }
 
-        public ColorField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Color value) : base(fieldID, saveValue, isServer)
+        public ColorField(int fieldID, bool saveValue, bool isServer, Color value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Color;
             Value = value;

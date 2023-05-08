@@ -245,29 +245,29 @@ namespace VaporNetcode
         #endregion
 
         #region - Statics -
-        public static ObservableField GetFieldByType(int fieldID, ObservableFieldType type, bool saveValue, bool isNetworkSynced, bool isServer)
+        public static ObservableField GetFieldByType(int fieldID, ObservableFieldType type, bool saveValue, bool isServer)
         {
             return type switch
             {
-                ObservableFieldType.Byte => new ByteField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.Short => new ShortField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.UShort => new UShortField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.Int => new IntField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.UInt => new UIntField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.Float => new FloatField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.Long => new LongField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.ULong => new ULongField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.Double => new DoubleField(fieldID, saveValue, isNetworkSynced, isServer, 0),
-                ObservableFieldType.Vector2 => new Vector2Field(fieldID, saveValue, isNetworkSynced, isServer, Vector2.zero),
-                ObservableFieldType.Vector2Int => new Vector2IntField(fieldID, saveValue, isNetworkSynced, isServer, Vector2Int.zero),
-                ObservableFieldType.Vector3 => new Vector3Field(fieldID, saveValue, isNetworkSynced, isServer, Vector3.zero),
-                ObservableFieldType.Vector3Int => new Vector3IntField(fieldID, saveValue, isNetworkSynced, isServer, Vector3Int.zero),
-                ObservableFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(fieldID, saveValue, isNetworkSynced, isServer, Vector3.zero),
-                ObservableFieldType.Vector4 => new Vector4Field(fieldID, saveValue, isNetworkSynced, isServer, Vector4.zero),
-                ObservableFieldType.Color => new ColorField(fieldID, saveValue, isNetworkSynced, isServer, Color.white),
-                ObservableFieldType.Quaternion => new QuaternionField(fieldID, saveValue, isNetworkSynced, isServer, Quaternion.identity),
-                ObservableFieldType.CompressedQuaternion => new CompressedQuaternionField(fieldID, saveValue, isNetworkSynced, isServer, Quaternion.identity),
-                ObservableFieldType.String => new StringField(fieldID, saveValue, isNetworkSynced, isServer, ""),
+                ObservableFieldType.Byte => new ByteField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.Short => new ShortField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.UShort => new UShortField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.Int => new IntField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.UInt => new UIntField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.Float => new FloatField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.Long => new LongField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.ULong => new ULongField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.Double => new DoubleField(fieldID, saveValue, isServer, 0),
+                ObservableFieldType.Vector2 => new Vector2Field(fieldID, saveValue, isServer, Vector2.zero),
+                ObservableFieldType.Vector2Int => new Vector2IntField(fieldID, saveValue, isServer, Vector2Int.zero),
+                ObservableFieldType.Vector3 => new Vector3Field(fieldID, saveValue, isServer, Vector3.zero),
+                ObservableFieldType.Vector3Int => new Vector3IntField(fieldID, saveValue, isServer, Vector3Int.zero),
+                ObservableFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(fieldID, saveValue, isServer, Vector3.zero),
+                ObservableFieldType.Vector4 => new Vector4Field(fieldID, saveValue, isServer, Vector4.zero),
+                ObservableFieldType.Color => new ColorField(fieldID, saveValue, isServer, Color.white),
+                ObservableFieldType.Quaternion => new QuaternionField(fieldID, saveValue, isServer, Quaternion.identity),
+                ObservableFieldType.CompressedQuaternion => new CompressedQuaternionField(fieldID, saveValue, isServer, Quaternion.identity),
+                ObservableFieldType.String => new StringField(fieldID, saveValue, isServer, ""),
                 _ => null,
             };
         }

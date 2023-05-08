@@ -20,7 +20,7 @@ namespace VaporNetcode
             }
         }
 
-        public DoubleField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, double value) : base(fieldID, saveValue, isServer)
+        public DoubleField(int fieldID, bool saveValue, bool isServer, double value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Double;
             Value = value;

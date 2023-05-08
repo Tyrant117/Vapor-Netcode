@@ -21,7 +21,7 @@ namespace VaporNetcode
             }
         }
 
-        public QuaternionField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Quaternion value) : base(fieldID, saveValue, isServer)
+        public QuaternionField(int fieldID, bool saveValue, bool isServer, Quaternion value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Quaternion;
             Value = value;

@@ -22,7 +22,7 @@ namespace VaporNetcode
             }
         }
 
-        public UIntField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, uint value) : base(fieldID, saveValue, isServer)
+        public UIntField(int fieldID, bool saveValue, bool isServer, uint value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.UInt;
             Value = value;

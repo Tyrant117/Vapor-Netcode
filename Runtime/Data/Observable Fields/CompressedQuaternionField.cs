@@ -20,7 +20,7 @@ namespace VaporNetcode
             }
         }
 
-        public CompressedQuaternionField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Quaternion value) : base(fieldID, saveValue, isServer)
+        public CompressedQuaternionField(int fieldID, bool saveValue, bool isServer, Quaternion value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.CompressedQuaternion;
             Value = value;

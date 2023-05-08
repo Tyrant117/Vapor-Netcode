@@ -186,7 +186,7 @@ namespace VaporNetcode
                 }
                 else
                 {
-                    var newField = ObservableField.GetFieldByType(id, type, false, true, false);
+                    var newField = ObservableField.GetFieldByType(id, type, false, false);
                     fieldMap[id] = newField;
                     newField.Deserialize(r);
                     FieldCreated?.Invoke(newField);

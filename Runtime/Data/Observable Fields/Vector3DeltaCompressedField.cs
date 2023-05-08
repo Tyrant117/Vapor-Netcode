@@ -26,7 +26,7 @@ namespace VaporNetcode
             }
         }
 
-        public Vector3DeltaCompressedField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Vector3 value) : base(fieldID, saveValue, isServer)
+        public Vector3DeltaCompressedField(int fieldID, bool saveValue, bool isServer, Vector3 value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Vector3DeltaCompressed;
             Value = value;

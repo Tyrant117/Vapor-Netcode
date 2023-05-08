@@ -20,7 +20,7 @@ namespace VaporNetcode
             }
         }
 
-        public FloatField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, float value) : base(fieldID, saveValue, isServer)
+        public FloatField(int fieldID, bool saveValue, bool isServer, float value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Float;
             Value = value;

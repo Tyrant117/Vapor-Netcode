@@ -20,7 +20,7 @@ namespace VaporNetcode
             }
         }
 
-        public LongField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, long value) : base(fieldID, saveValue, isServer)
+        public LongField(int fieldID, bool saveValue, bool isServer, long value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Long;
             Value = value;

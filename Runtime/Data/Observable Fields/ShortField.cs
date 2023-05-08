@@ -20,7 +20,7 @@ namespace VaporNetcode
             }
         }
 
-        public ShortField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, short value) : base(fieldID, saveValue, isServer)
+        public ShortField(int fieldID, bool saveValue, bool isServer, short value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Short;
             Value = value;

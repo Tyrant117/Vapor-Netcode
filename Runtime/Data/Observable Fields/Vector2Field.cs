@@ -21,7 +21,7 @@ namespace VaporNetcode
             }
         }
 
-        public Vector2Field(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Vector2 value) : base(fieldID, saveValue, isServer)
+        public Vector2Field(int fieldID, bool saveValue, bool isServer, Vector2 value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Vector2;
             Value = value;

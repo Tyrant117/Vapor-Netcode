@@ -26,7 +26,7 @@ namespace VaporNetcode
             }
         }
 
-        public IntField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, int value) : base(fieldID, saveValue, isServer)
+        public IntField(int fieldID, bool saveValue, bool isServer, int value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Int;
             Value = value;

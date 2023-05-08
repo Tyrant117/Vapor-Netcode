@@ -22,7 +22,7 @@ namespace VaporNetcode
             }
         }
 
-        public ByteField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, byte value) : base(fieldID, saveValue, isServer)
+        public ByteField(int fieldID, bool saveValue, bool isServer, byte value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Byte;
             Value = value;

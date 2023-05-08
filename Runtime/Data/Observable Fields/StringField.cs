@@ -23,7 +23,7 @@ namespace VaporNetcode
             }
         }
 
-        public StringField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, string value) : base(fieldID, saveValue, isServer)
+        public StringField(int fieldID, bool saveValue, bool isServer, string value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.String;
             Value = value;
