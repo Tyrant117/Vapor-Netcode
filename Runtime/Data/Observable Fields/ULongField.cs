@@ -14,17 +14,17 @@ namespace VaporNetcode
         {
             Type = ObservableFieldType.ULong;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
         }
 
-        public ULongField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, ulong value) : base(fieldID, saveValue, isNetworkSynced, isServer)
+        public ULongField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, ulong value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.ULong;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
@@ -68,7 +68,7 @@ namespace VaporNetcode
         {
             if (SetULong(value))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -80,7 +80,7 @@ namespace VaporNetcode
         {
             if (ModifyULong(value, type))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -102,6 +102,11 @@ namespace VaporNetcode
             {
                 return false;
             }
+        }
+
+        public override bool SerializeInFull(NetworkWriter w)
+        {
+            return Serialize(w);
         }
 
         public override bool Deserialize(NetworkReader r)

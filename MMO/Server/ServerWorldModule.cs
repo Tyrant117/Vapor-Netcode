@@ -10,7 +10,7 @@ namespace VaporMMO
 {
     public class ServerWorldModule : ServerModule
     {
-        public const string TAG = "<color=cyan><b>[Client]</b></color>";
+        public const string TAG = "<color=cyan><b>[Server World]</b></color>";
         public const string WARNING = "<color=yellow><b>[!]</b></color>";
 
         [FoldoutGroup("Interest Management"), SerializeField]

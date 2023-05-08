@@ -14,17 +14,17 @@ namespace VaporNetcode
         {
             Type = ObservableFieldType.Short;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
         }
 
-        public ShortField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, short value) : base(fieldID, saveValue, isNetworkSynced, isServer)
+        public ShortField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, short value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Short;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
@@ -69,7 +69,7 @@ namespace VaporNetcode
         {
             if (SetShort(value))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -81,7 +81,7 @@ namespace VaporNetcode
         {
             if (ModifyShort(value, type))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -103,6 +103,11 @@ namespace VaporNetcode
             {
                 return false;
             }
+        }
+
+        public override bool SerializeInFull(NetworkWriter w)
+        {
+            return Serialize(w);
         }
 
         public override bool Deserialize(NetworkReader r)

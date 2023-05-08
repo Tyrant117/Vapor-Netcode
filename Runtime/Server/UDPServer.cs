@@ -276,8 +276,6 @@ namespace VaporNetcode
 
                 if (!Application.isPlaying || AccurateInterval.Elapsed(Time.timeAsDouble, SendInterval, ref _lastSendTime))
                 {
-                    //Broadcast();
-
                     foreach (var mod in modules.Values)
                     {
                         mod.Update();
@@ -299,7 +297,6 @@ namespace VaporNetcode
 
                 ++actualTickRateCounter;
 
-                // NetworkTime.localTime has defines for 2019 / 2020 compatibility
                 if (Time.timeAsDouble >= actualTickRateStart + 1)
                 {
                     // calculate avg by exact elapsed time.

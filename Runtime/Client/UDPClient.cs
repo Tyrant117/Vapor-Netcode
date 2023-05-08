@@ -68,6 +68,7 @@ namespace VaporNetcode
 
         private static readonly bool retryOnTimeout = true;
         public static float SendInterval => 1f / _config.ClientUpdateRate; // for 30 Hz, that's 33ms
+        public static float ServerSendInterval => 1f / _config.ServerUpdateRate;
         private static double _lastSendTime;
 
         private static ClientConfig _config;

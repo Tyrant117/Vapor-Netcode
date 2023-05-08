@@ -15,17 +15,17 @@ namespace VaporNetcode
         {
             Type = ObservableFieldType.Vector4;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
         }
 
-        public Vector4Field(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Vector4 value) : base(fieldID, saveValue, isNetworkSynced, isServer)
+        public Vector4Field(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Vector4 value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Vector4;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
@@ -57,7 +57,7 @@ namespace VaporNetcode
         {
             if (SetVector4(value))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -79,6 +79,11 @@ namespace VaporNetcode
             {
                 return false;
             }
+        }
+
+        public override bool SerializeInFull(NetworkWriter w)
+        {
+            return Serialize(w);
         }
 
         public override bool Deserialize(NetworkReader r)

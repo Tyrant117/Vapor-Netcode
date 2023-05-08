@@ -1,19 +1,20 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class ColorField : ObservableField
+    public class UIntField : ObservableField
     {
-        public static implicit operator Color(ColorField f) => f.Value;
+        public static implicit operator uint(UIntField f) => f.Value;
 
-        public Color Value { get; protected set; }
-        public event Action<ColorField> ValueChanged;
+        public uint Value { get; protected set; }
+        public event Action<UIntField> ValueChanged;
 
-        public ColorField(ObservableClass @class, int fieldID, bool saveValue, Color value) : base(@class, fieldID, saveValue)
+        public UIntField(ObservableClass @class, int fieldID, bool saveValue, uint value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Color;
+            Type = ObservableFieldType.UInt;
             Value = value;
             if (IsServer)
             {
@@ -21,9 +22,9 @@ namespace VaporNetcode
             }
         }
 
-        public ColorField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Color value) : base(fieldID, saveValue, isServer)
+        public UIntField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, uint value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Color;
+            Type = ObservableFieldType.UInt;
             Value = value;
             if (IsServer)
             {
@@ -32,20 +33,13 @@ namespace VaporNetcode
         }
 
         #region - Setters -
-        internal bool SetColor(Color value)
+        internal bool SetInt(uint value)
         {
-            if (Type == ObservableFieldType.Color)
+            if (Value != value)
             {
-                if (Value != value)
-                {
-                    Value = value;
-                    ValueChanged?.Invoke(this);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                Value = value;
+                ValueChanged?.Invoke(this);
+                return true;
             }
             else
             {
@@ -53,9 +47,9 @@ namespace VaporNetcode
             }
         }
 
-        public void ExternalSet(Color value)
+        public void ExternalSet(uint value)
         {
-            if (SetColor(value))
+            if (SetInt(value))
             {
                 if (IsServer)
                 {
@@ -71,7 +65,7 @@ namespace VaporNetcode
         {
             if (base.Serialize(w))
             {
-                w.WriteColor(Value);
+                w.WriteUInt(Value);
                 IsServerDirty = false;
                 return true;
             }
@@ -88,14 +82,14 @@ namespace VaporNetcode
 
         public override bool Deserialize(NetworkReader r)
         {
-            return base.Deserialize(r) && SetColor(r.ReadColor());
+            return base.Deserialize(r) && SetInt(r.ReadUInt());
         }
         #endregion
 
         #region - Saving -
         public override SavedObservable Save()
         {
-            return new SavedObservable(FieldID, Type, $"{Value.r},{Value.g},{Value.b},{Value.a}");
+            return new SavedObservable(FieldID, Type, Value.ToString());
         }
         #endregion
     }

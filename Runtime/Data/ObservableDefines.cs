@@ -7,6 +7,7 @@ namespace VaporNetcode
         Short,  // Short    - 2 bytes
         UShort,
         Int,  // Int      - 4 bytes
+        UInt,  // Int      - 4 bytes
         Float, // Float    - 4 bytes
         Long,  // long     - 8 bytes
         ULong, // ulong    - 8 bytes
@@ -15,6 +16,7 @@ namespace VaporNetcode
         Vector2Int,
         Vector3,// Vector3, Color32  - 12 bytes
         Vector3Int,
+        Vector3DeltaCompressed,// Vector3, Color32  - 12 bytes
         Vector4,// Quaternion, Color - 16 bytes
         Color,
         Quaternion,

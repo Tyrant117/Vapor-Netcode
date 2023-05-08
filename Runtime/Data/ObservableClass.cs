@@ -58,7 +58,6 @@ namespace VaporNetcode
         public bool Dirty => dirtyFields.Count > 0;
         public int Type { get; protected set; }
         public int ID { get; protected set; }
-        public bool IsNetworkSynced { get; }
         public bool IsServer { get; }
         public ObservableField GetField(int fieldID) => fields[fieldID];
         public T GetField<T>(int fieldID) where T : ObservableField => (T)fields[fieldID];
@@ -70,18 +69,16 @@ namespace VaporNetcode
         public event Action<ObservableClass> Dirtied;
         public event Action<ObservableClass> Changed;
 
-        public ObservableClass(int unqiueID, bool isNetworkSynced, bool isServer)
+        public ObservableClass(int unqiueID, bool isServer)
         {
             ID = unqiueID;
-            IsNetworkSynced = isNetworkSynced;
             IsServer = isServer;
         }
 
-        public ObservableClass(int containerType, int unqiueID, bool isNetworkSynced, bool isServer)
+        public ObservableClass(int containerType, int unqiueID, bool isServer)
         {
             Type = containerType;
             ID = unqiueID;
-            IsNetworkSynced = isNetworkSynced;
             IsServer = isServer;
         }
 
@@ -110,6 +107,7 @@ namespace VaporNetcode
                 ObservableFieldType.Short => new ShortField(this, fieldID, saveValue, Convert.ToInt16(value)),
                 ObservableFieldType.UShort => new UShortField(this, fieldID, saveValue, Convert.ToUInt16(value)),
                 ObservableFieldType.Int => new IntField(this, fieldID, saveValue, Convert.ToInt32(value)),
+                ObservableFieldType.UInt => new UIntField(this, fieldID, saveValue, Convert.ToUInt32(value)),
                 ObservableFieldType.Float => new FloatField(this, fieldID, saveValue, Convert.ToSingle(value)),
                 ObservableFieldType.Long => new LongField(this, fieldID, saveValue, Convert.ToInt64(value)),
                 ObservableFieldType.ULong => new ULongField(this, fieldID, saveValue, Convert.ToUInt64(value)),
@@ -118,6 +116,7 @@ namespace VaporNetcode
                 ObservableFieldType.Vector2Int => new Vector2IntField(this, fieldID, saveValue, (Vector2Int)value),
                 ObservableFieldType.Vector3 => new Vector3Field(this, fieldID, saveValue, (Vector3)value),
                 ObservableFieldType.Vector3Int => new Vector3IntField(this, fieldID, saveValue, (Vector3Int)value),
+                ObservableFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(this, fieldID, saveValue, (Vector3)value),
                 ObservableFieldType.Vector4 => new Vector4Field(this, fieldID, saveValue, (Vector4)value),
                 ObservableFieldType.Color => new ColorField(this, fieldID, saveValue, (Color)value),
                 ObservableFieldType.Quaternion => new QuaternionField(this, fieldID, saveValue, (Quaternion)value),
@@ -136,6 +135,7 @@ namespace VaporNetcode
                 ObservableFieldType.Short => new ShortField(this, fieldID, saveValue, 0),
                 ObservableFieldType.UShort => new UShortField(this, fieldID, saveValue, 0),
                 ObservableFieldType.Int => new IntField(this, fieldID, saveValue, 0),
+                ObservableFieldType.UInt => new UIntField(this, fieldID, saveValue, 0),
                 ObservableFieldType.Float => new FloatField(this, fieldID, saveValue, 0),
                 ObservableFieldType.Long => new LongField(this, fieldID, saveValue, 0),
                 ObservableFieldType.ULong => new ULongField(this, fieldID, saveValue, 0),
@@ -144,6 +144,7 @@ namespace VaporNetcode
                 ObservableFieldType.Vector2Int => new Vector2IntField(this, fieldID, saveValue, Vector2Int.zero),
                 ObservableFieldType.Vector3 => new Vector3Field(this, fieldID, saveValue, Vector3.zero),
                 ObservableFieldType.Vector3Int => new Vector3IntField(this, fieldID, saveValue, Vector3Int.zero),
+                ObservableFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(this, fieldID, saveValue, Vector3.zero),
                 ObservableFieldType.Vector4 => new Vector4Field(this, fieldID, saveValue, Vector4.zero),
                 ObservableFieldType.Color => new ColorField(this, fieldID, saveValue, Color.white),
                 ObservableFieldType.Quaternion => new QuaternionField(this, fieldID, saveValue, Quaternion.identity),
@@ -155,7 +156,7 @@ namespace VaporNetcode
 
         internal virtual void MarkDirty(ObservableField field)
         {
-            if (IsNetworkSynced && IsServer && !hashedDirties.Contains(field.FieldID))
+            if (IsServer && !hashedDirties.Contains(field.FieldID))
             {
                 bool wasDirty = Dirty;
                 dirtyFields.Add(field.FieldID);
@@ -165,18 +166,13 @@ namespace VaporNetcode
                     Dirtied?.Invoke(this);
                 }
             }
-
-            if (!IsNetworkSynced)
-            {
-                Changed?.Invoke(this);
-            }
         }
         #endregion
 
         #region - Serialization -
         public virtual void Serialize(NetworkWriter w)
         {
-            if (!IsNetworkSynced || !IsServer || !Dirty) { return; }
+            if (!IsServer || !Dirty) { return; }
 
             w.WriteInt(Type);
             w.WriteInt(ID);
@@ -198,7 +194,7 @@ namespace VaporNetcode
 
         public virtual void Deserialize(NetworkReader r)
         {
-            if (!IsNetworkSynced || IsServer) { return; }
+            if (IsServer) { return; }
 
             int count = r.ReadInt();
             for (int i = 0; i < count; i++)
@@ -228,7 +224,7 @@ namespace VaporNetcode
             w.WriteInt(count);
             foreach (var item in fields.Values)
             {
-                item.Serialize(w);
+                item.SerializeInFull(w);
             }
         }
 
@@ -289,6 +285,9 @@ namespace VaporNetcode
                 case ObservableFieldType.Int:
                     GetField<IntField>(fieldID).ExternalSet(int.Parse(value));
                     break;
+                case ObservableFieldType.UInt:
+                    GetField<UIntField>(fieldID).ExternalSet(uint.Parse(value));
+                    break;
                 case ObservableFieldType.Float:
                     GetField<FloatField>(fieldID).ExternalSet(float.Parse(value));
                     break;
@@ -317,6 +316,10 @@ namespace VaporNetcode
                     string[] split3i = value.Split(new char[] { ',' });
                     GetField<Vector3IntField>(fieldID).ExternalSet(new Vector3Int(int.Parse(split3i[0]), int.Parse(split3i[1]), int.Parse(split3i[2])));
                     break;
+                case ObservableFieldType.Vector3DeltaCompressed:
+                    string[] split3d = value.Split(new char[] { ',' });
+                    GetField<Vector3DeltaCompressedField>(fieldID).ExternalSet(new Vector3(float.Parse(split3d[0]), float.Parse(split3d[1]), float.Parse(split3d[2])));
+                    break;
                 case ObservableFieldType.Vector4:
                     string[] split4 = value.Split(new char[] { ',' });
                     GetField<Vector4Field>(fieldID).ExternalSet(new Vector4(float.Parse(split4[0]), float.Parse(split4[1]), float.Parse(split4[2]), float.Parse(split4[3])));
@@ -336,8 +339,6 @@ namespace VaporNetcode
                 case ObservableFieldType.String:
                     GetField<StringField>(fieldID).ExternalSet(value);
                     break;                               
-                default:
-                    break;
             }
         }
         #endregion

@@ -20,17 +20,17 @@ namespace VaporNetcode
         {
             Type = ObservableFieldType.Int;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
         }
 
-        public IntField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, int value) : base(fieldID, saveValue, isNetworkSynced, isServer)
+        public IntField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, int value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.Int;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
@@ -75,7 +75,7 @@ namespace VaporNetcode
         {
             if (SetInt(value))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -87,7 +87,7 @@ namespace VaporNetcode
         {
             if (ModifyInt(value, type))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -109,6 +109,11 @@ namespace VaporNetcode
             {
                 return false;
             }
+        }
+
+        public override bool SerializeInFull(NetworkWriter w)
+        {
+            return Serialize(w);
         }
 
         public override bool Deserialize(NetworkReader r)

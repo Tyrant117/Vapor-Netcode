@@ -14,17 +14,17 @@ namespace VaporNetcode
         {
             Type = ObservableFieldType.CompressedQuaternion;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
         }
 
-        public CompressedQuaternionField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Quaternion value) : base(fieldID, saveValue, isNetworkSynced, isServer)
+        public CompressedQuaternionField(int fieldID, bool saveValue, bool isNetworkSynced, bool isServer, Quaternion value) : base(fieldID, saveValue, isServer)
         {
             Type = ObservableFieldType.CompressedQuaternion;
             Value = value;
-            if (IsNetworkSynced && IsServer)
+            if (IsServer)
             {
                 IsServerDirty = true;
             }
@@ -56,7 +56,7 @@ namespace VaporNetcode
         {
             if (SetQuaternion(value))
             {
-                if (IsNetworkSynced && IsServer)
+                if (IsServer)
                 {
                     IsServerDirty = true;
                 }
@@ -78,6 +78,11 @@ namespace VaporNetcode
             {
                 return false;
             }
+        }
+
+        public override bool SerializeInFull(NetworkWriter w)
+        {
+            return Serialize(w);
         }
 
         public override bool Deserialize(NetworkReader r)
