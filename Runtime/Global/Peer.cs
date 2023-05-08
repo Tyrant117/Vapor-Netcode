@@ -22,6 +22,7 @@ namespace VaporNetcode
         public string GenericStringID { get; set; }
         public int SpamCount { get; set; }
         public double RemoteTimestamp { get; set; }
+        public uint NetID { get; set; }
         public float LastMessageTime { get; set; }
 
         public Unbatcher Unbatcher = new();
