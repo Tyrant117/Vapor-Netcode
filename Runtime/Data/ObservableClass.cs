@@ -159,6 +159,7 @@ namespace VaporNetcode
 
         internal virtual void MarkDirty(ObservableField field)
         {
+            Debug.Log($"Trying to Dirty Class {Type} {ID}");
             if (IsServer && dirtyFields.Add(field.FieldID))
             {
                 Debug.Log($"Class {Type} {ID} Dirty");
