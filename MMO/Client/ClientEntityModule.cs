@@ -26,12 +26,19 @@ namespace VaporMMO
             }
             if (conn is Peer peer && peer.IsReady)
             {
-                ((Peer)conn).SyncBatcher.Unbatch(msg);
+                peer.SyncBatcher.Unbatch(msg);
             }
         }
 
         private void OnInterestUpdate(INetConnection conn, InterestMessage msg)
         {
+            if (NetLogFilter.logInfo && NetLogFilter.spew)
+            {
+                Debug.Log($"{TAG} Interest Updated");
+            }
+
+            if (!conn.IsReady) { return; }
+
             foreach (var entity in msg.packets)
             {
                 switch (entity.InterestType)
