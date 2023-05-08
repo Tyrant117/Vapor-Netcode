@@ -161,6 +161,7 @@ namespace VaporNetcode
         {
             if (IsServer && dirtyFields.Add(field.FieldID))
             {
+                Debug.Log($"Class {Type} {ID} Dirty");
                 Dirtied?.Invoke(this);
             }
         }

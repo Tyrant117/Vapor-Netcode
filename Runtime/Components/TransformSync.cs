@@ -72,25 +72,14 @@ namespace VaporNetcode
 
             if (syncPos)
             {
-                Debug.Log(Position.Value);
                 pos = Position.Value;
             }
             if (syncRot)
             {
-                if (compressRot)
-                {
-                    Debug.Log(CompressedRotation.Value);
-                    rot = CompressedRotation.Value;
-                }
-                else
-                {
-                    Debug.Log(Rotation.Value);
-                    rot = Rotation.Value;
-                }
+                rot = compressRot ? CompressedRotation.Value : Rotation.Value;
             }
             if (syncScale)
             {
-                Debug.Log(Scale.Value);
                 scl = Scale.Value;
             }
             TransformChanged?.Invoke(pos, rot, scl);
