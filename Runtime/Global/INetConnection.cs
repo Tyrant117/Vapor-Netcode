@@ -12,7 +12,7 @@ namespace VaporNetcode
         int SpamCount { get; set; }
         double RemoteTimestamp { get; set; }
         bool IsReady { get; set; }
-        uint NetID { get; }
+        uint NetID { get; set; }
 
         void Authenticated(int connID);
         void Disconnect(int reason = 0);
