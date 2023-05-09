@@ -151,8 +151,7 @@ namespace VaporNetcode
 
             void _Full()
             {
-                w.WriteInt(classMap.Count);
-                
+                w.WriteInt(classMap.Count);                
                 foreach (var oc in classMap.Values)
                 {
                     oc.SerializeInFull(w);

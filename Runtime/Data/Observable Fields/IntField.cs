@@ -39,19 +39,12 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetInt(int value)
         {
-            if (Type == ObservableFieldType.Int)
+            if (Value != value)
             {
-                if (Value != value)
-                {
-                    DeltaChanged?.Invoke(this, value - Value);
-                    Value = value;
-                    ValueChanged?.Invoke(this);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                DeltaChanged?.Invoke(this, value - Value);
+                Value = value;
+                ValueChanged?.Invoke(this);
+                return true;
             }
             else
             {

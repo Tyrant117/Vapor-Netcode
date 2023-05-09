@@ -75,7 +75,7 @@ namespace VaporNetcode
         #region - Serialization -
         public virtual bool Serialize(NetworkWriter w, bool clearDirtyFlag = true)
         {
-            if (IsServer && IsServerDirty)
+            if (IsServer && (IsServerDirty || !clearDirtyFlag))
             {
                 w.WriteInt(FieldID);
                 w.WriteByte((byte)Type);
