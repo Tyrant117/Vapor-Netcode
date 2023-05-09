@@ -212,7 +212,7 @@ namespace VaporNetcode
             for (int i = 0; i < count; i++)
             {
                 ObservableField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
-                //Debug.Log($"Class {Type} - {ID} Trying To Add Field: {type} {fieldID}");
+                Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{count}]");
                 if (fields.ContainsKey(fieldID))
                 {
                     fields[fieldID].Deserialize(r);
