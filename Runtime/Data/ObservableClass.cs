@@ -92,7 +92,10 @@ namespace VaporNetcode
             }
             else
             {
-                Debug.Log($"Class {Type} - {ID} Failed To Add Field: {type} {fieldID}");
+                if (NetLogFilter.logWarn)
+                {
+                    Debug.Log($"Class {Type} - {ID} Failed To Add Field: {type} {fieldID}");
+                }
             }
         }
 
@@ -205,11 +208,11 @@ namespace VaporNetcode
             if (IsServer) { return; }
 
             int count = r.ReadInt();
-            Debug.Log($"{Type} - {ID} Deserializing Class Fields: {count}");
+            //Debug.Log($"{Type} - {ID} Deserializing Class Fields: {count}");
             for (int i = 0; i < count; i++)
             {
                 ObservableField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
-                Debug.Log($"Class {Type} - {ID} Trying To Add Field: {type} {fieldID}");
+                //Debug.Log($"Class {Type} - {ID} Trying To Add Field: {type} {fieldID}");
                 if (fields.ContainsKey(fieldID))
                 {
                     fields[fieldID].Deserialize(r);
