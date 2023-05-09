@@ -159,11 +159,17 @@ namespace VaporNetcode
 
         internal virtual void MarkDirty(ObservableField field)
         {
-            Debug.Log($"Trying to Dirty Class {Type} {ID}");
             if (IsServer && dirtyFields.Add(field.FieldID))
             {
-                Debug.Log($"Class {Type} {ID} Dirty");
+                //Debug.Log($"Class {Type} {ID} Dirty");
                 Dirtied?.Invoke(this);
+            }
+            else
+            {
+                if (NetLogFilter.logDebug && NetLogFilter.spew)
+                {
+                    Debug.Log($"Class {Type} {ID} Already Dirty");
+                }
             }
         }
         #endregion
@@ -181,6 +187,7 @@ namespace VaporNetcode
             {
                 fields[df].Serialize(w, clearDirtyFlag);
             }
+
             if (clearDirtyFlag)
             {
                 dirtyFields.Clear();

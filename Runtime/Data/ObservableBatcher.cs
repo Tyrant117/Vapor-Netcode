@@ -152,7 +152,7 @@ namespace VaporNetcode
             void _Full()
             {
                 w.WriteInt(classMap.Count);
-                Debug.Log($"Batching Classes: {classMap.Count}");
+                
                 foreach (var oc in classMap.Values)
                 {
                     oc.SerializeInFull(w);
@@ -161,6 +161,11 @@ namespace VaporNetcode
                 foreach (var of in fieldMap.Values)
                 {
                     of.SerializeInFull(w);
+                }
+
+                if (NetLogFilter.logDebug && NetLogFilter.spew)
+                {
+                    Debug.Log($"Fully Batching | Classes: {classMap.Count} Fields: {fieldMap.Count}");
                 }
             }
 
@@ -184,7 +189,10 @@ namespace VaporNetcode
         {
             using var r = NetworkReaderPool.Get(packet.data);
             int classCount = r.ReadInt();
-            Debug.Log($"Unbatching Classes: {classCount}");
+            if (NetLogFilter.logDebug && NetLogFilter.spew)
+            {
+                Debug.Log($"Unbatching Classes: {classCount}");
+            }
             for (int i = 0; i < classCount; i++)
             {
                 ObservableClass.StartDeserialize(r, out int type, out int id);
@@ -198,7 +206,7 @@ namespace VaporNetcode
                     if (ObservableFactory.TryCreateObservable(type, id, out ObservableClass newClass))
                     {
                         classMap[key] = newClass;
-                        if (NetLogFilter.logInfo) { Debug.Log($"{newClass.GetType().Name} {id}"); }
+                        if (NetLogFilter.logDebug) { Debug.Log($"Unbatch and Create Class | {newClass.GetType().Name} [{id}]"); }
                         newClass.Deserialize(r);
                         ClassCreated?.Invoke(newClass);
                     }
@@ -206,7 +214,10 @@ namespace VaporNetcode
             }
 
             int fieldCount = r.ReadInt();
-            Debug.Log($"Unbatching Fields: {fieldCount}");
+            if (NetLogFilter.logDebug && NetLogFilter.spew)
+            {
+                Debug.Log($"Unbatching Fields: {fieldCount}");
+            }
             for (int i = 0; i < fieldCount; i++)
             {
                 ObservableField.StartDeserialize(r, out int id, out var type);
@@ -218,7 +229,7 @@ namespace VaporNetcode
                 {
                     var newField = ObservableField.GetFieldByType(id, type, false, false);
                     fieldMap[id] = newField;
-                    if (NetLogFilter.logInfo) { Debug.Log($"{type} {id}"); }
+                    if (NetLogFilter.logDebug) { Debug.Log($"Unbatch and Create Field | {type} [{id}]"); }
                     newField.Deserialize(r);
                     FieldCreated?.Invoke(newField);
                 }

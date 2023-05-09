@@ -72,7 +72,7 @@ namespace VaporNetcode
             {
                 Compression.ScaleToLong(Value, Precision, out Vector3Long quantized);
                 var deltaPos = quantized - _lastSerializedValue;
-                Debug.Log($"Serializing Delta: {deltaPos}");
+                //Debug.Log($"Serializing Delta: {deltaPos}");
 
                 w.WriteBool(true); // is delta
                 Compression.CompressVarInt(w, deltaPos.x);
@@ -98,12 +98,12 @@ namespace VaporNetcode
                 w.WriteBool(false);
                 w.WriteVector3(Value);
                 Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
-                Debug.Log($"V3D Serialize in Full {FieldID} {Type} {false} {Value}");
+                //Debug.Log($"V3D Serialize in Full {FieldID} {Type} {false} {Value}");
                 return true;
             }
             else
             {
-                Debug.Log($"V3D Cannot Serialize in Full {IsServer} {IsServerDirty}");
+                //Debug.Log($"V3D Cannot Serialize in Full {IsServer} {IsServerDirty}");
                 return false;
             }
         }
@@ -116,7 +116,7 @@ namespace VaporNetcode
             if (delta)
             {
                 Vector3Long deltaValue = new(Compression.DecompressVarInt(r), Compression.DecompressVarInt(r), Compression.DecompressVarInt(r));
-                Debug.Log($"Deserializing Delta: {deltaValue}");
+                //Debug.Log($"Deserializing Delta: {deltaValue}");
                 Vector3Long quantized = _lastDeserializedValue + deltaValue;
                 set = SetVector3(Compression.ScaleToFloat(quantized, Precision));
                 Compression.ScaleToLong(Value, Precision, out _lastDeserializedValue);
