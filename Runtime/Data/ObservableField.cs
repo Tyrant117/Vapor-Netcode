@@ -77,6 +77,10 @@ namespace VaporNetcode
         {
             if (IsServer && (IsServerDirty || !clearDirtyFlag))
             {
+                if (!clearDirtyFlag)
+                {
+                    Debug.LogError("Serialize In Full Got Me Here");
+                }
                 w.WriteInt(FieldID);
                 w.WriteByte((byte)Type);
                 return true;
