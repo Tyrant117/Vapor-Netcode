@@ -20,6 +20,7 @@ namespace VaporNetcode
 
         public static bool spew;
         public static bool messageDiagnostics;
+        public static bool syncVars;
 
         public const int Debug = 0;
         public const int Info = 1;

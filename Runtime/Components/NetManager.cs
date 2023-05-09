@@ -67,6 +67,11 @@ namespace VaporNetcode
         [Tooltip("True if you want to recieve diagnostics on the messages being sent and recieved.")]
         public bool messageDiagnostics;
 #if ODIN_INSPECTOR
+        [TabGroup("Tabs", "Logging")]
+#endif
+        [Tooltip("True if you want to get logs for observer sync data")]
+        public bool debugSyncVars;
+#if ODIN_INSPECTOR
         [TabGroup("Tabs", "Logging"), Button, PropertyOrder(1)]
 #endif
         private void GenerateMessageLookupData()
@@ -128,6 +133,7 @@ namespace VaporNetcode
             NetLogFilter.CurrentLogLevel = (int)logLevel;
             NetLogFilter.spew = spewDebug;
             NetLogFilter.messageDiagnostics = messageDiagnostics;
+            NetLogFilter.syncVars = debugSyncVars;
 
             if (_isServer)
             {

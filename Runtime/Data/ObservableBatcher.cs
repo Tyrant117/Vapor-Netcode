@@ -73,7 +73,7 @@ namespace VaporNetcode
             Vector2Int key = new(observableClass.Type, observableClass.ID);
             if (classMap.ContainsKey(key))
             {
-                if (NetLogFilter.logInfo) { Debug.Log($"Overwriting ObservableClass at Key: {key}"); }
+                if (NetLogFilter.logInfo && NetLogFilter.syncVars) { Debug.Log($"Overwriting ObservableClass at Key: {key}"); }
             }
 
             if (!dirtyClasses.ContainsKey(key))
@@ -90,7 +90,7 @@ namespace VaporNetcode
             int key = observableField.FieldID;
             if (fieldMap.ContainsKey(key))
             {
-                if (NetLogFilter.logInfo) { Debug.Log($"Overwriting ObservableField at Key: {key}"); }
+                if (NetLogFilter.logInfo && NetLogFilter.syncVars) { Debug.Log($"Overwriting ObservableField at Key: {key}"); }
             }
 
             if (!dirtyFields.ContainsKey(key))
@@ -163,7 +163,7 @@ namespace VaporNetcode
                     of.SerializeInFull(w);
                 }
 
-                if (NetLogFilter.logDebug && NetLogFilter.spew)
+                if (NetLogFilter.logDebug && NetLogFilter.syncVars && NetLogFilter.spew)
                 {
                     Debug.Log($"Fully Batching | Classes: {classMap.Count} Fields: {fieldMap.Count}");
                 }
@@ -189,7 +189,7 @@ namespace VaporNetcode
         {
             using var r = NetworkReaderPool.Get(packet.data);
             int classCount = r.ReadInt();
-            if (NetLogFilter.logDebug && NetLogFilter.spew)
+            if (NetLogFilter.logDebug && NetLogFilter.syncVars && NetLogFilter.spew)
             {
                 Debug.Log($"Unbatching Classes: {classCount}");
             }
@@ -206,7 +206,7 @@ namespace VaporNetcode
                     if (ObservableFactory.TryCreateObservable(type, id, out ObservableClass newClass))
                     {
                         classMap[key] = newClass;
-                        if (NetLogFilter.logDebug) { Debug.Log($"Unbatch and Create Class | {newClass.GetType().Name} [{id}]"); }
+                        if (NetLogFilter.logDebug && NetLogFilter.syncVars) { Debug.Log($"Unbatch and Create Class | {newClass.GetType().Name} [{id}]"); }
                         newClass.Deserialize(r);
                         ClassCreated?.Invoke(newClass);
                     }
@@ -214,7 +214,7 @@ namespace VaporNetcode
             }
 
             int fieldCount = r.ReadInt();
-            if (NetLogFilter.logDebug && NetLogFilter.spew)
+            if (NetLogFilter.logDebug && NetLogFilter.syncVars && NetLogFilter.spew)
             {
                 Debug.Log($"Unbatching Fields: {fieldCount}");
             }
@@ -229,7 +229,7 @@ namespace VaporNetcode
                 {
                     var newField = ObservableField.GetFieldByType(id, type, false, false);
                     fieldMap[id] = newField;
-                    if (NetLogFilter.logDebug) { Debug.Log($"Unbatch and Create Field | {type} [{id}]"); }
+                    if (NetLogFilter.logDebug && NetLogFilter.syncVars) { Debug.Log($"Unbatch and Create Field | {type} [{id}]"); }
                     newField.Deserialize(r);
                     FieldCreated?.Invoke(newField);
                 }

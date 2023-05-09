@@ -169,7 +169,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logDebug && NetLogFilter.spew)
+                if (NetLogFilter.logDebug && NetLogFilter.syncVars && NetLogFilter.spew)
                 {
                     Debug.Log($"Class {Type} {ID} Already Dirty");
                 }
@@ -212,7 +212,10 @@ namespace VaporNetcode
             for (int i = 0; i < count; i++)
             {
                 ObservableField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
-                Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{count}]");
+                if(NetLogFilter.logDebug && NetLogFilter.syncVars)
+                {
+                    Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{count}]");
+                }
                 if (fields.ContainsKey(fieldID))
                 {
                     fields[fieldID].Deserialize(r);
@@ -235,7 +238,11 @@ namespace VaporNetcode
             w.WriteInt(ID);
             int count = fields.Count;
             w.WriteInt(count);
-            Debug.Log($"Batching Class: Type: {Type} ID: {ID} Count: {count}");
+            if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+            {
+                Debug.Log($"Batching Class: Type: {Type} ID: {ID} Count: {count}");
+            }
+
             foreach (var item in fields.Values)
             {
                 item.SerializeInFull(w);
