@@ -93,7 +93,7 @@ namespace VaporNetcode
         #region - Serialization -
         public override bool Serialize(NetworkWriter w, bool clearDirtyFlag = true)
         {
-            if (base.Serialize(w))
+            if (base.Serialize(w, clearDirtyFlag))
             {
                 w.WriteShort(Value);
                 if (clearDirtyFlag)

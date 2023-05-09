@@ -245,6 +245,10 @@ namespace VaporNetcode
 
             foreach (var item in fields.Values)
             {
+                if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+                {
+                    Debug.Log($"Batching Field: Type: {item.Type} ID: {item.FieldID}");
+                }
                 item.SerializeInFull(w);
             }
         }
