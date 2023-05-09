@@ -208,7 +208,7 @@ namespace VaporNetcode
                     target.localRotation,
                     target.localScale);
             }
-            Debug.Log($"Client Syncing Snapshot {position} {rotation} {scale}");
+            //Debug.Log($"Client Syncing Snapshot {position} {rotation} {scale}");
 
             // add a small timeline offset to account for decoupled arrival of
             // NetworkTime and NetworkTransform snapshots.
