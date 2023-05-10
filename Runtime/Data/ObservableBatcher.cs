@@ -41,7 +41,7 @@ namespace VaporNetcode
             {
                 if (NetLogFilter.logError)
                 {
-                    Debug.Log($"{nameof(T)} not found.");
+                    Debug.Log($"Class: {typeof(T)} with id {uniqueID} not found.");
                 }
                 sync = default;
                 return false;
@@ -59,7 +59,7 @@ namespace VaporNetcode
             {
                 if (NetLogFilter.logError)
                 {
-                    Debug.Log($"{nameof(T)} not found.");
+                    Debug.Log($"Field: {typeof(T)} with id {fieldKey} not found.");
                 }
                 sync = default;
                 return false;
