@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class ColorField : ObservableField
+    public class ColorField : SyncField
     {
         public static implicit operator Color(ColorField f) => f.Value;
 
         public Color Value { get; protected set; }
         public event Action<ColorField> ValueChanged;
 
-        public ColorField(ObservableClass @class, int fieldID, bool saveValue, Color value) : base(@class, fieldID, saveValue)
+        public ColorField(SyncClass @class, int fieldID, bool saveValue, Color value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Color;
             Value = value;

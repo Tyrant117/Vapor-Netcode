@@ -3,14 +3,14 @@
 namespace VaporNetcode
 {
     [Serializable]
-    public class ULongField : ObservableField
+    public class ULongField : SyncField
     {
         public static implicit operator ulong(ULongField f) => f.Value;
 
         public ulong Value { get; protected set; }
         public event Action<ULongField> ValueChanged;
 
-        public ULongField(ObservableClass @class, int fieldID, bool saveValue, ulong value) : base(@class, fieldID, saveValue)
+        public ULongField(SyncClass @class, int fieldID, bool saveValue, ulong value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.ULong;
             Value = value;

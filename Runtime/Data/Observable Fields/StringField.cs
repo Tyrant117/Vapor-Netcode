@@ -3,7 +3,7 @@
 namespace VaporNetcode
 {
     [Serializable]
-    public class StringField : ObservableField
+    public class StringField : SyncField
     {
         public static implicit operator string(StringField f) => f.Value;
 
@@ -13,7 +13,7 @@ namespace VaporNetcode
         /// </summary>
         public event Action<StringField, string> ValueChanged;
 
-        public StringField(ObservableClass @class, int fieldID, bool saveValue, string value) : base(@class, fieldID, saveValue)
+        public StringField(SyncClass @class, int fieldID, bool saveValue, string value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.String;
             Value = value;

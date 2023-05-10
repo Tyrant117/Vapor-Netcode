@@ -3,7 +3,7 @@
 namespace VaporNetcode
 {
     [Serializable]
-    public class IntField : ObservableField
+    public class IntField : SyncField
     {
         public static implicit operator int(IntField f) => f.Value;
 
@@ -12,11 +12,10 @@ namespace VaporNetcode
 
         public int Value { get; protected set; }
         public bool HasFlag(int flagToCheck) => (Value & flagToCheck) != 0;
-        public event Action<IntField> ValueChanged;
-        public event Action<IntField, int> DeltaChanged;
+        public event Action<IntField, int> ValueChanged;
 
 
-        public IntField(ObservableClass @class, int fieldID, bool saveValue, int value) : base(@class, fieldID, saveValue)
+        public IntField(SyncClass @class, int fieldID, bool saveValue, int value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Int;
             Value = value;
@@ -41,9 +40,9 @@ namespace VaporNetcode
         {
             if (Value != value)
             {
-                DeltaChanged?.Invoke(this, value - Value);
+                var oldValue = Value;
                 Value = value;
-                ValueChanged?.Invoke(this);
+                ValueChanged?.Invoke(this, Value - oldValue);
                 return true;
             }
             else

@@ -6,7 +6,7 @@ namespace VaporNetcode
 {
     public static class ObservableFactory
     {
-        private static readonly Dictionary<int, Func<int, ObservableClass>> _factoryMap = new();
+        private static readonly Dictionary<int, Func<int, SyncClass>> _factoryMap = new();
 
         private static readonly Dictionary<int, int> _counterMap = new(100);
         private static int NextUniqueID(int type)
@@ -29,10 +29,10 @@ namespace VaporNetcode
         }
 
 #pragma warning disable IDE0051 // Remove unused private members
-        public static void AddFactory(int id, Func<int, ObservableClass> factory) => _factoryMap[id] = factory;
+        public static void AddFactory(int id, Func<int, SyncClass> factory) => _factoryMap[id] = factory;
 #pragma warning restore IDE0051 // Remove unused private members
 
-        public static bool TryCreateObservable<T>(int typeId, out T result) where T : ObservableClass
+        public static bool TryCreateObservable<T>(int typeId, out T result) where T : SyncClass
         {
             if (_factoryMap.TryGetValue(typeId, out var factory))
             {
@@ -46,7 +46,7 @@ namespace VaporNetcode
             }
         }
 
-        public static bool TryCreateObservable<T>(int typeId, int customID, out T result) where T : ObservableClass
+        public static bool TryCreateObservable<T>(int typeId, int customID, out T result) where T : SyncClass
         {
             if (_factoryMap.TryGetValue(typeId, out var factory))
             {

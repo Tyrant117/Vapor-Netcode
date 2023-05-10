@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class CompressedQuaternionField : ObservableField
+    public class CompressedQuaternionField : SyncField
     {
         public static implicit operator Quaternion(CompressedQuaternionField f) => f.Value;
 
         public Quaternion Value { get; protected set; }
         public event Action<CompressedQuaternionField> ValueChanged;
 
-        public CompressedQuaternionField(ObservableClass @class, int fieldID, bool saveValue, Quaternion value) : base(@class, fieldID, saveValue)
+        public CompressedQuaternionField(SyncClass @class, int fieldID, bool saveValue, Quaternion value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.CompressedQuaternion;
             Value = value;

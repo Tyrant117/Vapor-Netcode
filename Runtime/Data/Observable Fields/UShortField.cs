@@ -2,14 +2,14 @@ using System;
 
 namespace VaporNetcode
 {
-    public class UShortField : ObservableField
+    public class UShortField : SyncField
     {
         public static implicit operator ushort(UShortField f) => f.Value;
 
         public ushort Value { get; protected set; }
         public event Action<UShortField> ValueChanged;
 
-        public UShortField(ObservableClass @class, int fieldID, bool saveValue, ushort value) : base(@class, fieldID, saveValue)
+        public UShortField(SyncClass @class, int fieldID, bool saveValue, ushort value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.UShort;
             Value = value;

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class TransformSync : ObservableClass
+    public class TransformSync : SyncClass
     {
         public const int PositionKey = 1;
         public const int RotationKey = 2;
@@ -64,7 +64,7 @@ namespace VaporNetcode
             Changed += OnSync;            
         }
 
-        private void OnSync(ObservableClass obj)
+        private void OnSync(SyncClass obj)
         {
             Vector3? pos = null;
             Quaternion? rot = null;

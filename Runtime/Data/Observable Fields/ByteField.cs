@@ -3,7 +3,7 @@
 namespace VaporNetcode
 {
     [Serializable]
-    public class ByteField : ObservableField
+    public class ByteField : SyncField
     {
         public static implicit operator byte(ByteField f) => f.Value;
         public static implicit operator bool(ByteField f) => f.Bool;
@@ -12,7 +12,7 @@ namespace VaporNetcode
         public bool Bool => Value != 0;
         public event Action<ByteField, int> ValueChanged;
 
-        public ByteField(ObservableClass @class, int fieldID, bool saveValue, byte value) : base(@class, fieldID, saveValue)
+        public ByteField(SyncClass @class, int fieldID, bool saveValue, byte value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Byte;
             Value = value;

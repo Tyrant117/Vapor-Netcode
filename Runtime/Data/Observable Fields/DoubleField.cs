@@ -3,14 +3,14 @@
 namespace VaporNetcode
 {
     [Serializable]
-    public class DoubleField : ObservableField
+    public class DoubleField : SyncField
     {
         public static implicit operator double(DoubleField f) => f.Value;
 
         public double Value { get; protected set; }
         public event Action<DoubleField, double> ValueChanged;
 
-        public DoubleField(ObservableClass @class, int fieldID, bool saveValue, double value) : base(@class, fieldID, saveValue)
+        public DoubleField(SyncClass @class, int fieldID, bool saveValue, double value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Double;
             Value = value;

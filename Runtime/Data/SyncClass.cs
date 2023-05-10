@@ -48,33 +48,33 @@ namespace VaporNetcode
         }
     }
 
-    public static class ObservableClassID<T> where T : ObservableClass
+    public static class ObservableClassID<T> where T : SyncClass
     {
         public static readonly int ID = typeof(T).Name.GetStableHashCode();
     }
 
-    public abstract class ObservableClass
+    public abstract class SyncClass
     {
         public bool Dirty => dirtyFields.Count > 0;
         public int Type { get; protected set; }
         public int ID { get; protected set; }
         public bool IsServer { get; }
-        public ObservableField GetField(int fieldID) => fields[fieldID];
-        public T GetField<T>(int fieldID) where T : ObservableField => (T)fields[fieldID];
+        public SyncField GetField(int fieldID) => fields[fieldID];
+        public T GetField<T>(int fieldID) where T : SyncField => (T)fields[fieldID];
 
-        protected Dictionary<int, ObservableField> fields = new();
+        protected Dictionary<int, SyncField> fields = new();
         protected HashSet<int> dirtyFields = new();
 
-        public event Action<ObservableClass> Dirtied;
-        public event Action<ObservableClass> Changed;
+        public event Action<SyncClass> Dirtied;
+        public event Action<SyncClass> Changed;
 
-        public ObservableClass(int unqiueID, bool isServer)
+        public SyncClass(int unqiueID, bool isServer)
         {
             ID = unqiueID;
             IsServer = isServer;
         }
 
-        public ObservableClass(int containerType, int unqiueID, bool isServer)
+        public SyncClass(int containerType, int unqiueID, bool isServer)
         {
             Type = containerType;
             ID = unqiueID;
@@ -84,7 +84,7 @@ namespace VaporNetcode
         #region - Field Management -
         public void AddField(int fieldID, ObservableFieldType type, bool saveValue, object value = null)
         {
-            ObservableField field = value == null ? AddFieldByType(fieldID, type, saveValue) : AddFieldByType(fieldID, type, saveValue, value);
+            SyncField field = value == null ? AddFieldByType(fieldID, type, saveValue) : AddFieldByType(fieldID, type, saveValue, value);
             if (field != null)
             {
                 fields[fieldID] = field;
@@ -99,13 +99,13 @@ namespace VaporNetcode
             }
         }
 
-        public void AddField(ObservableField field)
+        public void AddField(SyncField field)
         {
             fields[field.FieldID] = field;
             MarkDirty(field);
         }
 
-        protected ObservableField AddFieldByType(int fieldID, ObservableFieldType type, bool saveValue, object value)
+        protected SyncField AddFieldByType(int fieldID, ObservableFieldType type, bool saveValue, object value)
         {
             return type switch
             {
@@ -132,7 +132,7 @@ namespace VaporNetcode
             };
         }
 
-        protected ObservableField AddFieldByType(int fieldID, ObservableFieldType type, bool saveValue)
+        protected SyncField AddFieldByType(int fieldID, ObservableFieldType type, bool saveValue)
         {
 
             return type switch
@@ -160,7 +160,7 @@ namespace VaporNetcode
             };
         }
 
-        internal virtual void MarkDirty(ObservableField field)
+        internal virtual void MarkDirty(SyncField field)
         {
             if (IsServer && dirtyFields.Add(field.FieldID))
             {
@@ -211,7 +211,7 @@ namespace VaporNetcode
             //Debug.Log($"{Type} - {ID} Deserializing Class Fields: {count}");
             for (int i = 0; i < count; i++)
             {
-                ObservableField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
+                SyncField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
                 if(NetLogFilter.logDebug && NetLogFilter.syncVars)
                 {
                     Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{count}]");

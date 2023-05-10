@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class Vector3DeltaCompressedField : ObservableField
+    public class Vector3DeltaCompressedField : SyncField
     {
         public static implicit operator Vector3(Vector3DeltaCompressedField f) => f.Value;
 
@@ -16,7 +16,7 @@ namespace VaporNetcode
         private Vector3Long _lastSerializedValue;
         private Vector3Long _lastDeserializedValue;
 
-        public Vector3DeltaCompressedField(ObservableClass @class, int fieldID, bool saveValue, Vector3 value) : base(@class, fieldID, saveValue)
+        public Vector3DeltaCompressedField(SyncClass @class, int fieldID, bool saveValue, Vector3 value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Vector3DeltaCompressed;
             Value = value;

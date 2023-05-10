@@ -3,14 +3,14 @@
 namespace VaporNetcode
 {
     [Serializable]
-    public class FloatField : ObservableField
+    public class FloatField : SyncField
     {
         public static implicit operator float(FloatField f) => f.Value;
 
         public float Value { get; protected set; }
         public event Action<FloatField, float> ValueChanged;
 
-        public FloatField(ObservableClass @class, int fieldID, bool saveValue, float value) : base(@class, fieldID, saveValue)
+        public FloatField(SyncClass @class, int fieldID, bool saveValue, float value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Float;
             Value = value;
@@ -33,19 +33,12 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetFloat(float value)
         {
-            if (Type == ObservableFieldType.Float)
+            if (Value != value)
             {
-                if (Value != value)
-                {
-                    var oldValue = Value;
-                    Value = value;
-                    ValueChanged?.Invoke(this, Value - oldValue);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                var oldValue = Value;
+                Value = value;
+                ValueChanged?.Invoke(this, Value - oldValue);
+                return true;
             }
             else
             {

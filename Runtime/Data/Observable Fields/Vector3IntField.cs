@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class Vector3IntField : ObservableField
+    public class Vector3IntField : SyncField
     {
         public static implicit operator Vector3Int(Vector3IntField f) => f.Value;
 
         public Vector3Int Value { get; protected set; }
         public event Action<Vector3IntField, Vector3Int> ValueChanged;
 
-        public Vector3IntField(ObservableClass @class, int fieldID, bool saveValue, Vector3Int value) : base(@class, fieldID, saveValue)
+        public Vector3IntField(SyncClass @class, int fieldID, bool saveValue, Vector3Int value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Vector3Int;
             Value = value;

@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class UIntField : ObservableField
+    public class UIntField : SyncField
     {
         public static implicit operator uint(UIntField f) => f.Value;
 
         public uint Value { get; protected set; }
         public event Action<UIntField> ValueChanged;
 
-        public UIntField(ObservableClass @class, int fieldID, bool saveValue, uint value) : base(@class, fieldID, saveValue)
+        public UIntField(SyncClass @class, int fieldID, bool saveValue, uint value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.UInt;
             Value = value;

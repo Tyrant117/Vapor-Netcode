@@ -32,9 +32,9 @@ namespace VaporNetcode
         }
     }
 
-    public abstract class ObservableField
+    public abstract class SyncField
     {
-        public ObservableClass Class { get; }
+        public SyncClass Class { get; }
         public int FieldID { get; }
         public ObservableFieldType Type { get; protected set; }
         public bool SaveValue { get; }
@@ -54,9 +54,9 @@ namespace VaporNetcode
             }
         }
 
-        public event Action<ObservableField> Dirtied;
+        public event Action<SyncField> Dirtied;
 
-        public ObservableField(ObservableClass @class, int fieldID, bool saveValue)
+        public SyncField(SyncClass @class, int fieldID, bool saveValue)
         {
             Class = @class;
             FieldID = fieldID;
@@ -64,7 +64,7 @@ namespace VaporNetcode
             IsServer = @class.IsServer;
         }
 
-        public ObservableField(int fieldID, bool saveValue, bool isServer)
+        public SyncField(int fieldID, bool saveValue, bool isServer)
         {
             Class = null;
             FieldID = fieldID;
@@ -244,7 +244,7 @@ namespace VaporNetcode
         #endregion
 
         #region - Statics -
-        public static ObservableField GetFieldByType(int fieldID, ObservableFieldType type, bool saveValue, bool isServer)
+        public static SyncField GetFieldByType(int fieldID, ObservableFieldType type, bool saveValue, bool isServer)
         {
             return type switch
             {

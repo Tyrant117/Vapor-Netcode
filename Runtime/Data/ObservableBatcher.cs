@@ -8,14 +8,14 @@ namespace VaporNetcode
     {
         public bool IsDirty { get; private set; }
 
-        public Dictionary<Vector2Int, ObservableClass> classMap = new(50);
-        public Dictionary<int, ObservableField> fieldMap = new(50);
+        public Dictionary<Vector2Int, SyncClass> classMap = new(50);
+        public Dictionary<int, SyncField> fieldMap = new(50);
 
-        public Dictionary<Vector2Int, ObservableClass> dirtyClasses = new(50);
-        public Dictionary<int, ObservableField> dirtyFields = new(50);
+        public Dictionary<Vector2Int, SyncClass> dirtyClasses = new(50);
+        public Dictionary<int, SyncField> dirtyFields = new(50);
 
-        public event Action<ObservableClass> ClassCreated;
-        public event Action<ObservableField> FieldCreated;
+        public event Action<SyncClass> ClassCreated;
+        public event Action<SyncField> FieldCreated;
         public event Action<int, int> FirstUnbatch;
         public event Action<int, int> Unbatched;
 
@@ -29,7 +29,7 @@ namespace VaporNetcode
         }
 
         #region - Getters -
-        public bool TryGetClass<T>(int uniqueID, out T sync) where T : ObservableClass
+        public bool TryGetClass<T>(int uniqueID, out T sync) where T : SyncClass
         {
             var key = new Vector2Int(ObservableClassID<T>.ID, uniqueID);
             if (classMap.TryGetValue(key, out var @class))
@@ -48,7 +48,7 @@ namespace VaporNetcode
             }
         }
 
-        public bool TryGetField<T>(int fieldKey, out T sync) where T : ObservableField
+        public bool TryGetField<T>(int fieldKey, out T sync) where T : SyncField
         {
             if (fieldMap.TryGetValue(fieldKey, out var field))
             {
@@ -68,12 +68,12 @@ namespace VaporNetcode
         #endregion
 
         #region - Registration -
-        public void RegisterObserableClass(ObservableClass observableClass)
+        public void RegisterObserableClass(SyncClass observableClass)
         {
             Vector2Int key = new(observableClass.Type, observableClass.ID);
             if (classMap.ContainsKey(key))
             {
-                if (NetLogFilter.logInfo && NetLogFilter.syncVars) { Debug.Log($"Overwriting ObservableClass at Key: {key}"); }
+                if (NetLogFilter.logInfo && NetLogFilter.syncVars) { Debug.Log($"Overwriting SyncClass at Key: {key}"); }
             }
 
             if (!dirtyClasses.ContainsKey(key))
@@ -85,12 +85,12 @@ namespace VaporNetcode
             IsDirty = true;
         }
 
-        public void RegisterObservableField(ObservableField observableField)
+        public void RegisterObservableField(SyncField observableField)
         {
             int key = observableField.FieldID;
             if (fieldMap.ContainsKey(key))
             {
-                if (NetLogFilter.logInfo && NetLogFilter.syncVars) { Debug.Log($"Overwriting ObservableField at Key: {key}"); }
+                if (NetLogFilter.logInfo && NetLogFilter.syncVars) { Debug.Log($"Overwriting SyncField at Key: {key}"); }
             }
 
             if (!dirtyFields.ContainsKey(key))
@@ -105,7 +105,7 @@ namespace VaporNetcode
         #endregion
 
         #region - Dirty -
-        private void ObservableClass_Dirtied(ObservableClass observableClass)
+        private void ObservableClass_Dirtied(SyncClass observableClass)
         {
             Vector2Int key = new(observableClass.Type, observableClass.ID);
             if (!dirtyClasses.ContainsKey(key))
@@ -115,7 +115,7 @@ namespace VaporNetcode
             IsDirty = true;
         }
 
-        private void ObservableField_Dirtied(ObservableField observableField)
+        private void ObservableField_Dirtied(SyncField observableField)
         {
             if (!dirtyFields.ContainsKey(observableField.FieldID))
             {
@@ -194,7 +194,7 @@ namespace VaporNetcode
             }
             for (int i = 0; i < classCount; i++)
             {
-                ObservableClass.StartDeserialize(r, out int type, out int id);
+                SyncClass.StartDeserialize(r, out int type, out int id);
                 var key = new Vector2Int(type, id);
                 if (classMap.TryGetValue(key, out var @class))
                 {
@@ -202,7 +202,7 @@ namespace VaporNetcode
                 }
                 else
                 {
-                    if (ObservableFactory.TryCreateObservable(type, id, out ObservableClass newClass))
+                    if (ObservableFactory.TryCreateObservable(type, id, out SyncClass newClass))
                     {
                         classMap[key] = newClass;
                         if (NetLogFilter.logDebug && NetLogFilter.syncVars) { Debug.Log($"Unbatch and Create Class | {newClass.GetType().Name} [{id}]"); }
@@ -219,14 +219,14 @@ namespace VaporNetcode
             }
             for (int i = 0; i < fieldCount; i++)
             {
-                ObservableField.StartDeserialize(r, out int id, out var type);
+                SyncField.StartDeserialize(r, out int id, out var type);
                 if (fieldMap.TryGetValue(id, out var field))
                 {
                     field.Deserialize(r);
                 }
                 else
                 {
-                    var newField = ObservableField.GetFieldByType(id, type, false, false);
+                    var newField = SyncField.GetFieldByType(id, type, false, false);
                     fieldMap[id] = newField;
                     if (NetLogFilter.logDebug && NetLogFilter.syncVars) { Debug.Log($"Unbatch and Create Field | {type} [{id}]"); }
                     newField.Deserialize(r);

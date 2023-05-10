@@ -3,14 +3,14 @@
 namespace VaporNetcode
 {
     [Serializable]
-    public class ShortField : ObservableField
+    public class ShortField : SyncField
     {
         public static implicit operator short(ShortField f) => f.Value;
 
         public short Value { get; protected set; }
         public event Action<ShortField, int> ValueChanged;
 
-        public ShortField(ObservableClass @class, int fieldID, bool saveValue, short value) : base(@class, fieldID, saveValue)
+        public ShortField(SyncClass @class, int fieldID, bool saveValue, short value) : base(@class, fieldID, saveValue)
         {
             Type = ObservableFieldType.Short;
             Value = value;
