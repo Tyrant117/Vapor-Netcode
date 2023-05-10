@@ -22,7 +22,7 @@ namespace VaporNetcode
         bool IsPlayer { get; }
 
         int NavigationLayer { get; set; }
-        Vector3 Position { get; set; }
+        Vector3 Position { get; }
 
         EntityInterestPacket CurrentInterestPacket { get; }
         // <summary>The set of network connections (players) that can see this object.</summary>
