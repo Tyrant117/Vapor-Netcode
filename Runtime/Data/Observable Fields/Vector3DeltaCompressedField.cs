@@ -68,7 +68,7 @@ namespace VaporNetcode
         #region - Serialization -
         public override bool Serialize(NetworkWriter w, bool clearDirtyFlag = true)
         {
-            if (base.Serialize(w))
+            if (base.Serialize(w, clearDirtyFlag))
             {
                 Compression.ScaleToLong(Value, Precision, out Vector3Long quantized);
                 var deltaPos = quantized - _lastSerializedValue;
@@ -93,7 +93,7 @@ namespace VaporNetcode
 
         public override bool SerializeInFull(NetworkWriter w, bool clearDirtyFlag = true)
         {
-            if (base.SerializeInFull(w))
+            if (base.SerializeInFull(w, clearDirtyFlag))
             {
                 w.WriteBool(false);
                 w.WriteVector3(Value);

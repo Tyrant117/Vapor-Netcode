@@ -251,6 +251,16 @@ namespace VaporNetcode
                 }
                 item.SerializeInFull(w, clearDirtyFlag);
             }
+
+            if (clearDirtyFlag)
+            {
+                dirtyFields.Clear();
+
+                if (count > 0)
+                {
+                    Changed?.Invoke(this);
+                }
+            }
         }
 
         public static void StartDeserialize(NetworkReader r, out int type, out int id)
