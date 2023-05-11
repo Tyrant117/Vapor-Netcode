@@ -52,10 +52,11 @@ namespace VaporNetcode
         public List<T> GetAllClassesOfType<T>() where T : SyncClass
         {
             int type = SyncClassID<T>.ID;
-            new List<T>().AddRange(from @class in classMap.Values
+            List<T> result = new(classMap.Count);
+            result.AddRange(from @class in classMap.Values
                             where @class.Type == type
                             select (T)@class);
-            return new List<T>();
+            return result;
         }
 
         public bool TryGetField<T>(int fieldKey, out T sync) where T : SyncField
