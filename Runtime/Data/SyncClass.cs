@@ -48,7 +48,7 @@ namespace VaporNetcode
         }
     }
 
-    public static class ObservableClassID<T> where T : SyncClass
+    public static class SyncClassID<T> where T : SyncClass
     {
         public static readonly int ID = typeof(T).Name.GetStableHashCode();
     }

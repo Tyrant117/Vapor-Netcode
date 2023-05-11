@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace VaporNetcode
 {
@@ -31,7 +32,7 @@ namespace VaporNetcode
         #region - Getters -
         public bool TryGetClass<T>(int uniqueID, out T sync) where T : SyncClass
         {
-            var key = new Vector2Int(ObservableClassID<T>.ID, uniqueID);
+            var key = new Vector2Int(SyncClassID<T>.ID, uniqueID);
             if (classMap.TryGetValue(key, out var @class))
             {
                 sync = @class as T;
@@ -46,6 +47,15 @@ namespace VaporNetcode
                 sync = default;
                 return false;
             }
+        }
+
+        public List<T> GetAllClassesOfType<T>() where T : SyncClass
+        {
+            int type = SyncClassID<T>.ID;
+            new List<T>().AddRange(from @class in classMap.Values
+                            where @class.Type == type
+                            select (T)@class);
+            return new List<T>();
         }
 
         public bool TryGetField<T>(int fieldKey, out T sync) where T : SyncField

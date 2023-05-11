@@ -29,7 +29,7 @@ namespace VaporNetcode
 
         public TransformSync(int unqiueID, bool isServer, bool syncPos = true, bool syncRot = true, bool syncScale = false, bool compressRot = false) : base(unqiueID, isServer)
         {
-            Type = ObservableClassID<TransformSync>.ID;
+            Type = SyncClassID<TransformSync>.ID;
 
             this.syncPos = syncPos;
             this.syncRot = syncRot;
