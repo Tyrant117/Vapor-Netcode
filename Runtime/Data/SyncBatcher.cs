@@ -136,10 +136,10 @@ namespace VaporNetcode
             else
             {
                 _Partial();
-                dirtyClasses.Clear();
-                dirtyFields.Clear();
-                IsDirty = false;
             }
+            dirtyClasses.Clear();
+            dirtyFields.Clear();
+            IsDirty = false;
 
 
             var packet = new SyncDataMessage
@@ -151,7 +151,7 @@ namespace VaporNetcode
 
             void _Full()
             {
-                w.WriteInt(classMap.Count);                
+                w.WriteInt(classMap.Count);
                 foreach (var oc in classMap.Values)
                 {
                     oc.SerializeInFull(w);

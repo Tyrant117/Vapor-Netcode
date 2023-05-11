@@ -84,7 +84,7 @@ namespace VaporNetcode
             return false;
         }
 
-        public virtual bool SerializeInFull(NetworkWriter w)
+        public virtual bool SerializeInFull(NetworkWriter w, bool clearDirtyFlag = true)
         {
             if (IsServer)
             {

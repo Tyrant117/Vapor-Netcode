@@ -232,7 +232,7 @@ namespace VaporNetcode
             }
         }
 
-        public virtual void SerializeInFull(NetworkWriter w)
+        public virtual void SerializeInFull(NetworkWriter w, bool clearDirtyFlag = true)
         {
             w.WriteInt(Type);
             w.WriteInt(ID);
@@ -249,7 +249,7 @@ namespace VaporNetcode
                 {
                     Debug.Log($"Batching Field: Type: {item.Type} ID: {item.FieldID}");
                 }
-                item.SerializeInFull(w);
+                item.SerializeInFull(w, clearDirtyFlag);
             }
         }
 

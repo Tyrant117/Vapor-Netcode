@@ -106,8 +106,12 @@ namespace VaporNetcode
             }
         }
 
-        public override bool SerializeInFull(NetworkWriter w)
+        public override bool SerializeInFull(NetworkWriter w, bool clearDirtyFlag = true)
         {
+            if (IsServer && clearDirtyFlag)
+            {
+                IsServerDirty = false;
+            }
             return Serialize(w, false);
         }
 

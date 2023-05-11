@@ -91,13 +91,17 @@ namespace VaporNetcode
             }
         }
 
-        public override bool SerializeInFull(NetworkWriter w)
+        public override bool SerializeInFull(NetworkWriter w, bool clearDirtyFlag = true)
         {
             if (base.SerializeInFull(w))
             {
                 w.WriteBool(false);
                 w.WriteVector3(Value);
                 Compression.ScaleToLong(Value, Precision, out _lastSerializedValue);
+                if (clearDirtyFlag)
+                {
+                    IsServerDirty = false;
+                }
                 //Debug.Log($"V3D Serialize in Full {FieldID} {Type} {false} {Value}");
                 return true;
             }
