@@ -284,6 +284,18 @@ namespace VaporNetcode
                 }
             }
         }
+
+        public void Reload(List<SavedSyncClass> classes)
+        {
+            foreach (var @class in classes)
+            {
+                Vector2Int key = new(@class.Type, @class.ID);
+                if (classMap.TryGetValue(key, out var observable))
+                {
+                    observable.Load(@class, forceReload: true);
+                }
+            }
+        }
         #endregion
     }
 }

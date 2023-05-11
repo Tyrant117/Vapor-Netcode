@@ -64,6 +64,7 @@ namespace VaporNetcode
 
         protected Dictionary<int, SyncField> fields = new();
         protected HashSet<int> dirtyFields = new();
+        protected bool _isLoaded;
 
         public event Action<SyncClass> Dirtied;
         public event Action<SyncClass> Changed;
@@ -284,8 +285,10 @@ namespace VaporNetcode
             return new SavedSyncClass(Type, ID, holder);
         }
 
-        public void Load(SavedSyncClass save, bool createMissingFields = true)
+        public void Load(SavedSyncClass save, bool createMissingFields = true, bool forceReload = false)
         {
+            if(_isLoaded && !forceReload) { return; }
+
             foreach (var field in save.SavedFields)
             {
                 if (fields.ContainsKey(field.ID))
