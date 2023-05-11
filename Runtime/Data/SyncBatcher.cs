@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public class ObservableBatcher
+    public class SyncBatcher
     {
         public bool IsDirty { get; private set; }
 
@@ -22,7 +22,7 @@ namespace VaporNetcode
         private bool isFirstUnbatch = true;
         private readonly NetworkWriter w;
 
-        public ObservableBatcher()
+        public SyncBatcher()
         {
             isFirstUnbatch = true;
             w = new();
@@ -68,7 +68,7 @@ namespace VaporNetcode
         #endregion
 
         #region - Registration -
-        public void RegisterObserableClass(SyncClass observableClass)
+        public void RegisterSyncClass(SyncClass observableClass)
         {
             Vector2Int key = new(observableClass.Type, observableClass.ID);
             if (classMap.ContainsKey(key))
@@ -81,11 +81,11 @@ namespace VaporNetcode
                 dirtyClasses.Add(key, observableClass);
             }
             classMap[key] = observableClass;
-            observableClass.Dirtied += ObservableClass_Dirtied;
+            observableClass.Dirtied += SyncClass_Dirtied;
             IsDirty = true;
         }
 
-        public void RegisterObservableField(SyncField observableField)
+        public void RegisterSyncField(SyncField observableField)
         {
             int key = observableField.FieldID;
             if (fieldMap.ContainsKey(key))
@@ -99,13 +99,13 @@ namespace VaporNetcode
             }
 
             fieldMap[key] = observableField;
-            observableField.Dirtied += ObservableField_Dirtied;
+            observableField.Dirtied += SyncField_Dirtied;
             IsDirty = true;
         }
         #endregion
 
         #region - Dirty -
-        private void ObservableClass_Dirtied(SyncClass observableClass)
+        private void SyncClass_Dirtied(SyncClass observableClass)
         {
             Vector2Int key = new(observableClass.Type, observableClass.ID);
             if (!dirtyClasses.ContainsKey(key))
@@ -115,7 +115,7 @@ namespace VaporNetcode
             IsDirty = true;
         }
 
-        private void ObservableField_Dirtied(SyncField observableField)
+        private void SyncField_Dirtied(SyncField observableField)
         {
             if (!dirtyFields.ContainsKey(observableField.FieldID))
             {
@@ -202,7 +202,7 @@ namespace VaporNetcode
                 }
                 else
                 {
-                    if (ObservableFactory.TryCreateObservable(type, id, out SyncClass newClass))
+                    if (SyncFieldFactory.TryCreateSyncClass(type, id, out SyncClass newClass))
                     {
                         classMap[key] = newClass;
                         if (NetLogFilter.logDebug && NetLogFilter.syncVars) { Debug.Log($"Unbatch and Create Class | {newClass.GetType().Name} [{id}]"); }
@@ -246,7 +246,7 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving and Loading -
-        public void Save(out List<SavedObservableClass> classes, out List<SavedObservable> fields)
+        public void Save(out List<SavedSyncClass> classes, out List<SavedSyncField> fields)
         {
             classes = new(classMap.Values.Count);
             fields = new(fieldMap.Values.Count);
@@ -265,7 +265,7 @@ namespace VaporNetcode
             }
         }
 
-        public void Load(List<SavedObservableClass> classes, List<SavedObservable> fields)
+        public void Load(List<SavedSyncClass> classes, List<SavedSyncField> fields)
         {
             foreach (var @class in classes)
             {

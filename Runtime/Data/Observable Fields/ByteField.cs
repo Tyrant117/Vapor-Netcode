@@ -14,7 +14,7 @@ namespace VaporNetcode
 
         public ByteField(SyncClass @class, int fieldID, bool saveValue, byte value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Byte;
+            Type = SyncFieldType.Byte;
             Value = value;
             if (IsServer)
             {
@@ -24,7 +24,7 @@ namespace VaporNetcode
 
         public ByteField(int fieldID, bool saveValue, bool isServer, byte value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Byte;
+            Type = SyncFieldType.Byte;
             Value = value;
             if (IsServer)
             {
@@ -35,7 +35,7 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetByte(byte value)
         {
-            if (Type == ObservableFieldType.Byte)
+            if (Type == SyncFieldType.Byte)
             {
                 if (Value != value)
                 {
@@ -55,14 +55,14 @@ namespace VaporNetcode
             }
         }
 
-        internal bool ModifyByte(byte value, ObservableModifyType type)
+        internal bool ModifyByte(byte value, SyncModifyType type)
         {
             return type switch
             {
-                ObservableModifyType.Set => SetByte(value),
-                ObservableModifyType.Add => SetByte((byte)(Value + value)),
-                ObservableModifyType.Percent => SetByte((byte)(Value * value)),
-                ObservableModifyType.PercentAdd => SetByte((byte)(Value + Value * value)),
+                SyncModifyType.Set => SetByte(value),
+                SyncModifyType.Add => SetByte((byte)(Value + value)),
+                SyncModifyType.Percent => SetByte((byte)(Value * value)),
+                SyncModifyType.PercentAdd => SetByte((byte)(Value + Value * value)),
                 _ => false,
             };
         }
@@ -79,7 +79,7 @@ namespace VaporNetcode
             }
         }
 
-        public void ExternalModify(byte value, ObservableModifyType type)
+        public void ExternalModify(byte value, SyncModifyType type)
         {
             if(ModifyByte(value, type))
             {
@@ -122,9 +122,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, Value.ToString());
+            return new SavedSyncField(FieldID, Type, Value.ToString());
         }
         #endregion
     }

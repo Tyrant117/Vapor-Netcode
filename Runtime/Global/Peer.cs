@@ -31,7 +31,7 @@ namespace VaporNetcode
 
         protected UDPTransport.Source source;
 
-        public ObservableBatcher SyncBatcher { get; private set; }
+        public SyncBatcher SyncBatcher { get; private set; }
 
         public event Action<bool, bool> PreUpdated;
 

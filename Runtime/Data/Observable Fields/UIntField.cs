@@ -14,7 +14,7 @@ namespace VaporNetcode
 
         public UIntField(SyncClass @class, int fieldID, bool saveValue, uint value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.UInt;
+            Type = SyncFieldType.UInt;
             Value = value;
             if (IsServer)
             {
@@ -24,7 +24,7 @@ namespace VaporNetcode
 
         public UIntField(int fieldID, bool saveValue, bool isServer, uint value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.UInt;
+            Type = SyncFieldType.UInt;
             Value = value;
             if (IsServer)
             {
@@ -90,9 +90,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, Value.ToString());
+            return new SavedSyncField(FieldID, Type, Value.ToString());
         }
         #endregion
     }

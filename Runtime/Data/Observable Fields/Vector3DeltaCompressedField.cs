@@ -18,7 +18,7 @@ namespace VaporNetcode
 
         public Vector3DeltaCompressedField(SyncClass @class, int fieldID, bool saveValue, Vector3 value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Vector3DeltaCompressed;
+            Type = SyncFieldType.Vector3DeltaCompressed;
             Value = value;
             if (IsServer)
             {
@@ -28,7 +28,7 @@ namespace VaporNetcode
 
         public Vector3DeltaCompressedField(int fieldID, bool saveValue, bool isServer, Vector3 value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Vector3DeltaCompressed;
+            Type = SyncFieldType.Vector3DeltaCompressed;
             Value = value;
             if (IsServer)
             {
@@ -131,9 +131,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, $"{Value.x},{Value.y},{Value.z}");
+            return new SavedSyncField(FieldID, Type, $"{Value.x},{Value.y},{Value.z}");
         }
         #endregion
     }

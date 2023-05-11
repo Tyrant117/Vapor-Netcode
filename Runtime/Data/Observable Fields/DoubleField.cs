@@ -12,7 +12,7 @@ namespace VaporNetcode
 
         public DoubleField(SyncClass @class, int fieldID, bool saveValue, double value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Double;
+            Type = SyncFieldType.Double;
             Value = value;
             if (IsServer)
             {
@@ -22,7 +22,7 @@ namespace VaporNetcode
 
         public DoubleField(int fieldID, bool saveValue, bool isServer, double value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Double;
+            Type = SyncFieldType.Double;
             Value = value;
             if (IsServer)
             {
@@ -34,7 +34,7 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetDouble(double value)
         {
-            if (Type == ObservableFieldType.Double)
+            if (Type == SyncFieldType.Double)
             {
                 if (Value != value)
                 {
@@ -53,14 +53,14 @@ namespace VaporNetcode
                 return false;
             }
         }
-        internal bool ModifyDouble(double value, ObservableModifyType type)
+        internal bool ModifyDouble(double value, SyncModifyType type)
         {
             return type switch
             {
-                ObservableModifyType.Set => SetDouble(value),
-                ObservableModifyType.Add => SetDouble(Value + value),
-                ObservableModifyType.Percent => SetDouble(Value * value),
-                ObservableModifyType.PercentAdd => SetDouble(Value + Value * value),
+                SyncModifyType.Set => SetDouble(value),
+                SyncModifyType.Add => SetDouble(Value + value),
+                SyncModifyType.Percent => SetDouble(Value * value),
+                SyncModifyType.PercentAdd => SetDouble(Value + Value * value),
                 _ => false,
             };
         }
@@ -77,7 +77,7 @@ namespace VaporNetcode
             }
         }
 
-        public void ExternalModify(double value, ObservableModifyType type)
+        public void ExternalModify(double value, SyncModifyType type)
         {
             if (ModifyDouble(value, type))
             {
@@ -120,9 +120,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, Value.ToString());
+            return new SavedSyncField(FieldID, Type, Value.ToString());
         }
         #endregion
     }

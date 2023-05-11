@@ -12,7 +12,7 @@ namespace VaporNetcode
 
         public ShortField(SyncClass @class, int fieldID, bool saveValue, short value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Short;
+            Type = SyncFieldType.Short;
             Value = value;
             if (IsServer)
             {
@@ -22,7 +22,7 @@ namespace VaporNetcode
 
         public ShortField(int fieldID, bool saveValue, bool isServer, short value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Short;
+            Type = SyncFieldType.Short;
             Value = value;
             if (IsServer)
             {
@@ -33,7 +33,7 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetShort(short value)
         {
-            if (Type == ObservableFieldType.Short)
+            if (Type == SyncFieldType.Short)
             {
                 if (Value != value)
                 {
@@ -53,14 +53,14 @@ namespace VaporNetcode
             }
         }
 
-        internal bool ModifyShort(short value, ObservableModifyType type)
+        internal bool ModifyShort(short value, SyncModifyType type)
         {
             return type switch
             {
-                ObservableModifyType.Set => SetShort(value),
-                ObservableModifyType.Add => SetShort((short)(Value + value)),
-                ObservableModifyType.Percent => SetShort((short)(Value * value)),
-                ObservableModifyType.PercentAdd => SetShort((short)(Value + Value * value)),
+                SyncModifyType.Set => SetShort(value),
+                SyncModifyType.Add => SetShort((short)(Value + value)),
+                SyncModifyType.Percent => SetShort((short)(Value * value)),
+                SyncModifyType.PercentAdd => SetShort((short)(Value + Value * value)),
                 _ => false,
             };
         }
@@ -77,7 +77,7 @@ namespace VaporNetcode
             }
         }
 
-        public void ExternalModify(short value, ObservableModifyType type)
+        public void ExternalModify(short value, SyncModifyType type)
         {
             if (ModifyShort(value, type))
             {
@@ -120,9 +120,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, Value.ToString());
+            return new SavedSyncField(FieldID, Type, Value.ToString());
         }
         #endregion
     }

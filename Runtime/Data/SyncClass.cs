@@ -5,13 +5,13 @@ using UnityEngine;
 namespace VaporNetcode
 {
     [Serializable]
-    public struct SavedObservableClass
+    public struct SavedSyncClass
     {
         public int Type;
         public int ID;
-        public SavedObservable[] SavedFields;
+        public SavedSyncField[] SavedFields;
 
-        public SavedObservableClass(int type, int id, List<SavedObservable> fields)
+        public SavedSyncClass(int type, int id, List<SavedSyncField> fields)
         {
             Type = type;
             ID = id;
@@ -29,17 +29,17 @@ namespace VaporNetcode
             }
         }
 
-        public static SavedObservableClass Deserialize(NetworkReader r)
+        public static SavedSyncClass Deserialize(NetworkReader r)
         {
             var type = r.ReadInt();
             var id = r.ReadInt();
             var length = r.ReadInt();
-            var fields = new SavedObservable[length];
+            var fields = new SavedSyncField[length];
             for (int i = 0; i < length; i++)
             {
-                fields[i] = SavedObservable.Deserialize(r);
+                fields[i] = SavedSyncField.Deserialize(r);
             }
-            return new SavedObservableClass()
+            return new SavedSyncClass()
             {
                 Type = type,
                 ID = id,
@@ -82,7 +82,7 @@ namespace VaporNetcode
         }
 
         #region - Field Management -
-        public void AddField(int fieldID, ObservableFieldType type, bool saveValue, object value = null)
+        public void AddField(int fieldID, SyncFieldType type, bool saveValue, object value = null)
         {
             SyncField field = value == null ? AddFieldByType(fieldID, type, saveValue) : AddFieldByType(fieldID, type, saveValue, value);
             if (field != null)
@@ -105,57 +105,57 @@ namespace VaporNetcode
             MarkDirty(field);
         }
 
-        protected SyncField AddFieldByType(int fieldID, ObservableFieldType type, bool saveValue, object value)
+        protected SyncField AddFieldByType(int fieldID, SyncFieldType type, bool saveValue, object value)
         {
             return type switch
             {
-                ObservableFieldType.Byte => new ByteField(this, fieldID, saveValue, Convert.ToByte(value)),
-                ObservableFieldType.Short => new ShortField(this, fieldID, saveValue, Convert.ToInt16(value)),
-                ObservableFieldType.UShort => new UShortField(this, fieldID, saveValue, Convert.ToUInt16(value)),
-                ObservableFieldType.Int => new IntField(this, fieldID, saveValue, Convert.ToInt32(value)),
-                ObservableFieldType.UInt => new UIntField(this, fieldID, saveValue, Convert.ToUInt32(value)),
-                ObservableFieldType.Float => new FloatField(this, fieldID, saveValue, Convert.ToSingle(value)),
-                ObservableFieldType.Long => new LongField(this, fieldID, saveValue, Convert.ToInt64(value)),
-                ObservableFieldType.ULong => new ULongField(this, fieldID, saveValue, Convert.ToUInt64(value)),
-                ObservableFieldType.Double => new DoubleField(this, fieldID, saveValue, Convert.ToDouble(value)),
-                ObservableFieldType.Vector2 => new Vector2Field(this, fieldID, saveValue, (Vector2)value),
-                ObservableFieldType.Vector2Int => new Vector2IntField(this, fieldID, saveValue, (Vector2Int)value),
-                ObservableFieldType.Vector3 => new Vector3Field(this, fieldID, saveValue, (Vector3)value),
-                ObservableFieldType.Vector3Int => new Vector3IntField(this, fieldID, saveValue, (Vector3Int)value),
-                ObservableFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(this, fieldID, saveValue, (Vector3)value),
-                ObservableFieldType.Vector4 => new Vector4Field(this, fieldID, saveValue, (Vector4)value),
-                ObservableFieldType.Color => new ColorField(this, fieldID, saveValue, (Color)value),
-                ObservableFieldType.Quaternion => new QuaternionField(this, fieldID, saveValue, (Quaternion)value),
-                ObservableFieldType.CompressedQuaternion => new CompressedQuaternionField(this, fieldID, saveValue, (Quaternion)value),
-                ObservableFieldType.String => new StringField(this, fieldID, saveValue, Convert.ToString(value)),
+                SyncFieldType.Byte => new ByteField(this, fieldID, saveValue, Convert.ToByte(value)),
+                SyncFieldType.Short => new ShortField(this, fieldID, saveValue, Convert.ToInt16(value)),
+                SyncFieldType.UShort => new UShortField(this, fieldID, saveValue, Convert.ToUInt16(value)),
+                SyncFieldType.Int => new IntField(this, fieldID, saveValue, Convert.ToInt32(value)),
+                SyncFieldType.UInt => new UIntField(this, fieldID, saveValue, Convert.ToUInt32(value)),
+                SyncFieldType.Float => new FloatField(this, fieldID, saveValue, Convert.ToSingle(value)),
+                SyncFieldType.Long => new LongField(this, fieldID, saveValue, Convert.ToInt64(value)),
+                SyncFieldType.ULong => new ULongField(this, fieldID, saveValue, Convert.ToUInt64(value)),
+                SyncFieldType.Double => new DoubleField(this, fieldID, saveValue, Convert.ToDouble(value)),
+                SyncFieldType.Vector2 => new Vector2Field(this, fieldID, saveValue, (Vector2)value),
+                SyncFieldType.Vector2Int => new Vector2IntField(this, fieldID, saveValue, (Vector2Int)value),
+                SyncFieldType.Vector3 => new Vector3Field(this, fieldID, saveValue, (Vector3)value),
+                SyncFieldType.Vector3Int => new Vector3IntField(this, fieldID, saveValue, (Vector3Int)value),
+                SyncFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(this, fieldID, saveValue, (Vector3)value),
+                SyncFieldType.Vector4 => new Vector4Field(this, fieldID, saveValue, (Vector4)value),
+                SyncFieldType.Color => new ColorField(this, fieldID, saveValue, (Color)value),
+                SyncFieldType.Quaternion => new QuaternionField(this, fieldID, saveValue, (Quaternion)value),
+                SyncFieldType.CompressedQuaternion => new CompressedQuaternionField(this, fieldID, saveValue, (Quaternion)value),
+                SyncFieldType.String => new StringField(this, fieldID, saveValue, Convert.ToString(value)),
                 _ => null,
             };
         }
 
-        protected SyncField AddFieldByType(int fieldID, ObservableFieldType type, bool saveValue)
+        protected SyncField AddFieldByType(int fieldID, SyncFieldType type, bool saveValue)
         {
 
             return type switch
             {
-                ObservableFieldType.Byte => new ByteField(this, fieldID, saveValue, 0),
-                ObservableFieldType.Short => new ShortField(this, fieldID, saveValue, 0),
-                ObservableFieldType.UShort => new UShortField(this, fieldID, saveValue, 0),
-                ObservableFieldType.Int => new IntField(this, fieldID, saveValue, 0),
-                ObservableFieldType.UInt => new UIntField(this, fieldID, saveValue, 0),
-                ObservableFieldType.Float => new FloatField(this, fieldID, saveValue, 0),
-                ObservableFieldType.Long => new LongField(this, fieldID, saveValue, 0),
-                ObservableFieldType.ULong => new ULongField(this, fieldID, saveValue, 0),
-                ObservableFieldType.Double => new DoubleField(this, fieldID, saveValue, 0),
-                ObservableFieldType.Vector2 => new Vector2Field(this, fieldID, saveValue, Vector2.zero),
-                ObservableFieldType.Vector2Int => new Vector2IntField(this, fieldID, saveValue, Vector2Int.zero),
-                ObservableFieldType.Vector3 => new Vector3Field(this, fieldID, saveValue, Vector3.zero),
-                ObservableFieldType.Vector3Int => new Vector3IntField(this, fieldID, saveValue, Vector3Int.zero),
-                ObservableFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(this, fieldID, saveValue, Vector3.zero),
-                ObservableFieldType.Vector4 => new Vector4Field(this, fieldID, saveValue, Vector4.zero),
-                ObservableFieldType.Color => new ColorField(this, fieldID, saveValue, Color.white),
-                ObservableFieldType.Quaternion => new QuaternionField(this, fieldID, saveValue, Quaternion.identity),
-                ObservableFieldType.CompressedQuaternion => new CompressedQuaternionField(this, fieldID, saveValue, Quaternion.identity),
-                ObservableFieldType.String => new StringField(this, fieldID, saveValue, ""),
+                SyncFieldType.Byte => new ByteField(this, fieldID, saveValue, 0),
+                SyncFieldType.Short => new ShortField(this, fieldID, saveValue, 0),
+                SyncFieldType.UShort => new UShortField(this, fieldID, saveValue, 0),
+                SyncFieldType.Int => new IntField(this, fieldID, saveValue, 0),
+                SyncFieldType.UInt => new UIntField(this, fieldID, saveValue, 0),
+                SyncFieldType.Float => new FloatField(this, fieldID, saveValue, 0),
+                SyncFieldType.Long => new LongField(this, fieldID, saveValue, 0),
+                SyncFieldType.ULong => new ULongField(this, fieldID, saveValue, 0),
+                SyncFieldType.Double => new DoubleField(this, fieldID, saveValue, 0),
+                SyncFieldType.Vector2 => new Vector2Field(this, fieldID, saveValue, Vector2.zero),
+                SyncFieldType.Vector2Int => new Vector2IntField(this, fieldID, saveValue, Vector2Int.zero),
+                SyncFieldType.Vector3 => new Vector3Field(this, fieldID, saveValue, Vector3.zero),
+                SyncFieldType.Vector3Int => new Vector3IntField(this, fieldID, saveValue, Vector3Int.zero),
+                SyncFieldType.Vector3DeltaCompressed => new Vector3DeltaCompressedField(this, fieldID, saveValue, Vector3.zero),
+                SyncFieldType.Vector4 => new Vector4Field(this, fieldID, saveValue, Vector4.zero),
+                SyncFieldType.Color => new ColorField(this, fieldID, saveValue, Color.white),
+                SyncFieldType.Quaternion => new QuaternionField(this, fieldID, saveValue, Quaternion.identity),
+                SyncFieldType.CompressedQuaternion => new CompressedQuaternionField(this, fieldID, saveValue, Quaternion.identity),
+                SyncFieldType.String => new StringField(this, fieldID, saveValue, ""),
                 _ => null,
             };
         }
@@ -211,7 +211,7 @@ namespace VaporNetcode
             //Debug.Log($"{Type} - {ID} Deserializing Class Fields: {count}");
             for (int i = 0; i < count; i++)
             {
-                SyncField.StartDeserialize(r, out int fieldID, out ObservableFieldType type);
+                SyncField.StartDeserialize(r, out int fieldID, out SyncFieldType type);
                 if(NetLogFilter.logDebug && NetLogFilter.syncVars)
                 {
                     Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{count}]");
@@ -261,9 +261,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving & Loading -
-        public SavedObservableClass Save()
+        public SavedSyncClass Save()
         {
-            List<SavedObservable> holder = new();
+            List<SavedSyncField> holder = new();
             foreach (var field in fields.Values)
             {
                 if (field.SaveValue)
@@ -271,10 +271,10 @@ namespace VaporNetcode
                     holder.Add(field.Save());
                 }
             }
-            return new SavedObservableClass(Type, ID, holder);
+            return new SavedSyncClass(Type, ID, holder);
         }
 
-        public void Load(SavedObservableClass save, bool createMissingFields = true)
+        public void Load(SavedSyncClass save, bool createMissingFields = true)
         {
             foreach (var field in save.SavedFields)
             {
@@ -298,70 +298,70 @@ namespace VaporNetcode
 
             switch (fields[fieldID].Type)
             {
-                case ObservableFieldType.Byte:
+                case SyncFieldType.Byte:
                     GetField<ByteField>(fieldID).ExternalSet(byte.Parse(value));
                     break;
-                case ObservableFieldType.Short:
+                case SyncFieldType.Short:
                     GetField<ShortField>(fieldID).ExternalSet(short.Parse(value));
                     break;
-                case ObservableFieldType.UShort:
+                case SyncFieldType.UShort:
                     GetField<UShortField>(fieldID).ExternalSet(ushort.Parse(value));
                     break;
-                case ObservableFieldType.Int:
+                case SyncFieldType.Int:
                     GetField<IntField>(fieldID).ExternalSet(int.Parse(value));
                     break;
-                case ObservableFieldType.UInt:
+                case SyncFieldType.UInt:
                     GetField<UIntField>(fieldID).ExternalSet(uint.Parse(value));
                     break;
-                case ObservableFieldType.Float:
+                case SyncFieldType.Float:
                     GetField<FloatField>(fieldID).ExternalSet(float.Parse(value));
                     break;
-                case ObservableFieldType.Long:
+                case SyncFieldType.Long:
                     GetField<LongField>(fieldID).ExternalSet(long.Parse(value));
                     break;
-                case ObservableFieldType.ULong:
+                case SyncFieldType.ULong:
                     GetField<ULongField>(fieldID).ExternalSet(ulong.Parse(value));
                     break;
-                case ObservableFieldType.Double:
+                case SyncFieldType.Double:
                     GetField<DoubleField>(fieldID).ExternalSet(double.Parse(value));
                     break;
-                case ObservableFieldType.Vector2:
+                case SyncFieldType.Vector2:
                     string[] split2 = value.Split(new char[] { ',' });
                     GetField<Vector2Field>(fieldID).ExternalSet(new Vector2(float.Parse(split2[0]), float.Parse(split2[1])));
                     break;
-                case ObservableFieldType.Vector2Int:
+                case SyncFieldType.Vector2Int:
                     string[] split2i = value.Split(new char[] { ',' });
                     GetField<Vector2IntField>(fieldID).ExternalSet(new Vector2Int(int.Parse(split2i[0]), int.Parse(split2i[1])));
                     break;
-                case ObservableFieldType.Vector3:
+                case SyncFieldType.Vector3:
                     string[] split3 = value.Split(new char[] { ',' });
                     GetField<Vector3Field>(fieldID).ExternalSet(new Vector3(float.Parse(split3[0]), float.Parse(split3[1]), float.Parse(split3[2])));
                     break;
-                case ObservableFieldType.Vector3Int:
+                case SyncFieldType.Vector3Int:
                     string[] split3i = value.Split(new char[] { ',' });
                     GetField<Vector3IntField>(fieldID).ExternalSet(new Vector3Int(int.Parse(split3i[0]), int.Parse(split3i[1]), int.Parse(split3i[2])));
                     break;
-                case ObservableFieldType.Vector3DeltaCompressed:
+                case SyncFieldType.Vector3DeltaCompressed:
                     string[] split3d = value.Split(new char[] { ',' });
                     GetField<Vector3DeltaCompressedField>(fieldID).ExternalSet(new Vector3(float.Parse(split3d[0]), float.Parse(split3d[1]), float.Parse(split3d[2])));
                     break;
-                case ObservableFieldType.Vector4:
+                case SyncFieldType.Vector4:
                     string[] split4 = value.Split(new char[] { ',' });
                     GetField<Vector4Field>(fieldID).ExternalSet(new Vector4(float.Parse(split4[0]), float.Parse(split4[1]), float.Parse(split4[2]), float.Parse(split4[3])));
                     break;
-                case ObservableFieldType.Color:
+                case SyncFieldType.Color:
                     string[] color = value.Split(new char[] { ',' });
                     GetField<ColorField>(fieldID).ExternalSet(new Color(float.Parse(color[0]), float.Parse(color[1]), float.Parse(color[2]), float.Parse(color[3])));
                     break;
-                case ObservableFieldType.Quaternion:
+                case SyncFieldType.Quaternion:
                     string[] quat = value.Split(new char[] { ',' });
                     GetField<QuaternionField>(fieldID).ExternalSet(new Quaternion(float.Parse(quat[0]), float.Parse(quat[1]), float.Parse(quat[2]), float.Parse(quat[3])));
                     break;
-                case ObservableFieldType.CompressedQuaternion:
+                case SyncFieldType.CompressedQuaternion:
                     string[] compQuat = value.Split(new char[] { ',' });
                     GetField<CompressedQuaternionField>(fieldID).ExternalSet(new Quaternion(float.Parse(compQuat[0]), float.Parse(compQuat[1]), float.Parse(compQuat[2]), float.Parse(compQuat[3])));
                     break;
-                case ObservableFieldType.String:
+                case SyncFieldType.String:
                     GetField<StringField>(fieldID).ExternalSet(value);
                     break;                               
             }

@@ -13,7 +13,7 @@ namespace VaporNetcode
 
         public Vector2Field(SyncClass @class, int fieldID, bool saveValue, Vector2 value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Vector2;
+            Type = SyncFieldType.Vector2;
             Value = value;
             if (IsServer)
             {
@@ -23,7 +23,7 @@ namespace VaporNetcode
 
         public Vector2Field(int fieldID, bool saveValue, bool isServer, Vector2 value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Vector2;
+            Type = SyncFieldType.Vector2;
             Value = value;
             if (IsServer)
             {
@@ -34,7 +34,7 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetVector2(Vector2 value)
         {
-            if (Type == ObservableFieldType.Vector2)
+            if (Type == SyncFieldType.Vector2)
             {
                 if (Value != value)
                 {
@@ -97,9 +97,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, $"{Value.x},{Value.y}");
+            return new SavedSyncField(FieldID, Type, $"{Value.x},{Value.y}");
         }
         #endregion
     }

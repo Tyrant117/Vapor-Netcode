@@ -47,11 +47,11 @@ namespace VaporMMO
         /// <summary>
         /// All the data that this character has saved that is class based (items, stats, buffs, etc.)
         /// </summary>
-        public List<SavedObservableClass> ClassData;
+        public List<SavedSyncClass> ClassData;
         /// <summary>
         /// All the data that this character has saved that is field based. (logout locations, display name, etc)
         /// </summary>
-        public List<SavedObservable> FieldData;
+        public List<SavedSyncField> FieldData;
 
         public static AccountDataSpecification FromJson(string json)
         {

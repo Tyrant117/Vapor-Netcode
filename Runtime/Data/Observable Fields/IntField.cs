@@ -17,7 +17,7 @@ namespace VaporNetcode
 
         public IntField(SyncClass @class, int fieldID, bool saveValue, int value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Int;
+            Type = SyncFieldType.Int;
             Value = value;
             if (IsServer)
             {
@@ -27,7 +27,7 @@ namespace VaporNetcode
 
         public IntField(int fieldID, bool saveValue, bool isServer, int value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Int;
+            Type = SyncFieldType.Int;
             Value = value;
             if (IsServer)
             {
@@ -51,14 +51,14 @@ namespace VaporNetcode
             }
         }
 
-        internal bool ModifyInt(int value, ObservableModifyType type)
+        internal bool ModifyInt(int value, SyncModifyType type)
         {
             return type switch
             {
-                ObservableModifyType.Set => SetInt(value),
-                ObservableModifyType.Add => SetInt(Value + value),
-                ObservableModifyType.Percent => SetInt(Value * value),
-                ObservableModifyType.PercentAdd => SetInt(Value + Value * value),
+                SyncModifyType.Set => SetInt(value),
+                SyncModifyType.Add => SetInt(Value + value),
+                SyncModifyType.Percent => SetInt(Value * value),
+                SyncModifyType.PercentAdd => SetInt(Value + Value * value),
                 _ => false,
             };
         }
@@ -75,7 +75,7 @@ namespace VaporNetcode
             }
         }
 
-        public void ExternalModify(int value, ObservableModifyType type)
+        public void ExternalModify(int value, SyncModifyType type)
         {
             if (ModifyInt(value, type))
             {
@@ -118,9 +118,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, Value.ToString());
+            return new SavedSyncField(FieldID, Type, Value.ToString());
         }
         #endregion
     }

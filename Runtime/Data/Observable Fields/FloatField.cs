@@ -12,7 +12,7 @@ namespace VaporNetcode
 
         public FloatField(SyncClass @class, int fieldID, bool saveValue, float value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Float;
+            Type = SyncFieldType.Float;
             Value = value;
             if (IsServer)
             {
@@ -22,7 +22,7 @@ namespace VaporNetcode
 
         public FloatField(int fieldID, bool saveValue, bool isServer, float value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Float;
+            Type = SyncFieldType.Float;
             Value = value;
             if (IsServer)
             {
@@ -46,14 +46,14 @@ namespace VaporNetcode
             }
         }
 
-        internal bool ModifyFloat(float value, ObservableModifyType type)
+        internal bool ModifyFloat(float value, SyncModifyType type)
         {
             return type switch
             {
-                ObservableModifyType.Set => SetFloat(value),
-                ObservableModifyType.Add => SetFloat(Value + value),
-                ObservableModifyType.Percent => SetFloat(Value * value),
-                ObservableModifyType.PercentAdd => SetFloat(Value + Value * value),
+                SyncModifyType.Set => SetFloat(value),
+                SyncModifyType.Add => SetFloat(Value + value),
+                SyncModifyType.Percent => SetFloat(Value * value),
+                SyncModifyType.PercentAdd => SetFloat(Value + Value * value),
                 _ => false,
             };
         }
@@ -70,7 +70,7 @@ namespace VaporNetcode
             }
         }
 
-        public void ExternalModify(float value, ObservableModifyType type)
+        public void ExternalModify(float value, SyncModifyType type)
         {
             if (ModifyFloat(value, type))
             {
@@ -113,9 +113,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, Value.ToString());
+            return new SavedSyncField(FieldID, Type, Value.ToString());
         }
         #endregion
     }

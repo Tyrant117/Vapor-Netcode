@@ -13,7 +13,7 @@ namespace VaporNetcode
 
         public ColorField(SyncClass @class, int fieldID, bool saveValue, Color value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Color;
+            Type = SyncFieldType.Color;
             Value = value;
             if (IsServer)
             {
@@ -23,7 +23,7 @@ namespace VaporNetcode
 
         public ColorField(int fieldID, bool saveValue, bool isServer, Color value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Color;
+            Type = SyncFieldType.Color;
             Value = value;
             if (IsServer)
             {
@@ -34,7 +34,7 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetColor(Color value)
         {
-            if (Type == ObservableFieldType.Color)
+            if (Type == SyncFieldType.Color)
             {
                 if (Value != value)
                 {
@@ -96,9 +96,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, $"{Value.r},{Value.g},{Value.b},{Value.a}");
+            return new SavedSyncField(FieldID, Type, $"{Value.r},{Value.g},{Value.b},{Value.a}");
         }
         #endregion
     }

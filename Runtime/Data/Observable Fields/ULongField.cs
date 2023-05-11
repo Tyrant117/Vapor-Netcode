@@ -12,7 +12,7 @@ namespace VaporNetcode
 
         public ULongField(SyncClass @class, int fieldID, bool saveValue, ulong value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.ULong;
+            Type = SyncFieldType.ULong;
             Value = value;
             if (IsServer)
             {
@@ -22,7 +22,7 @@ namespace VaporNetcode
 
         public ULongField(int fieldID, bool saveValue, bool isServer, ulong value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.ULong;
+            Type = SyncFieldType.ULong;
             Value = value;
             if (IsServer)
             {
@@ -33,7 +33,7 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetULong(ulong value)
         {
-            if (Type == ObservableFieldType.ULong)
+            if (Type == SyncFieldType.ULong)
             {
                 if (Value != value)
                 {
@@ -52,14 +52,14 @@ namespace VaporNetcode
             }
         }
 
-        internal bool ModifyULong(ulong value, ObservableModifyType type)
+        internal bool ModifyULong(ulong value, SyncModifyType type)
         {
             return type switch
             {
-                ObservableModifyType.Set => SetULong(value),
-                ObservableModifyType.Add => SetULong(Value + value),
-                ObservableModifyType.Percent => SetULong(Value * value),
-                ObservableModifyType.PercentAdd => SetULong(Value + Value * value),
+                SyncModifyType.Set => SetULong(value),
+                SyncModifyType.Add => SetULong(Value + value),
+                SyncModifyType.Percent => SetULong(Value * value),
+                SyncModifyType.PercentAdd => SetULong(Value + Value * value),
                 _ => false,
             };
         }
@@ -76,7 +76,7 @@ namespace VaporNetcode
             }
         }
 
-        public void ExternalModify(ulong value, ObservableModifyType type)
+        public void ExternalModify(ulong value, SyncModifyType type)
         {
             if (ModifyULong(value, type))
             {
@@ -119,9 +119,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, Value.ToString());
+            return new SavedSyncField(FieldID, Type, Value.ToString());
         }
         #endregion
     }

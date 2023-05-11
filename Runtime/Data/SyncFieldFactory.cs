@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    public static class ObservableFactory
+    public static class SyncFieldFactory
     {
         private static readonly Dictionary<int, Func<int, SyncClass>> _factoryMap = new();
 
@@ -23,7 +23,7 @@ namespace VaporNetcode
             return id;
         }
 
-        static ObservableFactory()
+        static SyncFieldFactory()
         {
 
         }
@@ -32,7 +32,7 @@ namespace VaporNetcode
         public static void AddFactory(int id, Func<int, SyncClass> factory) => _factoryMap[id] = factory;
 #pragma warning restore IDE0051 // Remove unused private members
 
-        public static bool TryCreateObservable<T>(int typeId, out T result) where T : SyncClass
+        public static bool TryCreateSyncClass<T>(int typeId, out T result) where T : SyncClass
         {
             if (_factoryMap.TryGetValue(typeId, out var factory))
             {
@@ -46,7 +46,7 @@ namespace VaporNetcode
             }
         }
 
-        public static bool TryCreateObservable<T>(int typeId, int customID, out T result) where T : SyncClass
+        public static bool TryCreateSyncClass<T>(int typeId, int customID, out T result) where T : SyncClass
         {
             if (_factoryMap.TryGetValue(typeId, out var factory))
             {

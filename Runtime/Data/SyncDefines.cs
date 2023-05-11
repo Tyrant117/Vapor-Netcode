@@ -1,7 +1,7 @@
 
 namespace VaporNetcode
 {
-    public enum ObservableFieldType
+    public enum SyncFieldType
     {
         Byte,   // Byte     - 1 byte
         Short,  // Short    - 2 bytes
@@ -24,7 +24,7 @@ namespace VaporNetcode
         String, // string   - 255 bytes fixed size, packed over the network
     }
 
-    public enum ObservableModifyType
+    public enum SyncModifyType
     {
         Set, // Sets the value to the new value.
         Add, // A Straight add or subtract from the current value

@@ -13,7 +13,7 @@ namespace VaporNetcode
 
         public QuaternionField(SyncClass @class, int fieldID, bool saveValue, Quaternion value) : base(@class, fieldID, saveValue)
         {
-            Type = ObservableFieldType.Quaternion;
+            Type = SyncFieldType.Quaternion;
             Value = value;
             if (IsServer)
             {
@@ -23,7 +23,7 @@ namespace VaporNetcode
 
         public QuaternionField(int fieldID, bool saveValue, bool isServer, Quaternion value) : base(fieldID, saveValue, isServer)
         {
-            Type = ObservableFieldType.Quaternion;
+            Type = SyncFieldType.Quaternion;
             Value = value;
             if (IsServer)
             {
@@ -34,7 +34,7 @@ namespace VaporNetcode
         #region - Setters -
         internal bool SetQuaternion(Quaternion value)
         {
-            if (Type == ObservableFieldType.Quaternion)
+            if (Type == SyncFieldType.Quaternion)
             {
                 if (Value != value)
                 {
@@ -96,9 +96,9 @@ namespace VaporNetcode
         #endregion
 
         #region - Saving -
-        public override SavedObservable Save()
+        public override SavedSyncField Save()
         {
-            return new SavedObservable(FieldID, Type, $"{Value.x},{Value.y},{Value.z},{Value.w}");
+            return new SavedSyncField(FieldID, Type, $"{Value.x},{Value.y},{Value.z},{Value.w}");
         }
         #endregion
     }
