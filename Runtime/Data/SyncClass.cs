@@ -73,6 +73,7 @@ namespace VaporNetcode
         {
             ID = unqiueID;
             IsServer = isServer;
+            _isLoaded = false;
         }
 
         public SyncClass(int containerType, int unqiueID, bool isServer)
@@ -80,6 +81,7 @@ namespace VaporNetcode
             Type = containerType;
             ID = unqiueID;
             IsServer = isServer;
+            _isLoaded = false;
         }
 
         #region - Field Management -
@@ -302,6 +304,7 @@ namespace VaporNetcode
                     SetFromString(field.ID, field.Value);
                 }
             }
+            _isLoaded = true;
         }
 
         protected void SetFromString(int fieldID, string value)
