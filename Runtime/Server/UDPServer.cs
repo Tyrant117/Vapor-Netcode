@@ -274,11 +274,12 @@ namespace VaporNetcode
             {
                 lateUpdateDuration.Begin();
 
+                float deltaTime = (float)(Time.timeAsDouble - _lastSendTime);
                 if (!Application.isPlaying || AccurateInterval.Elapsed(Time.timeAsDouble, SendInterval, ref _lastSendTime))
                 {
                     foreach (var mod in modules.Values)
                     {
-                        mod.Update();
+                        mod.Update(deltaTime);
                     }
 
                     foreach (var peer in connectedPeers.Values)

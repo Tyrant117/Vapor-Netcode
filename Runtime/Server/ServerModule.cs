@@ -15,7 +15,7 @@ namespace VaporNetcode
         /// <summary>
         ///     Called when the manager updates all the modules.
         /// </summary>
-        public virtual void Update() { }
+        public virtual void Update(float deltaTime) { }
 
         /// <summary>
         ///     Called when the manager unloads all the modules.
