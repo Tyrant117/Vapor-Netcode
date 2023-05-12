@@ -9,6 +9,6 @@ namespace VaporMMO
             NetID = netID;
             IsRegistered = true;
         }
-        public void Tick();
+        public void Tick(float deltaTime);
     }
 }

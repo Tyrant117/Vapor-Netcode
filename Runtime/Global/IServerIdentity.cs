@@ -49,7 +49,7 @@ namespace VaporNetcode
         /// Called on all entities every server tick.
         /// </summary>
         /// <param name="serverTick"></param>
-        public void Tick();
+        public void Tick(float deltaTime);
 
         #region - Messages -
         public void AddPacket(CommandMessage msg);

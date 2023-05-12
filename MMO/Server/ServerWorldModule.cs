@@ -45,19 +45,19 @@ namespace VaporMMO
             UDPServer.RegisterHandler<CommandMessage>(OnHandleCommand);
         }
 
-        public override void Update()
+        public override void Update(float deltaTime)
         {
             foreach (var plr in Players.Values)
             {
                 if (plr.IsReady)
                 {
-                    plr.Tick();
+                    plr.Tick(deltaTime);
                 }
             }
 
             foreach (var tickable in Tickables.Values)
             {
-                tickable.Tick();
+                tickable.Tick(deltaTime);
             }
 
             aoi.Tick();
@@ -74,7 +74,7 @@ namespace VaporMMO
 
                 if (entity.Active)
                 {
-                    entity.Tick();
+                    entity.Tick(deltaTime);
                 }
             }
 
