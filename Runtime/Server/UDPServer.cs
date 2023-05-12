@@ -140,8 +140,8 @@ namespace VaporNetcode
         {
             isInitialized = false;
             _config = config;
-            Application.targetFrameRate = _config.serverUpdateRate;
-            QualitySettings.vSyncCount = 0;
+            //Application.targetFrameRate = _config.serverUpdateRate;
+            //QualitySettings.vSyncCount = 0;
             isSimulated = _config.isSimulated;
 
             PeerCreator = peerCreator;
