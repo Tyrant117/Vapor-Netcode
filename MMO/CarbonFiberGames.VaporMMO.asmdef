@@ -2,7 +2,8 @@
     "name": "CarbonFiberGames.VaporMMO",
     "rootNamespace": "VaporMMO",
     "references": [
-        "GUID:857facbc9bdda6849ae5db4eb107298f"
+        "GUID:857facbc9bdda6849ae5db4eb107298f",
+        "GUID:5fce6b0af7d0ece4eb49ad1235e2bcd2"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

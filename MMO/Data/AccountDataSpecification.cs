@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VaporNetcode;
+using VaporObservables;
 
 namespace VaporMMO
 {
@@ -49,9 +50,17 @@ namespace VaporMMO
         /// </summary>
         public List<SavedSyncClass> ClassData;
         /// <summary>
-        /// All the data that this character has saved that is field based. (logout locations, display name, etc)
+        /// All the data that this character has saved that is field based. That only need to exist on the server.
+        /// </summary>
+        public List<SavedObservableClass> ServerClassData;
+        /// <summary>
+        /// All the data that this character has saved that is field based. That needs to get synced back to the player. (logout locations, display name, etc)
         /// </summary>
         public List<SavedSyncField> FieldData;
+        /// <summary>
+        /// All the data that this character has saved that is field based. That only need to exist on the server.
+        /// </summary>
+        public List<SavedObservableField> ServerFieldData;
 
         public static AccountDataSpecification FromJson(string json)
         {
