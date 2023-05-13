@@ -103,7 +103,9 @@ namespace VaporMMO
                 LastLoggedIn = DateTimeOffset.UtcNow,
                 CharacterDisplayEquipment = new(),
                 ClassData = new(),
+                ServerClassData = new(),
                 FieldData = new(),
+                ServerFieldData = new(),                 
             };
             return spec;
         }
