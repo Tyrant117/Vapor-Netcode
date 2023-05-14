@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using VaporObservables;
 
 namespace VaporNetcode
 {
@@ -11,13 +13,15 @@ namespace VaporNetcode
         public int ID;
         public SavedSyncClass[] SavedClasses;
         public SavedSyncField[] SavedFields;
+        public SavedObservableField[] SavedObservableFields;
 
-        public SavedSyncClass(int type, int id, List<SavedSyncClass> classes, List<SavedSyncField> fields)
+        public SavedSyncClass(int type, int id, List<SavedSyncClass> classes, List<SavedSyncField> fields, List<SavedObservableField> observableFields)
         {
             Type = type;
             ID = id;
             SavedClasses = classes.ToArray();
             SavedFields = fields.ToArray();
+            SavedObservableFields = observableFields.ToArray();
         }
 
         public void Serialize(NetworkWriter w)
@@ -65,12 +69,17 @@ namespace VaporNetcode
         public bool SaveValue { get; }
         public SyncField GetField(int fieldID) => fields[fieldID];
         public T GetField<T>(int fieldID) where T : SyncField => (T)fields[fieldID];
+        public ObservableField GetObservableField(int fieldID) => _observedFields[fieldID];
+        public T GetObservableField<T>(int fieldID) where T : ObservableField => (T)_observedFields[fieldID];
         public Vector2Int Key => new(Type, ID);
 
         protected Dictionary<Vector2Int, SyncClass> classes = new();
         protected HashSet<Vector2Int> dirtyClasses = new();
         protected Dictionary<int, SyncField> fields = new();
         protected HashSet<int> dirtyFields = new();
+
+        private Dictionary<int, ObservableField> _observedFields = new();
+
         protected bool _isLoaded;
 
         public event Action<SyncClass> Dirtied;
@@ -92,6 +101,73 @@ namespace VaporNetcode
             SaveValue = saveValue;
             _isLoaded = false;
         }
+
+        #region - Getters -
+        public bool TryGetClass<T>(int uniqueID, out T sync) where T : SyncClass
+        {
+            var key = new Vector2Int(SyncClassID<T>.ID, uniqueID);
+            if (classes.TryGetValue(key, out var @class))
+            {
+                sync = @class as T;
+                return true;
+            }
+            else
+            {
+                if (NetLogFilter.logError)
+                {
+                    Debug.Log($"Class: {typeof(T)} with id {uniqueID} not found.");
+                }
+                sync = default;
+                return false;
+            }
+        }
+
+        public List<T> GetAllClassesOfType<T>() where T : SyncClass
+        {
+            int type = SyncClassID<T>.ID;
+            List<T> result = new(classes.Count);
+            result.AddRange(from @class in classes.Values
+                            where @class.Type == type
+                            select (T)@class);
+            return result;
+        }
+
+        public bool TryGetField<T>(int fieldKey, out T sync) where T : SyncField
+        {
+            if (fields.TryGetValue(fieldKey, out var field))
+            {
+                sync = field as T;
+                return true;
+            }
+            else
+            {
+                if (NetLogFilter.logError)
+                {
+                    Debug.Log($"Field: {typeof(T)} with id {fieldKey} not found.");
+                }
+                sync = default;
+                return false;
+            }
+        }
+
+        public bool TryGetObservableField<T>(int fieldKey, out T observed) where T : ObservableField
+        {
+            if (_observedFields.TryGetValue(fieldKey, out var field))
+            {
+                observed = field as T;
+                return true;
+            }
+            else
+            {
+                if (NetLogFilter.logError)
+                {
+                    Debug.Log($"Observed Field: {typeof(T)} with id {fieldKey} not found.");
+                }
+                observed = default;
+                return false;
+            }
+        }
+        #endregion
 
         #region - Class Management -
         public void AddClass(int type, int id)
@@ -246,6 +322,75 @@ namespace VaporNetcode
                     Debug.Log($"Class {Type} {ID} Already Dirty");
                 }
             }
+        }
+        #endregion
+
+        #region - Observable Management -
+        public void AddObservableField(int fieldID, ObservableFieldType type, bool saveValue, object value = null)
+        {
+            ObservableField field = value == null ? AddObservableFieldByType(fieldID, type, saveValue) : AddObservableFieldByType(fieldID, type, saveValue, value);
+            if (field != null)
+            {
+                _observedFields[fieldID] = field;
+            }
+            else
+            {
+                Debug.Log($"Class {Type} - {ID} Failed To Add Field: {type} {fieldID}");
+            }
+        }
+
+        public void AddObservableField(ObservableField field)
+        {
+            _observedFields[field.FieldID] = field;
+        }
+
+        protected ObservableField AddObservableFieldByType(int fieldID, ObservableFieldType type, bool saveValue, object value)
+        {
+            return type switch
+            {
+                ObservableFieldType.Int8 => new ByteObservable(fieldID, saveValue, Convert.ToByte(value)),
+                ObservableFieldType.Int16 => new ShortObservable(fieldID, saveValue, Convert.ToInt16(value)),
+                ObservableFieldType.UInt16 => new UShortObservable(fieldID, saveValue, Convert.ToUInt16(value)),
+                ObservableFieldType.Int32 => new IntObservable(fieldID, saveValue, Convert.ToInt32(value)),
+                ObservableFieldType.UInt32 => new UIntObservable(fieldID, saveValue, Convert.ToUInt32(value)),
+                ObservableFieldType.Single => new FloatObservable(fieldID, saveValue, Convert.ToSingle(value)),
+                ObservableFieldType.Int64 => new LongObservable(fieldID, saveValue, Convert.ToInt64(value)),
+                ObservableFieldType.UInt64 => new ULongObservable(fieldID, saveValue, Convert.ToUInt64(value)),
+                ObservableFieldType.Double => new DoubleObservable(fieldID, saveValue, Convert.ToDouble(value)),
+                ObservableFieldType.Vector2 => new Vector2Observable(fieldID, saveValue, (Vector2)value),
+                ObservableFieldType.Vector2Int => new Vector2IntObservable(fieldID, saveValue, (Vector2Int)value),
+                ObservableFieldType.Vector3 => new Vector3Observable(fieldID, saveValue, (Vector3)value),
+                ObservableFieldType.Vector3Int => new Vector3IntObservable(fieldID, saveValue, (Vector3Int)value),
+                ObservableFieldType.Color => new ColorObservable(fieldID, saveValue, (Color)value),
+                ObservableFieldType.Quaternion => new QuaternionObservable(fieldID, saveValue, (Quaternion)value),
+                ObservableFieldType.String => new StringObservable(fieldID, saveValue, Convert.ToString(value)),
+                _ => null,
+            };
+        }
+
+        protected ObservableField AddObservableFieldByType(int fieldID, ObservableFieldType type, bool saveValue)
+        {
+
+            return type switch
+            {
+                ObservableFieldType.Int8 => new ByteObservable(fieldID, saveValue, 0),
+                ObservableFieldType.Int16 => new ShortObservable(fieldID, saveValue, 0),
+                ObservableFieldType.UInt16 => new UShortObservable(fieldID, saveValue, 0),
+                ObservableFieldType.Int32 => new IntObservable(fieldID, saveValue, 0),
+                ObservableFieldType.UInt32 => new UIntObservable(fieldID, saveValue, 0),
+                ObservableFieldType.Single => new FloatObservable(fieldID, saveValue, 0),
+                ObservableFieldType.Int64 => new LongObservable(fieldID, saveValue, 0),
+                ObservableFieldType.UInt64 => new ULongObservable(fieldID, saveValue, 0),
+                ObservableFieldType.Double => new DoubleObservable(fieldID, saveValue, 0),
+                ObservableFieldType.Vector2 => new Vector2Observable(fieldID, saveValue, Vector2.zero),
+                ObservableFieldType.Vector2Int => new Vector2IntObservable(fieldID, saveValue, Vector2Int.zero),
+                ObservableFieldType.Vector3 => new Vector3Observable(fieldID, saveValue, Vector3.zero),
+                ObservableFieldType.Vector3Int => new Vector3IntObservable(fieldID, saveValue, Vector3Int.zero),
+                ObservableFieldType.Color => new ColorObservable(fieldID, saveValue, Color.white),
+                ObservableFieldType.Quaternion => new QuaternionObservable(fieldID, saveValue, Quaternion.identity),
+                ObservableFieldType.String => new StringObservable(fieldID, saveValue, ""),
+                _ => null,
+            };
         }
         #endregion
 
@@ -408,7 +553,17 @@ namespace VaporNetcode
                     fholder.Add(field.Save());
                 }
             }
-            return new SavedSyncClass(Type, ID, cholder, fholder);
+
+            List<SavedObservableField> ofHolders = new();
+            foreach (var of in _observedFields.Values)
+            {
+                if (of.SaveValue)
+                {
+                    ofHolders.Add(of.Save());
+                }
+            }
+
+            return new SavedSyncClass(Type, ID, cholder, fholder, ofHolders);
         }
 
         public void Load(SavedSyncClass save, bool createMissingFields = true, bool forceReload = false)
@@ -440,6 +595,20 @@ namespace VaporNetcode
                     if (!createMissingFields) { continue; }
                     AddField(field.ID, field.Type, true);
                     SetFromString(field.ID, field.Value);
+                }
+            }
+
+            foreach (var of in save.SavedObservableFields)
+            {
+                if (_observedFields.ContainsKey(of.ID))
+                {
+                    SetObservableFromString(of.ID, of.Value);
+                }
+                else
+                {
+                    if (!createMissingFields) { continue; }
+                    AddObservableField(of.ID, of.Type, true);
+                    SetObservableFromString(of.ID, of.Value);
                 }
             }
             _isLoaded = true;
@@ -518,6 +687,70 @@ namespace VaporNetcode
                 case SyncFieldType.String:
                     GetField<StringField>(fieldID).ExternalSet(value);
                     break;                               
+            }
+        }
+
+        protected void SetObservableFromString(int fieldID, string value)
+        {
+            if (value is null or "") { return; }
+            if (!_observedFields.ContainsKey(fieldID)) { return; }
+
+            switch (_observedFields[fieldID].Type)
+            {
+                case ObservableFieldType.Int8:
+                    GetObservableField<ByteObservable>(fieldID).Set(byte.Parse(value));
+                    break;
+                case ObservableFieldType.Int16:
+                    GetObservableField<ShortObservable>(fieldID).Set(short.Parse(value));
+                    break;
+                case ObservableFieldType.UInt16:
+                    GetObservableField<UShortObservable>(fieldID).Set(ushort.Parse(value));
+                    break;
+                case ObservableFieldType.Int32:
+                    GetObservableField<IntObservable>(fieldID).Set(int.Parse(value));
+                    break;
+                case ObservableFieldType.UInt32:
+                    GetObservableField<UIntObservable>(fieldID).Set(uint.Parse(value));
+                    break;
+                case ObservableFieldType.Single:
+                    GetObservableField<FloatObservable>(fieldID).Set(float.Parse(value));
+                    break;
+                case ObservableFieldType.Int64:
+                    GetObservableField<LongObservable>(fieldID).Set(long.Parse(value));
+                    break;
+                case ObservableFieldType.UInt64:
+                    GetObservableField<ULongObservable>(fieldID).Set(ulong.Parse(value));
+                    break;
+                case ObservableFieldType.Double:
+                    GetObservableField<DoubleObservable>(fieldID).Set(double.Parse(value));
+                    break;
+                case ObservableFieldType.Vector2:
+                    string[] split2 = value.Split(new char[] { ',' });
+                    GetObservableField<Vector2Observable>(fieldID).Set(new Vector2(float.Parse(split2[0]), float.Parse(split2[1])));
+                    break;
+                case ObservableFieldType.Vector2Int:
+                    string[] split2i = value.Split(new char[] { ',' });
+                    GetObservableField<Vector2IntObservable>(fieldID).Set(new Vector2Int(int.Parse(split2i[0]), int.Parse(split2i[1])));
+                    break;
+                case ObservableFieldType.Vector3:
+                    string[] split3 = value.Split(new char[] { ',' });
+                    GetObservableField<Vector3Observable>(fieldID).Set(new Vector3(float.Parse(split3[0]), float.Parse(split3[1]), float.Parse(split3[2])));
+                    break;
+                case ObservableFieldType.Vector3Int:
+                    string[] split3i = value.Split(new char[] { ',' });
+                    GetObservableField<Vector3IntObservable>(fieldID).Set(new Vector3Int(int.Parse(split3i[0]), int.Parse(split3i[1]), int.Parse(split3i[2])));
+                    break;
+                case ObservableFieldType.Color:
+                    string[] color = value.Split(new char[] { ',' });
+                    GetObservableField<ColorObservable>(fieldID).Set(new Color(float.Parse(color[0]), float.Parse(color[1]), float.Parse(color[2]), float.Parse(color[3])));
+                    break;
+                case ObservableFieldType.Quaternion:
+                    string[] quat = value.Split(new char[] { ',' });
+                    GetObservableField<QuaternionObservable>(fieldID).Set(new Quaternion(float.Parse(quat[0]), float.Parse(quat[1]), float.Parse(quat[2]), float.Parse(quat[3])));
+                    break;
+                case ObservableFieldType.String:
+                    GetObservableField<StringObservable>(fieldID).Set(value);
+                    break;
             }
         }
         #endregion
