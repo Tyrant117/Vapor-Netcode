@@ -86,7 +86,7 @@ namespace VaporNetcode
         public TransformSync Setup(bool isServer, int syncID)
         {
             _isServer = isServer;
-            _sync = new TransformSync(syncID, isServer, syncPosition, syncRotation, syncScale, compressRotation);
+            _sync = new TransformSync(syncID, isServer, false, syncPosition, syncRotation, syncScale, compressRotation);
             if (!_isServer)
             {
                 _sync.TransformChanged += OnServerToClientSync;

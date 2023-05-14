@@ -27,7 +27,7 @@ namespace VaporNetcode
 
         public event Action<Vector3?, Quaternion?, Vector3?> TransformChanged;
 
-        public TransformSync(int unqiueID, bool isServer, bool syncPos = true, bool syncRot = true, bool syncScale = false, bool compressRot = false) : base(unqiueID, isServer)
+        public TransformSync(int unqiueID, bool isServer, bool saveValue, bool syncPos = true, bool syncRot = true, bool syncScale = false, bool compressRot = false) : base(unqiueID, isServer, saveValue)
         {
             Type = SyncClassID<TransformSync>.ID;
 

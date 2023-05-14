@@ -9,12 +9,14 @@ namespace VaporNetcode
     {
         public int Type;
         public int ID;
+        public SavedSyncClass[] SavedClasses;
         public SavedSyncField[] SavedFields;
 
-        public SavedSyncClass(int type, int id, List<SavedSyncField> fields)
+        public SavedSyncClass(int type, int id, List<SavedSyncClass> classes, List<SavedSyncField> fields)
         {
             Type = type;
             ID = id;
+            SavedClasses = classes.ToArray();
             SavedFields = fields.ToArray();
         }
 
@@ -58,10 +60,15 @@ namespace VaporNetcode
         public bool Dirty => dirtyFields.Count > 0;
         public int Type { get; protected set; }
         public int ID { get; protected set; }
+        public SyncClass Parent { get; set; }
         public bool IsServer { get; }
+        public bool SaveValue { get; }
         public SyncField GetField(int fieldID) => fields[fieldID];
         public T GetField<T>(int fieldID) where T : SyncField => (T)fields[fieldID];
+        public Vector2Int Key => new(Type, ID);
 
+        protected Dictionary<Vector2Int, SyncClass> classes = new();
+        protected HashSet<Vector2Int> dirtyClasses = new();
         protected Dictionary<int, SyncField> fields = new();
         protected HashSet<int> dirtyFields = new();
         protected bool _isLoaded;
@@ -69,20 +76,70 @@ namespace VaporNetcode
         public event Action<SyncClass> Dirtied;
         public event Action<SyncClass> Changed;
 
-        public SyncClass(int unqiueID, bool isServer)
+        public SyncClass(int unqiueID, bool isServer, bool saveValue)
         {
             ID = unqiueID;
             IsServer = isServer;
+            SaveValue = saveValue;
             _isLoaded = false;
         }
 
-        public SyncClass(int containerType, int unqiueID, bool isServer)
+        public SyncClass(int containerType, int unqiueID, bool isServer, bool saveValue)
         {
             Type = containerType;
             ID = unqiueID;
             IsServer = isServer;
+            SaveValue = saveValue;
             _isLoaded = false;
         }
+
+        #region - Class Management -
+        public void AddClass(int type, int id)
+        {
+            if (SyncFieldFactory.TryCreateSyncClass(type, id, out SyncClass newClass))
+            {
+                classes[newClass.Key] = newClass;
+                newClass.Parent = this;
+                newClass.Dirtied += SyncClass_Dirtied;
+                MarkDirty(newClass);
+            }
+            else
+            {
+                if (NetLogFilter.logWarn)
+                {
+                    Debug.Log($"Class {Type} - {ID} Failed To Add Class: {type} {id}");
+                }
+            }
+        }
+        
+        public void AddClass(SyncClass @class)
+        {
+            classes[@class.Key] = @class;
+            @class.Parent = this;
+            @class.Dirtied += SyncClass_Dirtied;
+            MarkDirty(@class);
+        }
+
+        private void SyncClass_Dirtied(SyncClass @class)
+        {
+            MarkDirty(@class);
+        }
+
+        internal virtual void MarkDirty(SyncClass @class)
+        {
+            if (IsServer && dirtyClasses.Add(@class.Key))
+            {
+                Dirtied?.Invoke(this);
+            }
+            else
+            {
+                if (NetLogFilter.logDebug && NetLogFilter.syncVars && NetLogFilter.spew)
+                {
+                    Debug.Log($"Class {Type} {ID} Already Dirty");
+                }
+            }
+        }
+        #endregion
 
         #region - Field Management -
         public void AddField(int fieldID, SyncFieldType type, bool saveValue, object value = null)
@@ -161,7 +218,7 @@ namespace VaporNetcode
                 SyncFieldType.String => new StringField(this, fieldID, saveValue, ""),
                 _ => null,
             };
-        }
+        }        
 
         internal virtual void MarkDirty(SyncField field)
         {
@@ -187,8 +244,15 @@ namespace VaporNetcode
 
             w.WriteInt(Type);
             w.WriteInt(ID);
-            int count = dirtyFields.Count;
-            w.WriteInt(count);
+            int classCount = dirtyClasses.Count;
+            w.WriteInt(classCount);
+            foreach (var dc in dirtyClasses)
+            {
+                classes[dc].Serialize(w, clearDirtyFlag);
+            }
+
+            int fieldCount = dirtyFields.Count;
+            w.WriteInt(fieldCount);
             foreach (var df in dirtyFields)
             {
                 fields[df].Serialize(w, clearDirtyFlag);
@@ -196,11 +260,12 @@ namespace VaporNetcode
 
             if (clearDirtyFlag)
             {
+                dirtyClasses.Clear();
                 dirtyFields.Clear();
             }
 
             // Call this after the fields are cleared so if the contents change again it will dirty again for the next pass.
-            if (count > 0)
+            if (classCount > 0 || fieldCount > 0)
             {
                 Changed?.Invoke(this);
             }
@@ -210,14 +275,35 @@ namespace VaporNetcode
         {
             if (IsServer) { return; }
 
-            int count = r.ReadInt();
+            int classCount = r.ReadInt();
             //Debug.Log($"{Type} - {ID} Deserializing Class Fields: {count}");
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < classCount; i++)
+            {
+                StartDeserialize(r, out int type, out int id);
+                if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+                {
+                    Debug.Log($"Deserialize Class {Type} [{ID}] Class: {type} [{id}] [{i + 1}/{classCount}]");
+                }
+                Vector2Int key = new(type, id);
+                if (classes.ContainsKey(key))
+                {
+                    classes[key].Deserialize(r);
+                }
+                else
+                {
+                    AddClass(type, id);
+                    classes[key].Deserialize(r);
+                }
+            }
+
+            int fieldCount = r.ReadInt();
+            //Debug.Log($"{Type} - {ID} Deserializing Class Fields: {count}");
+            for (int i = 0; i < fieldCount; i++)
             {
                 SyncField.StartDeserialize(r, out int fieldID, out SyncFieldType type);
                 if(NetLogFilter.logDebug && NetLogFilter.syncVars)
                 {
-                    Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{count}]");
+                    Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{fieldCount}]");
                 }
                 if (fields.ContainsKey(fieldID))
                 {
@@ -229,7 +315,7 @@ namespace VaporNetcode
                     fields[fieldID].Deserialize(r);
                 }
             }
-            if (count > 0)
+            if (classCount > 0 || fieldCount > 0)
             {
                 Changed?.Invoke(this);
             }
@@ -239,27 +325,44 @@ namespace VaporNetcode
         {
             w.WriteInt(Type);
             w.WriteInt(ID);
-            int count = fields.Count;
-            w.WriteInt(count);
+
+            int classCount = dirtyClasses.Count;
+            w.WriteInt(classCount);
             if (NetLogFilter.logDebug && NetLogFilter.syncVars)
             {
-                Debug.Log($"Batching Class: Type: {Type} ID: {ID} Count: {count}");
+                Debug.Log($"Batching Class: Type: {Type} ID: {ID} ClassCount: {classCount}");
             }
-
-            foreach (var item in fields.Values)
+            foreach (var @class in classes.Values)
             {
                 if (NetLogFilter.logDebug && NetLogFilter.syncVars)
                 {
-                    Debug.Log($"Batching Field: Type: {item.Type} ID: {item.FieldID}");
+                    Debug.Log($"Batching Class: Type: {@class.Type} ID: {@class.ID}");
                 }
-                item.SerializeInFull(w, clearDirtyFlag);
+                @class.SerializeInFull(w, clearDirtyFlag);
+            }
+
+            int fieldCount = fields.Count;
+            w.WriteInt(fieldCount);
+            if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+            {
+                Debug.Log($"Batching Class: Type: {Type} ID: {ID} FieldCount: {fieldCount}");
+            }
+
+            foreach (var field in fields.Values)
+            {
+                if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+                {
+                    Debug.Log($"Batching Field: Type: {field.Type} ID: {field.FieldID}");
+                }
+                field.SerializeInFull(w, clearDirtyFlag);
             }
 
             if (clearDirtyFlag)
             {
+                dirtyClasses.Clear();
                 dirtyFields.Clear();
 
-                if (count > 0)
+                if (classCount > 0 || fieldCount > 0)
                 {
                     Changed?.Invoke(this);
                 }
@@ -276,20 +379,43 @@ namespace VaporNetcode
         #region - Saving & Loading -
         public SavedSyncClass Save()
         {
-            List<SavedSyncField> holder = new();
+            List<SavedSyncClass> cholder = new();
+            foreach (var @class in classes.Values)
+            {
+                if (@class.SaveValue)
+                {
+                    cholder.Add(@class.Save());
+                }
+            }
+
+            List<SavedSyncField> fholder = new();
             foreach (var field in fields.Values)
             {
                 if (field.SaveValue)
                 {
-                    holder.Add(field.Save());
+                    fholder.Add(field.Save());
                 }
             }
-            return new SavedSyncClass(Type, ID, holder);
+            return new SavedSyncClass(Type, ID, cholder, fholder);
         }
 
         public void Load(SavedSyncClass save, bool createMissingFields = true, bool forceReload = false)
         {
             if(_isLoaded && !forceReload) { return; }
+
+            foreach (var @class in save.SavedClasses)
+            {
+                Vector2Int key = new(@class.Type, @class.ID);
+                if (classes.ContainsKey(key))
+                {
+                    classes[key].Load(@class, createMissingFields, forceReload);
+                }
+                else
+                {
+                    AddClass(@class.Type, @class.ID);
+                    classes[key].Load(save, createMissingFields, forceReload);
+                }
+            }
 
             foreach (var field in save.SavedFields)
             {
