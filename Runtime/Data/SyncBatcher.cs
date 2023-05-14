@@ -213,7 +213,7 @@ namespace VaporNetcode
                 }
                 else
                 {
-                    if (SyncFieldFactory.TryCreateSyncClass(type, id, out SyncClass newClass))
+                    if (SyncFieldFactory.TryCreateSyncClass(type, id, false, out SyncClass newClass))
                     {
                         classMap[key] = newClass;
                         if (NetLogFilter.logDebug && NetLogFilter.syncVars) { Debug.Log($"Unbatch and Create Class | {newClass.GetType().Name} [{id}]"); }

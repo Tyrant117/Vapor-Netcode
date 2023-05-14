@@ -6,7 +6,8 @@ namespace VaporNetcode
 {
     public static class SyncFieldFactory
     {
-        private static readonly Dictionary<int, Func<int, SyncClass>> _factoryMap = new();
+        private static readonly Dictionary<int, Func<int, SyncClass>> _clientFactoryMap = new();
+        private static readonly Dictionary<int, Func<int, SyncClass>> _serverFactoryMap = new();
 
         private static readonly Dictionary<int, int> _counterMap = new(100);
         private static int NextUniqueID(int type)
@@ -29,34 +30,51 @@ namespace VaporNetcode
         }
 
 #pragma warning disable IDE0051 // Remove unused private members
-        public static void AddFactory(int id, Func<int, SyncClass> factory) => _factoryMap[id] = factory;
+        public static void AddClientFactory(int id, Func<int, SyncClass> factory) => _clientFactoryMap[id] = factory;
+        public static void AddServerFactory(int id, Func<int, SyncClass> factory) => _serverFactoryMap[id] = factory;
 #pragma warning restore IDE0051 // Remove unused private members
 
-        public static bool TryCreateSyncClass<T>(int typeId, out T result) where T : SyncClass
-        {
-            if (_factoryMap.TryGetValue(typeId, out var factory))
-            {
-                result = factory.Invoke(NextUniqueID(typeId)) as T;
-                return true;
-            }
-            else
-            {
-                result = null;
-                return false;
-            }
-        }
+        //public static bool TryCreateSyncClass<T>(int typeId, out T result) where T : SyncClass
+        //{
+        //    if (_factoryMap.TryGetValue(typeId, out var factory))
+        //    {
+        //        result = factory.Invoke(NextUniqueID(typeId)) as T;
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        result = null;
+        //        return false;
+        //    }
+        //}
 
-        public static bool TryCreateSyncClass<T>(int typeId, int customID, out T result) where T : SyncClass
+        public static bool TryCreateSyncClass<T>(int typeId, int customID, bool isServer, out T result) where T : SyncClass
         {
-            if (_factoryMap.TryGetValue(typeId, out var factory))
+            if (isServer)
             {
-                result = factory.Invoke(customID) as T;
-                return true;
+                if (_serverFactoryMap.TryGetValue(typeId, out var factory))
+                {
+                    result = factory.Invoke(customID) as T;
+                    return true;
+                }
+                else
+                {
+                    result = null;
+                    return false;
+                }
             }
             else
             {
-                result = null;
-                return false;
+                if (_clientFactoryMap.TryGetValue(typeId, out var factory))
+                {
+                    result = factory.Invoke(customID) as T;
+                    return true;
+                }
+                else
+                {
+                    result = null;
+                    return false;
+                }
             }
         }
     }

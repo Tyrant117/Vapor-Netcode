@@ -96,7 +96,7 @@ namespace VaporNetcode
         #region - Class Management -
         public void AddClass(int type, int id)
         {
-            if (SyncFieldFactory.TryCreateSyncClass(type, id, out SyncClass newClass))
+            if (SyncFieldFactory.TryCreateSyncClass(type, id, IsServer, out SyncClass newClass))
             {
                 classes[newClass.Key] = newClass;
                 newClass.Parent = this;
