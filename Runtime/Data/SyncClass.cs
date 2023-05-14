@@ -100,8 +100,11 @@ namespace VaporNetcode
             {
                 classes[newClass.Key] = newClass;
                 newClass.Parent = this;
-                newClass.Dirtied += SyncClass_Dirtied;
-                MarkDirty(newClass);
+                if (IsServer)
+                {
+                    newClass.Dirtied += SyncClass_Dirtied;
+                    MarkDirty(newClass);
+                }
             }
             else
             {
@@ -116,8 +119,11 @@ namespace VaporNetcode
         {
             classes[@class.Key] = @class;
             @class.Parent = this;
-            @class.Dirtied += SyncClass_Dirtied;
-            MarkDirty(@class);
+            if (IsServer)
+            {
+                @class.Dirtied += SyncClass_Dirtied;
+                MarkDirty(@class);
+            }
         }
 
         private void SyncClass_Dirtied(SyncClass @class)
@@ -148,7 +154,10 @@ namespace VaporNetcode
             if (field != null)
             {
                 fields[fieldID] = field;
-                MarkDirty(fields[fieldID]);
+                if (IsServer)
+                {
+                    MarkDirty(fields[fieldID]);
+                }
             }
             else
             {
@@ -162,7 +171,10 @@ namespace VaporNetcode
         public void AddField(SyncField field)
         {
             fields[field.FieldID] = field;
-            MarkDirty(field);
+            if (IsServer)
+            {
+                MarkDirty(field);
+            }
         }
 
         protected SyncField AddFieldByType(int fieldID, SyncFieldType type, bool saveValue, object value)
