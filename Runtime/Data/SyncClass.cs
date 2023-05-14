@@ -570,47 +570,57 @@ namespace VaporNetcode
         {
             if(_isLoaded && !forceReload) { return; }
 
-            foreach (var @class in save.SavedClasses)
+            if (save.SavedClasses != null)
             {
-                Vector2Int key = new(@class.Type, @class.ID);
-                if (classes.ContainsKey(key))
+                foreach (var @class in save.SavedClasses)
                 {
-                    classes[key].Load(@class, createMissingFields, forceReload);
-                }
-                else
-                {
-                    AddClass(@class.Type, @class.ID);
-                    classes[key].Load(save, createMissingFields, forceReload);
+                    Vector2Int key = new(@class.Type, @class.ID);
+                    if (classes.ContainsKey(key))
+                    {
+                        classes[key].Load(@class, createMissingFields, forceReload);
+                    }
+                    else
+                    {
+                        AddClass(@class.Type, @class.ID);
+                        classes[key].Load(save, createMissingFields, forceReload);
+                    }
                 }
             }
 
-            foreach (var field in save.SavedFields)
+            if (save.SavedFields != null)
             {
-                if (fields.ContainsKey(field.ID))
+                foreach (var field in save.SavedFields)
                 {
-                    SetFromString(field.ID, field.Value);
-                }
-                else
-                {
-                    if (!createMissingFields) { continue; }
-                    AddField(field.ID, field.Type, true);
-                    SetFromString(field.ID, field.Value);
+                    if (fields.ContainsKey(field.ID))
+                    {
+                        SetFromString(field.ID, field.Value);
+                    }
+                    else
+                    {
+                        if (!createMissingFields) { continue; }
+                        AddField(field.ID, field.Type, true);
+                        SetFromString(field.ID, field.Value);
+                    }
                 }
             }
 
-            foreach (var of in save.SavedObservableFields)
+            if (save.SavedObservableFields != null)
             {
-                if (_observedFields.ContainsKey(of.ID))
+                foreach (var of in save.SavedObservableFields)
                 {
-                    SetObservableFromString(of.ID, of.Value);
-                }
-                else
-                {
-                    if (!createMissingFields) { continue; }
-                    AddObservableField(of.ID, of.Type, true);
-                    SetObservableFromString(of.ID, of.Value);
+                    if (_observedFields.ContainsKey(of.ID))
+                    {
+                        SetObservableFromString(of.ID, of.Value);
+                    }
+                    else
+                    {
+                        if (!createMissingFields) { continue; }
+                        AddObservableField(of.ID, of.Type, true);
+                        SetObservableFromString(of.ID, of.Value);
+                    }
                 }
             }
+
             _isLoaded = true;
         }
 
