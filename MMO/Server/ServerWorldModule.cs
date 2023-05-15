@@ -94,20 +94,21 @@ namespace VaporMMO
         }
 
         #region - Creation and Joining -
-        public virtual AccountDataSpecification CreateNewCharacter(string accountID, string characterName, byte gender)
+        public virtual bool TryCreateNewCharacter(string accountID, string characterName, CreateCharacterRequestMessage packet, out AccountDataSpecification result)
         {
-            var spec = new AccountDataSpecification()
+            result = new AccountDataSpecification()
             {
                 StringID = accountID,
-                CharacterName = characterName,
                 LastLoggedIn = DateTimeOffset.UtcNow,
+                CharacterID = Guid.NewGuid().ToString(),
+                CharacterName = characterName,
                 CharacterDisplayEquipment = new(),
                 ClassData = new(),
                 ServerClassData = new(),
                 FieldData = new(),
-                ServerFieldData = new(),                 
+                ServerFieldData = new(),
             };
-            return spec;
+            return true;
         }
 
         public virtual JoinWithCharacterResponseMessage Join(INetConnection conn, AccountDataSpecification character)

@@ -334,14 +334,24 @@ namespace VaporMMO.Servers
             };
             if (characters.TryGetValue(conn.GenericStringID, out var chars) && chars.Count < 14)
             {
-                AccountDataSpecification character = UDPServer.GetModule<ServerWorldModule>().CreateNewCharacter(conn.GenericStringID, msg.CharacterName, msg.Gender);
-                chars.Add(character);
-                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Character Created: {conn.GenericStringID} : {character.CharacterName}"); }
-                response = new CreateCharacterResponseMessage()
+                if (!UDPServer.GetModule<ServerWorldModule>().TryCreateNewCharacter(conn.GenericStringID, msg.CharacterName, msg, out var character))
                 {
-                    CharacterName = msg.CharacterName,
-                    Status = ResponseStatus.Success
-                };
+                    response = new CreateCharacterResponseMessage()
+                    {
+                        CharacterName = msg.CharacterName,
+                        Status = ResponseStatus.Failed
+                    };
+                }
+                else
+                {
+                    chars.Add(character);
+                    if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Character Created: {conn.GenericStringID} : {character.CharacterName}"); }
+                    response = new CreateCharacterResponseMessage()
+                    {
+                        CharacterName = msg.CharacterName,
+                        Status = ResponseStatus.Success
+                    };
+                }
             }
             UDPServer.Send(conn, response);
         }

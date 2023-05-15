@@ -1,3 +1,4 @@
+using System;
 using VaporNetcode;
 
 namespace VaporMMO
@@ -5,18 +6,24 @@ namespace VaporMMO
     public struct CreateCharacterRequestMessage : INetMessage
     {
         public string CharacterName;
-        public byte Gender;
+        public ArraySegment<byte> CreationPacket;
 
         public CreateCharacterRequestMessage(NetworkReader r)
         {
             CharacterName = r.ReadString();
-            Gender = r.ReadByte();
+            CreationPacket = r.ReadBytesAndSizeSegment();
         }
 
         public void Serialize(NetworkWriter w)
         {
             w.WriteString(CharacterName);
-            w.WriteByte(Gender);
+            w.WriteBytesAndSizeSegment(CreationPacket);
+        }
+
+        public T GetPacket<T>() where T : struct, ISerializablePacket
+        {
+            using var r = NetworkReaderPool.Get(CreationPacket);
+            return PacketHelper.Deserialize<T>(r);
         }
     }
 
