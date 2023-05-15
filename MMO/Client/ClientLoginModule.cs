@@ -75,7 +75,7 @@ namespace VaporMMO.Clients
             var msg = new CreateCharacterRequestMessage()
             {
                 CharacterName = characterName,
-                Gender = gender,
+                CreationPacket = new(),
             };
             UDPClient.RegisterResponse<CreateCharacterResponseMessage>(10);
             UDPClient.Send(msg);
