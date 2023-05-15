@@ -8,6 +8,7 @@ namespace VaporNetcode
     public class SyncBatcher
     {
         public bool IsDirty { get; private set; }
+        public bool IsFirstUnbatch { get; private set; } = true;
 
         public Dictionary<Vector2Int, SyncClass> classMap = new(50);
         public Dictionary<int, SyncField> fieldMap = new(50);
@@ -20,12 +21,11 @@ namespace VaporNetcode
         public event Action<int, int> FirstUnbatch;
         public event Action<int, int> Unbatched;
 
-        private bool isFirstUnbatch = true;
         private readonly NetworkWriter w;
 
         public SyncBatcher()
         {
-            isFirstUnbatch = true;
+            IsFirstUnbatch = true;
             w = new();
         }
 
@@ -244,9 +244,9 @@ namespace VaporNetcode
                     FieldCreated?.Invoke(newField);
                 }
             }
-            if (isFirstUnbatch)
+            if (IsFirstUnbatch)
             {
-                isFirstUnbatch = false;
+                IsFirstUnbatch = false;
                 FirstUnbatch?.Invoke(classCount, fieldCount);
             }
             else
