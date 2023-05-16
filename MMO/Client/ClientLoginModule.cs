@@ -70,12 +70,12 @@ namespace VaporMMO.Clients
             UDPClient.Send(msg);
         }
 
-        public void Create(string characterName, byte gender)
+        public void Create(string characterName, ArraySegment<byte> data)
         {
             var msg = new CreateCharacterRequestMessage()
             {
                 CharacterName = characterName,
-                CreationPacket = new(),
+                CreationPacket = data,
             };
             UDPClient.RegisterResponse<CreateCharacterResponseMessage>(10);
             UDPClient.Send(msg);
