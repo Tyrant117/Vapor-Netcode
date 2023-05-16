@@ -220,6 +220,13 @@ namespace VaporNetcode
                         newClass.Deserialize(r);
                         ClassCreated?.Invoke(newClass);
                     }
+                    else
+                    {
+                        if (NetLogFilter.logError)
+                        {
+                            Debug.LogError($"SyncFieldFactory Does Not Implement Func To Create Class [{type}]");
+                        }
+                    }
                 }
             }
 
