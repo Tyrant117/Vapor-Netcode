@@ -87,6 +87,13 @@ namespace VaporNetcode
         public event Action<SyncClass> ClientClassCreated;
         public event Action<SyncField> ClientFieldCreated;
 
+        public SyncClass(bool isServer, bool saveValue)
+        {
+            IsServer = isServer;
+            SaveValue = saveValue;
+            _isLoaded = false;
+        }
+
         public SyncClass(int uniqueID, bool isServer, bool saveValue)
         {
             ID = uniqueID;
