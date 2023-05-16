@@ -23,7 +23,7 @@ namespace VaporMMO
         public T GetPacket<T>() where T : struct, ISerializablePacket
         {
             using var r = NetworkReaderPool.Get(CreationPacket);
-            return PacketHelper.Deserialize<T>(r);
+            return PacketManager.Deserialize<T>(r);
         }
     }
 

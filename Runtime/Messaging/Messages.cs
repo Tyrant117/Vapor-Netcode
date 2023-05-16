@@ -39,7 +39,7 @@ namespace VaporNetcode
         public T GetPacket<T>() where T : struct, ISerializablePacket
         {
             using var r = NetworkReaderPool.Get(Packet);
-            return PacketHelper.Deserialize<T>(r);
+            return PacketManager.Deserialize<T>(r);
         }
     }
 
@@ -57,10 +57,10 @@ namespace VaporNetcode
             w.WriteBytesAndSizeSegment(data);
         }
 
-        public T GetPacket<T>() where T : struct, INetMessage
+        public T GetPacket<T>() where T : struct, ISerializablePacket
         {
             using var r = NetworkReaderPool.Get(data);
-            return PacketHelper.Deserialize<T>(r);
+            return PacketManager.Deserialize<T>(r);
         }
     }
 

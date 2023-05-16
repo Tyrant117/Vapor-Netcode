@@ -177,7 +177,7 @@ namespace VaporNetcode
         {
             for (int i = 0; i < list.Count; i++)
             {
-                var copy = PacketHelper.Deserialize<T>(reader);
+                var copy = PacketManager.Deserialize<T>(reader);
                 list[i] = copy;
             }
         }
@@ -202,7 +202,7 @@ namespace VaporNetcode
 
             for (int i = 0; i < array.Length; i++)
             {
-                var copy = PacketHelper.Deserialize<T>(reader);
+                var copy = PacketManager.Deserialize<T>(reader);
                 array[i] = copy;
             }
         }

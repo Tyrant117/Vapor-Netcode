@@ -15,10 +15,10 @@ namespace VaporNetcode
             this.data = data;
         }
 
-        public T GetPacket<T>() where T : struct, INetMessage
+        public T GetPacket<T>() where T : struct, ISerializablePacket
         {
             using var r = NetworkReaderPool.Get(data);
-            return PacketHelper.Deserialize<T>(r);
+            return PacketManager.Deserialize<T>(r);
         }        
     }
 }
