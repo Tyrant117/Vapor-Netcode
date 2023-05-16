@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
+    public interface IPacketHelper 
+    {
+        ISerializablePacket Deserialize(NetworkReader reader);
+    }
+
     public static class PacketID<T> where T : struct, ISerializablePacket
     {
         // automated message id from type hash.
@@ -18,9 +23,33 @@ namespace VaporNetcode
         public static readonly ushort ID = (ushort)(typeof(T).FullName.GetStableHashCode());
     }
 
-    public static class PacketHelper
+    public class PacketHelper<T> : IPacketHelper where T : struct, ISerializablePacket
     {
-        private static Dictionary<ushort, Func<NetworkReader, ISerializablePacket>> _packets = new();
+        private readonly Func<NetworkReader, T> _activator;
+        private readonly ushort opCode;
+        public ushort OpCode => opCode;
+
+        public IncomingMessageHandler<T> Handler { get; }
+        public bool RequireAuthentication { get; }
+
+        public PacketHelper()
+        {
+            opCode = PacketID<T>.ID;
+            ConstructorInfo ctor = typeof(T).GetConstructors()[0];
+            ParameterExpression param = Expression.Parameter(typeof(NetworkReader));
+            NewExpression newExp = Expression.New(ctor, param);
+            _activator = Expression.Lambda<Func<NetworkReader, T>>(newExp, param).Compile();
+        }
+
+        public ISerializablePacket Deserialize(NetworkReader reader)
+        {
+            return _activator.Invoke(reader);
+        }
+    }
+
+    public static class PacketManager
+    {
+        private static readonly Dictionary<ushort, IPacketHelper> _packets = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Init()
@@ -37,15 +66,17 @@ namespace VaporNetcode
         /// <returns></returns>
         public static T Deserialize<T>(NetworkReader r) where T : struct, ISerializablePacket
         {
-            if (!_packets.TryGetValue(PacketID<T>.ID, out var activator))
+            if (!_packets.TryGetValue(PacketID<T>.ID, out var helper))
             {
-                ConstructorInfo ctor = typeof(T).GetConstructors()[0];
-                ParameterExpression param = Expression.Parameter(typeof(NetworkReader));
-                NewExpression newExp = Expression.New(ctor, param);
-                activator = Expression.Lambda<Func<NetworkReader, ISerializablePacket>>(newExp, param).Compile();
-                _packets[PacketID<T>.ID] = activator;
+                helper = new PacketHelper<T>();
+                _packets.Add(PacketID<T>.ID, helper);
+                //ConstructorInfo ctor = typeof(T).GetConstructors()[0];
+                //ParameterExpression param = Expression.Parameter(typeof(NetworkReader));
+                //NewExpression newExp = Expression.New(ctor, param);
+                //activator = Expression.Lambda<Func<NetworkReader, T>>(newExp, param).Compile();
+                //_packets[PacketID<T>.ID] = activator;
             }
-            return (T)activator(r);
+            return (T)helper.Deserialize(r);
         }
     }
 }
