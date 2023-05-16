@@ -241,6 +241,100 @@ namespace VaporNetcode
                     break;                               
             }
         }
+        
+        public static SyncField CreateAndLoad(SavedSyncField save)
+        {
+            var field = _AddFieldByType(save.ID, save.Type, true);
+            _SetFromString(field, save.Value);
+            return field;
+
+            static SyncField _AddFieldByType(int fieldID, SyncFieldType type, bool saveValue)
+            {
+                return type switch
+                {
+                    SyncFieldType.Byte => new ByteField(fieldID, saveValue, true, 0),
+                    SyncFieldType.Short => new ShortField(fieldID, saveValue, true, 0),
+                    SyncFieldType.UShort => new UShortField(fieldID, saveValue, true, 0),
+                    SyncFieldType.Int => new IntField(fieldID, saveValue, true, 0),
+                    SyncFieldType.UInt => new UIntField(fieldID, saveValue, true, 0),
+                    SyncFieldType.Float => new FloatField(fieldID, saveValue, true, 0),
+                    SyncFieldType.Long => new LongField(fieldID, saveValue, true, 0),
+                    SyncFieldType.ULong => new ULongField(fieldID, saveValue, true, 0),
+                    SyncFieldType.Double => new DoubleField(fieldID, saveValue, true, 0),
+                    SyncFieldType.Vector2 => new Vector2Field(fieldID, saveValue, true, Vector2.zero),
+                    SyncFieldType.Vector2Int => new Vector2IntField(fieldID, saveValue, true, Vector2Int.zero),
+                    SyncFieldType.Vector3 => new Vector3Field(fieldID, saveValue, true, Vector3.zero),
+                    SyncFieldType.Vector3Int => new Vector3IntField(fieldID, saveValue, true, Vector3Int.zero),
+                    SyncFieldType.Color => new ColorField(fieldID, saveValue, true, Color.white),
+                    SyncFieldType.Quaternion => new QuaternionField(fieldID, saveValue, true, Quaternion.identity),
+                    SyncFieldType.String => new StringField(fieldID, saveValue, true, ""),
+                    _ => null,
+                };
+            }
+
+            static void _SetFromString(SyncField field, string value)
+            {
+                if (value is null or "") { return; }
+
+                switch (field.Type)
+                {
+                    case SyncFieldType.Byte:
+                        ((ByteField)field).ExternalSet(byte.Parse(value));
+                        break;
+                    case SyncFieldType.Short:
+                        ((ShortField)field).ExternalSet(short.Parse(value));
+                        break;
+                    case SyncFieldType.UShort:
+                        ((IntField)field).ExternalSet(ushort.Parse(value));
+                        break;
+                    case SyncFieldType.Int:
+                        ((IntField)field).ExternalSet(int.Parse(value));
+                        break;
+                    case SyncFieldType.UInt:
+                        ((UIntField)field).ExternalSet(uint.Parse(value));
+                        break;
+                    case SyncFieldType.Float:
+                        ((FloatField)field).ExternalSet(float.Parse(value));
+                        break;
+                    case SyncFieldType.Long:
+                        ((LongField)field).ExternalSet(long.Parse(value));
+                        break;
+                    case SyncFieldType.ULong:
+                        ((ULongField)field).ExternalSet(ulong.Parse(value));
+                        break;
+                    case SyncFieldType.Double:
+                        ((DoubleField)field).ExternalSet(double.Parse(value));
+                        break;
+                    case SyncFieldType.Vector2:
+                        string[] split2 = value.Split(new char[] { ',' });
+                        ((Vector2Field)field).ExternalSet(new Vector2(float.Parse(split2[0]), float.Parse(split2[1])));
+                        break;
+                    case SyncFieldType.Vector2Int:
+                        string[] split2i = value.Split(new char[] { ',' });
+                        ((Vector2IntField)field).ExternalSet(new Vector2Int(int.Parse(split2i[0]), int.Parse(split2i[1])));
+                        break;
+                    case SyncFieldType.Vector3:
+                        string[] split3 = value.Split(new char[] { ',' });
+                        ((Vector3Field)field).ExternalSet(new Vector3(float.Parse(split3[0]), float.Parse(split3[1]), float.Parse(split3[2])));
+                        break;
+                    case SyncFieldType.Vector3Int:
+                        string[] split3i = value.Split(new char[] { ',' });
+                        ((Vector3IntField)field).ExternalSet(new Vector3Int(int.Parse(split3i[0]), int.Parse(split3i[1]), int.Parse(split3i[2])));
+                        break;
+                    case SyncFieldType.Color:
+                        string[] color = value.Split(new char[] { ',' });
+                        ((ColorField)field).ExternalSet(new Color(float.Parse(color[0]), float.Parse(color[1]), float.Parse(color[2]), float.Parse(color[3])));
+                        break;
+                    case SyncFieldType.Quaternion:
+                        string[] quat = value.Split(new char[] { ',' });
+                        ((QuaternionField)field).ExternalSet(new Quaternion(float.Parse(quat[0]), float.Parse(quat[1]), float.Parse(quat[2]), float.Parse(quat[3])));
+                        break;
+                    case SyncFieldType.String:
+                        ((StringField)field).ExternalSet(value);
+                        break;
+                }
+            }
+        }
         #endregion
 
         #region - Statics -
