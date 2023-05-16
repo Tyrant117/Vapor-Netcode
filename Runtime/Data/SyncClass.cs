@@ -78,25 +78,27 @@ namespace VaporNetcode
         protected Dictionary<int, SyncField> fields = new();
         protected HashSet<int> dirtyFields = new();
 
-        private Dictionary<int, ObservableField> _observedFields = new();
+        private readonly Dictionary<int, ObservableField> _observedFields = new();
 
         protected bool _isLoaded;
 
         public event Action<SyncClass> Dirtied;
         public event Action<SyncClass> Changed;
+        public event Action<SyncClass> ClientClassCreated;
+        public event Action<SyncField> ClientFieldCreated;
 
-        public SyncClass(int unqiueID, bool isServer, bool saveValue)
+        public SyncClass(int uniqueID, bool isServer, bool saveValue)
         {
-            ID = unqiueID;
+            ID = uniqueID;
             IsServer = isServer;
             SaveValue = saveValue;
             _isLoaded = false;
         }
 
-        public SyncClass(int containerType, int unqiueID, bool isServer, bool saveValue)
+        public SyncClass(int containerType, int uniqueID, bool isServer, bool saveValue)
         {
             Type = containerType;
-            ID = unqiueID;
+            ID = uniqueID;
             IsServer = isServer;
             SaveValue = saveValue;
             _isLoaded = false;
@@ -450,6 +452,7 @@ namespace VaporNetcode
                 {
                     AddClass(type, id);
                     classes[key].Deserialize(r);
+                    ClientClassCreated?.Invoke(classes[key]);
                 }
             }
 
@@ -470,6 +473,7 @@ namespace VaporNetcode
                 {
                     AddField(fieldID, type, false);
                     fields[fieldID].Deserialize(r);
+                    ClientFieldCreated?.Invoke(fields[fieldID]);
                 }
             }
             if (classCount > 0 || fieldCount > 0)
