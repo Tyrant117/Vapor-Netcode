@@ -193,9 +193,9 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logWarn)
+                if (NetLogFilter.logError)
                 {
-                    Debug.Log($"Class {Type} - {ID} Failed To Add Class: {type} {id}");
+                    Debug.LogError($"Class {Type} - {ID} Failed To Add Class: {type} {id} | SyncFieldFactory Does Not Implement Func. IsServer={IsServer}");
                 }
             }
         }
