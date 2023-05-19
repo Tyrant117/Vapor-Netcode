@@ -213,7 +213,7 @@ namespace VaporNetcode
             UDPTransport.Init(false, true, isSimulated);
             _lastSendTime = 0;
             isInitialized = true;
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Client Initialized"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Client Initialized"); }
 
             static void _InitTimeInterpolation()
             {
@@ -277,7 +277,7 @@ namespace VaporNetcode
             handlers.Clear();
 
 
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Client Shutdown"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Client Shutdown"); }
         }
 
         internal static void NetworkEarlyUpdate()
@@ -374,7 +374,7 @@ namespace VaporNetcode
         {
             if (modules.ContainsKey(module.GetType()))
             {
-                if (NetLogFilter.logWarn) { Debug.Log(string.Format("{0} Module has already been added. {1} || ({2})", TAG, module, Time.time)); }
+                if (NetLogFilter.LogWarn) { Debug.Log(string.Format("{0} Module has already been added. {1} || ({2})", TAG, module, Time.time)); }
             }
             modules.Add(module.GetType(), module);
         }
@@ -550,7 +550,7 @@ namespace VaporNetcode
             Status = ConnectionStatus.Disconnected;
             if (timedOut && retryOnTimeout)
             {
-                if (NetLogFilter.logInfo) { Debug.LogFormat("{2} Retrying to connect to server at || {0}:{1}", _config.GameServerIp, _config.GameServerPort, TAG); }
+                if (NetLogFilter.LogInfo) { Debug.LogFormat("{2} Retrying to connect to server at || {0}:{1}", _config.GameServerIp, _config.GameServerPort, TAG); }
                 Connect(_config.GameServerIp, _config.GameServerPort);
             }
         }
@@ -596,7 +596,7 @@ namespace VaporNetcode
 
         private static void OnDisconnected()
         {
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Disconnected from || {_config.GameServerIp}:{_config.GameServerPort}"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Disconnected from || {_config.GameServerIp}:{_config.GameServerPort}"); }
 
             if (!isAttemptingReconnect)
             {
@@ -607,7 +607,7 @@ namespace VaporNetcode
 
         private static void OnConnected()
         {
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Connected to || {_config.GameServerIp}:{_config.GameServerPort}"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Connected to || {_config.GameServerIp}:{_config.GameServerPort}"); }
         }
         #endregion
 
@@ -703,7 +703,7 @@ namespace VaporNetcode
             ushort opCode = NetworkMessageId<T>.Id;
             if (handlers.Remove(opCode))
             {
-                if (NetLogFilter.logInfo) { Debug.LogFormat("{0} Handler Overwritten", opCode); }
+                if (NetLogFilter.LogInfo) { Debug.LogFormat("{0} Handler Overwritten", opCode); }
             }
             handlers.Add(opCode, new PacketHandler<T>(opCode, handler, requireAuthentication));
         }

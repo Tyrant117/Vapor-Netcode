@@ -102,7 +102,7 @@ namespace VaporMMO.Servers
         private void OnHandleRegistration(INetConnection conn, RegistrationRequestMessage msg)
         {
             // Create the New Account Data.
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Registering New User: {msg.AccountName}"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Registering New User: {msg.AccountName}"); }
             string accountID = string.Empty;
             switch (_authenticationService)
             {
@@ -124,7 +124,7 @@ namespace VaporMMO.Servers
             }
             if (accounts.TryGetValue(accountID, out var accSpec))
             {
-                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} User Already Exhists: {accountID}"); }
+                if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} User Already Exhists: {accountID}"); }
                 RegistrationResponseMessage respPacket = new()
                 {
                     AccountName = accountID,
@@ -169,7 +169,7 @@ namespace VaporMMO.Servers
         #region - Login -
         private void OnHandleLogin(INetConnection conn, LoginRequestMessage msg)
         {
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Login: {msg.accountName} | {conn.IsAuthenticated}"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Login: {msg.accountName} | {conn.IsAuthenticated}"); }
             if (!conn.IsAuthenticated)
             {
                 AuthenticateConnection.Invoke(conn, msg);
@@ -190,7 +190,7 @@ namespace VaporMMO.Servers
                 }
                 else
                 {
-                    if (NetLogFilter.logWarn)
+                    if (NetLogFilter.LogWarn)
                     {
                         Debug.Log($"{TAG} Unable to verify password: {password}");
                     }
@@ -200,7 +200,7 @@ namespace VaporMMO.Servers
 
         private void OnAuthenticatedResult(INetConnection conn, LoginRequestMessage msg)
         {
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Authenticated Result: {msg.accountName} | {conn.IsAuthenticated}"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Authenticated Result: {msg.accountName} | {conn.IsAuthenticated}"); }
             var respPacket = new LoginReponseMessage()
             {
                 AuthenticationService = _authenticationService,
@@ -246,7 +246,7 @@ namespace VaporMMO.Servers
 
         private void OnHandleGetAccountData(INetConnection conn, GetAccountDataRequestMessage msg)
         {
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Get Account Data"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Get Account Data"); }
             if (conn.IsAuthenticated)
             {
                 AccountLookup?.Invoke(conn, msg, OnAccountDataResult, OnCharacterCountResult, OnCharacterDataResult);
@@ -267,12 +267,12 @@ namespace VaporMMO.Servers
                     Status = ResponseStatus.Success,
                     characters = new(),
                 };
-                if (NetLogFilter.logWarn) { Debug.Log($"{TAG} Account Data Not Found"); }
+                if (NetLogFilter.LogWarn) { Debug.Log($"{TAG} Account Data Not Found"); }
                 UDPServer.Respond(conn, respPacket);
             }
             else
             {
-                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Account Data Found: {account.Value.StringID}"); }
+                if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Account Data Found: {account.Value.StringID}"); }
                 accounts[conn.GenericStringID] = account.Value;
                 characters[conn.GenericStringID] = new();
             }
@@ -280,7 +280,7 @@ namespace VaporMMO.Servers
 
         private void OnCharacterCountResult(INetConnection conn, GetAccountDataRequestMessage msg, int characterCount)
         {
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Character Count: {conn.GenericStringID} : {characterCount}"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Character Count: {conn.GenericStringID} : {characterCount}"); }
             if (characterCount == 0)
             {
                 GetAccountDataResponseMessage respPacket = new()
@@ -319,7 +319,7 @@ namespace VaporMMO.Servers
                     characters = new(),
                 };
                 respPacket.FormatAccountData(characters[conn.GenericStringID]);
-                if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Character Data: {conn.GenericStringID} : {respPacket.characters.Count}"); }
+                if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Character Data: {conn.GenericStringID} : {respPacket.characters.Count}"); }
                 UDPServer.Respond(conn, respPacket);
             }
         }
@@ -345,7 +345,7 @@ namespace VaporMMO.Servers
                 else
                 {
                     chars.Add(character);
-                    if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Character Created: {conn.GenericStringID} : {character.CharacterName}"); }
+                    if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Character Created: {conn.GenericStringID} : {character.CharacterName}"); }
                     response = new CreateCharacterResponseMessage()
                     {
                         CharacterName = msg.CharacterName,
@@ -366,7 +366,7 @@ namespace VaporMMO.Servers
                     if (character.CharacterName == msg.CharacterName)
                     {
                         found = true;
-                        if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Joined With Character: {conn.GenericStringID} : {msg.CharacterName}"); }
+                        if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Joined With Character: {conn.GenericStringID} : {msg.CharacterName}"); }
                         var response = UDPServer.GetModule<ServerWorldModule>().Join(conn, character);
                         UDPServer.Send(conn, response);
                         break;
@@ -421,7 +421,7 @@ namespace VaporMMO.Servers
 
         private void HandleAccountLookupLocal(INetConnection conn, GetAccountDataRequestMessage msg, AccountSpecificationLookup lookup, AccountCharacterLookup characterCount, AccountDataLookup characterCallback)
         {
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Handle Account Lookup Local"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Handle Account Lookup Local"); }
             string localDataPath = Application.persistentDataPath + "/Accounts.json";
             string localCharacterPath = Application.persistentDataPath + "/Characters.json";
             var characters = new List<AccountDataSpecification>();

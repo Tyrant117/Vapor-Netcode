@@ -55,7 +55,7 @@ namespace VaporNetcode
         [Header("Logging")]
 #endif
         [Tooltip("Log level for network debugging")]
-        public NetLogFilter.LogLevel logLevel;
+        public LogLevel logLevel;
 #if ODIN_INSPECTOR
         [TabGroup("Tabs", "Logging")]
 #endif

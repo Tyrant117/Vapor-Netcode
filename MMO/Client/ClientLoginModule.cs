@@ -94,7 +94,7 @@ namespace VaporMMO.Clients
 
         private void OnRegistrationResponse(INetConnection conn, RegistrationResponseMessage msg)
         {
-            if (NetLogFilter.logInfo)
+            if (NetLogFilter.LogInfo)
             {
                 Debug.Log($"{TAG} Registration Response: {msg.Status}");
             }
@@ -112,7 +112,7 @@ namespace VaporMMO.Clients
 
         private void OnLoginResponse(INetConnection conn, LoginReponseMessage msg)
         {
-            if (NetLogFilter.logInfo)
+            if (NetLogFilter.LogInfo)
             {
                 Debug.Log($"{TAG} Login Response: {msg.Status}");
             }
@@ -135,7 +135,7 @@ namespace VaporMMO.Clients
 
         private void OnGetAccountDataResponse(INetConnection conn, GetAccountDataResponseMessage msg)
         {
-            if (NetLogFilter.logInfo)
+            if (NetLogFilter.LogInfo)
             {
                 Debug.Log($"{TAG} Login Data Response: {msg.Status}");
             }
@@ -145,7 +145,7 @@ namespace VaporMMO.Clients
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
-                    if (NetLogFilter.logInfo)
+                    if (NetLogFilter.LogInfo)
                     {
                         Debug.Log($"{TAG} Login Data Result: {msg.result}");
                     }
@@ -156,7 +156,7 @@ namespace VaporMMO.Clients
 
         private void OnCharacterCreateResponse(INetConnection conn, CreateCharacterResponseMessage msg)
         {
-            if (NetLogFilter.logInfo)
+            if (NetLogFilter.LogInfo)
             {
                 Debug.Log($"{TAG} Character Create Data Response: {msg.Status}");
             }
@@ -166,7 +166,7 @@ namespace VaporMMO.Clients
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
-                    if (NetLogFilter.logInfo)
+                    if (NetLogFilter.LogInfo)
                     {
                         Debug.Log($"{TAG} Created Character: {msg.CharacterName}");
                     }

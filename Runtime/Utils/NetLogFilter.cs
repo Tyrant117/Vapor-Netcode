@@ -4,11 +4,6 @@ using UnityEngine;
 
 namespace VaporNetcode
 {
-    /// <summary>
-    /// Simple logger to show level of concern for the network.
-    /// </summary>
-    public class NetLogFilter
-    {
         public enum LogLevel
         {
             Debug = 0,
@@ -17,6 +12,12 @@ namespace VaporNetcode
             Error = 3,
             Fatal = 4,
         };
+
+    /// <summary>
+    /// Simple logger to show level of concern for the network.
+    /// </summary>
+    public class NetLogFilter
+    {
 
         public static bool spew;
         public static bool messageDiagnostics;
@@ -31,50 +32,10 @@ namespace VaporNetcode
         private static int currentLogLevel = Info;
         public static int CurrentLogLevel { get { return currentLogLevel; } set { currentLogLevel = value; } }
 
-        public static bool logDebug { get { return currentLogLevel <= Debug; } }
-        public static bool logInfo { get { return currentLogLevel <= Info; } }
-        public static bool logWarn { get { return currentLogLevel <= Warn; } }
-        public static bool logError { get { return currentLogLevel <= Error; } }
-        public static bool logFatal { get { return currentLogLevel <= Fatal; } }
-
-        public static void Log(string message)
-        {
-            if (logDebug)
-            {
-                UnityEngine.Debug.Log($"<b>[DEBUG]</b> {message}");
-            }
-        }
-
-        public static void LogInfo(string message)
-        {
-            if (logWarn)
-            {
-                UnityEngine.Debug.Log($"<b><color=grey>[INFO]</color></b> {message}");
-            }
-        }
-
-        public static void LogWarning(string message)
-        {
-            if (logWarn)
-            {
-                UnityEngine.Debug.Log($"<b><color=orange>[WARNING]</color></b> {message}");
-            }
-        }
-
-        public static void LogError(string message)
-        {
-            if (logError)
-            {
-                UnityEngine.Debug.Log($"<b><color=red>[ERROR]</color></b> {message}");
-            }
-        }
-
-        public static void LogFatal(string message)
-        {
-            if (logFatal)
-            {
-                UnityEngine.Debug.LogError($"<b><color=magenta>[FATAL]</color></b> {message}");
-            }
-        }
+        public static bool LogDebug { get { return currentLogLevel <= Debug; } }
+        public static bool LogInfo { get { return currentLogLevel <= Info; } }
+        public static bool LogWarn { get { return currentLogLevel <= Warn; } }
+        public static bool LogError { get { return currentLogLevel <= Error; } }
+        public static bool LogFatal { get { return currentLogLevel <= Fatal; } }
     }
 }

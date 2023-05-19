@@ -122,7 +122,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logError)
+                if (NetLogFilter.LogError)
                 {
                     Debug.Log($"Class: {typeof(T)} with id {uniqueID} not found.");
                 }
@@ -150,7 +150,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logError)
+                if (NetLogFilter.LogError)
                 {
                     Debug.Log($"Field: {typeof(T)} with id {fieldKey} not found.");
                 }
@@ -168,7 +168,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logError)
+                if (NetLogFilter.LogError)
                 {
                     Debug.Log($"Observed Field: {typeof(T)} with id {fieldKey} not found.");
                 }
@@ -193,7 +193,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logError)
+                if (NetLogFilter.LogError)
                 {
                     Debug.LogError($"Class {Type} - {ID} Failed To Add Class: {type} {id} | SyncFieldFactory Does Not Implement Func. IsServer={IsServer}");
                 }
@@ -224,7 +224,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logDebug && NetLogFilter.syncVars && NetLogFilter.spew)
+                if (NetLogFilter.LogDebug && NetLogFilter.syncVars && NetLogFilter.spew)
                 {
                     Debug.Log($"Class {Type} {ID} Already Dirty");
                 }
@@ -246,7 +246,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logWarn)
+                if (NetLogFilter.LogWarn)
                 {
                     Debug.Log($"Class {Type} - {ID} Failed To Add Field: {type} {fieldID}");
                 }
@@ -326,7 +326,7 @@ namespace VaporNetcode
             }
             else
             {
-                if (NetLogFilter.logDebug && NetLogFilter.syncVars && NetLogFilter.spew)
+                if (NetLogFilter.LogDebug && NetLogFilter.syncVars && NetLogFilter.spew)
                 {
                     Debug.Log($"Class {Type} {ID} Already Dirty");
                 }
@@ -446,7 +446,7 @@ namespace VaporNetcode
             for (int i = 0; i < classCount; i++)
             {
                 StartDeserialize(r, out int type, out int id);
-                if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+                if (NetLogFilter.LogDebug && NetLogFilter.syncVars)
                 {
                     Debug.Log($"Deserialize Class {Type} [{ID}] Class: {type} [{id}] [{i + 1}/{classCount}]");
                 }
@@ -468,7 +468,7 @@ namespace VaporNetcode
             for (int i = 0; i < fieldCount; i++)
             {
                 SyncField.StartDeserialize(r, out int fieldID, out SyncFieldType type);
-                if(NetLogFilter.logDebug && NetLogFilter.syncVars)
+                if(NetLogFilter.LogDebug && NetLogFilter.syncVars)
                 {
                     Debug.Log($"Deserialize Class {Type} [{ID}] Field: {type} [{fieldID}] [{i+1}/{fieldCount}]");
                 }
@@ -496,13 +496,13 @@ namespace VaporNetcode
 
             int classCount = dirtyClasses.Count;
             w.WriteInt(classCount);
-            if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+            if (NetLogFilter.LogDebug && NetLogFilter.syncVars)
             {
                 Debug.Log($"Batching Class: Type: {Type} ID: {ID} ClassCount: {classCount}");
             }
             foreach (var @class in classes.Values)
             {
-                if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+                if (NetLogFilter.LogDebug && NetLogFilter.syncVars)
                 {
                     Debug.Log($"Batching Class: Type: {@class.Type} ID: {@class.ID}");
                 }
@@ -511,14 +511,14 @@ namespace VaporNetcode
 
             int fieldCount = fields.Count;
             w.WriteInt(fieldCount);
-            if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+            if (NetLogFilter.LogDebug && NetLogFilter.syncVars)
             {
                 Debug.Log($"Batching Class: Type: {Type} ID: {ID} FieldCount: {fieldCount}");
             }
 
             foreach (var field in fields.Values)
             {
-                if (NetLogFilter.logDebug && NetLogFilter.syncVars)
+                if (NetLogFilter.LogDebug && NetLogFilter.syncVars)
                 {
                     Debug.Log($"Batching Field: Type: {field.Type} ID: {field.FieldID}");
                 }

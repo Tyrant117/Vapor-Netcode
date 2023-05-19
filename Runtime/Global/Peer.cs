@@ -59,7 +59,7 @@ namespace VaporNetcode
             }
             else
             {
-                Logger = new();
+                Logger = new(false, false);
             }
         }
 

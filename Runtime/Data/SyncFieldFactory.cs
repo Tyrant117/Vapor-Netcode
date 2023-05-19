@@ -20,7 +20,7 @@ namespace VaporNetcode
                 throw new Exception("ID Limit Reached: " + id);
             }
 
-            if (NetLogFilter.logDebug && NetLogFilter.spew) { Debug.LogFormat("Generated Observable ID: {0}", id); }
+            if (NetLogFilter.LogDebug && NetLogFilter.spew) { Debug.LogFormat("Generated Observable ID: {0}", id); }
             return id;
         }
 

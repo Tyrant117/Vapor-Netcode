@@ -26,7 +26,7 @@ namespace VaporMMO
         public uint NextNetID()
         {
             _idCounter++;
-            if (NetLogFilter.logInfo && NetLogFilter.spew) { Debug.Log($"{TAG} Generated ID: {0}"); }
+            if (NetLogFilter.LogInfo && NetLogFilter.spew) { Debug.Log($"{TAG} Generated ID: {0}"); }
             return _idCounter;
         }
 

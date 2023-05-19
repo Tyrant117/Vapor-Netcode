@@ -113,7 +113,7 @@ namespace VaporNetcode
                 throw new Exception("connection ID Limit Reached: " + id);
             }
 
-            if (NetLogFilter.logDebug && NetLogFilter.spew) { Debug.LogFormat("Generated ID: {0}", id); }
+            if (NetLogFilter.LogDebug && NetLogFilter.spew) { Debug.LogFormat("Generated ID: {0}", id); }
             return (ulong)id;
         }
         #endregion
@@ -163,7 +163,7 @@ namespace VaporNetcode
             {
                 StartServer();
             }
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Server Listening"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Server Listening"); }
 
             // ---------------------------------------------------------------//
             static void _SetupServer()
@@ -192,7 +192,7 @@ namespace VaporNetcode
 
             Started?.Invoke();
             isRunning = true;
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Server Started"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Server Started"); }
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -232,7 +232,7 @@ namespace VaporNetcode
             handlers.Clear();
 
 
-            if (NetLogFilter.logInfo) { Debug.Log($"{TAG} Server Shutdown"); }
+            if (NetLogFilter.LogInfo) { Debug.Log($"{TAG} Server Shutdown"); }
         }
 
         internal static void NetworkEarlyUpdate()
@@ -325,7 +325,7 @@ namespace VaporNetcode
         {
             if (modules.ContainsKey(module.GetType()))
             {
-                if (NetLogFilter.logWarn) { Debug.Log(string.Format("{0} Module has already been added. {1} || ({2})", TAG, module, Time.time)); }
+                if (NetLogFilter.LogWarn) { Debug.Log(string.Format("{0} Module has already been added. {1} || ({2})", TAG, module, Time.time)); }
             }
             modules.Add(module.GetType(), module);
         }
@@ -420,7 +420,7 @@ namespace VaporNetcode
         #region - Remote Connection Methods -
         private static void HandleConnect(int connectionID)
         {
-            if (NetLogFilter.logDebug) { Debug.Log($"{TAG} Connection ID: {connectionID} Connected"); }
+            if (NetLogFilter.LogDebug) { Debug.Log($"{TAG} Connection ID: {connectionID} Connected"); }
 
             if (connectionID == 0)
             {
@@ -460,7 +460,7 @@ namespace VaporNetcode
 
         private static void HandleDisconnect(int connectionID)
         {
-            if (NetLogFilter.logDebug) { Debug.Log($"{TAG} Connection ID: {connectionID} Disconnected"); }
+            if (NetLogFilter.LogDebug) { Debug.Log($"{TAG} Connection ID: {connectionID} Disconnected"); }
             if (connectedPeers.TryGetValue(connectionID, out Peer peer))
             {
                 peer.Dispose();
@@ -582,7 +582,7 @@ namespace VaporNetcode
             ushort opCode = NetworkMessageId<T>.Id;
             if (handlers.Remove(opCode))
             {
-                if (NetLogFilter.logInfo) { Debug.LogFormat("{0} Handler Overwritten", opCode); }
+                if (NetLogFilter.LogInfo) { Debug.LogFormat("{0} Handler Overwritten", opCode); }
             }
             handlers.Add(opCode, new PacketHandler<T>(opCode, handler, requireAuthentication));
 

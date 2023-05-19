@@ -20,7 +20,7 @@ namespace VaporMMO
 
         private void OnProfileUpdate(INetConnection conn, SyncDataMessage msg)
         {
-            if (NetLogFilter.logInfo && NetLogFilter.spew)
+            if (NetLogFilter.LogInfo && NetLogFilter.spew)
             {
                 Debug.Log($"{TAG} Profile Updated");
             }
@@ -32,7 +32,7 @@ namespace VaporMMO
 
         private void OnInterestUpdate(INetConnection conn, InterestMessage msg)
         {
-            if (NetLogFilter.logInfo && NetLogFilter.spew)
+            if (NetLogFilter.LogInfo && NetLogFilter.spew)
             {
                 Debug.Log($"{TAG} Interest Updated");
             }
