@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System;
 using System.Text;
 using System.Runtime.CompilerServices;
-using Sirenix.Utilities.Editor;
 #if UNITY_EDITOR
 using UnityEditor;
+using Sirenix.Utilities.Editor;
 using FuzzySearch = Sirenix.Utilities.Editor.FuzzySearch;
 #endif
 
