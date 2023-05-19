@@ -1,0 +1,20 @@
+{
+    "name": "VaporNetcode.Editor",
+    "rootNamespace": "VaporNetcode.Editor",
+    "references": [
+        "GUID:857facbc9bdda6849ae5db4eb107298f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "ODIN_INSPECTOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
