@@ -30,7 +30,7 @@ namespace VaporNetcode
         public Batcher UnreliableBatcher;
 
         protected UDPTransport.Source source;
-        protected NetLogger Logger { get; private set; }
+        public NetLogger Logger { get; private set; }
 
         public SyncBatcher SyncBatcher { get; private set; }
 
