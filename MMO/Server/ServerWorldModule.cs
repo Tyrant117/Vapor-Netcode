@@ -10,7 +10,7 @@ namespace VaporMMO
 {
     public class ServerWorldModule : ServerModule
     {
-        public const string TAG = "<color=lightblue><b>[Server World]</b></color>";
+        protected const string TAG = "<color=lightblue><b>[Server World]</b></color>";
 
         [FoldoutGroup("Interest Management"), SerializeField]
         protected int _navigationLayers = 1;

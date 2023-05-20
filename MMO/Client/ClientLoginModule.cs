@@ -6,19 +6,24 @@ using VaporMMO.Backend;
 using VaporNetcode;
 using System.Security.Cryptography;
 using System.Text;
+using Sirenix.OdinInspector;
 
 namespace VaporMMO.Clients
 {
     public class ClientLoginModule : ClientModule
     {
-        private const string TAG = "<color=orange><b>[Client Login]</b></color>";
+        protected const string TAG = "<color=yellow><b>[Client Login]</b></color>";
 
-        [SerializeField]
+        [FoldoutGroup("Services"), SerializeField]
         public AuthenticationServiceType _authenticationService;
-        [SerializeField]
+        [FoldoutGroup("Services"), SerializeField]
         public BackendType _backend;
-        [SerializeField]
+        [FoldoutGroup("Services"), SerializeField]
         public string _rsaPublicKey;
+
+        [FoldoutGroup("Logs"), SerializeField]
+        [InlineProperty, HideLabel]
+        protected NetLogger Logger;
 
         public event Action<GetAccountDataResponseMessage> OnRecievedLoginData;
 
@@ -94,11 +99,7 @@ namespace VaporMMO.Clients
 
         private void OnRegistrationResponse(INetConnection conn, RegistrationResponseMessage msg)
         {
-            if (NetLogFilter.LogInfo)
-            {
-                Debug.Log($"{TAG} Registration Response: {msg.Status}");
-            }
-
+            Logger.Log(LogLevel.Info, $"{TAG} Registration Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<RegistrationResponseMessage>(msg.Status);
             if (success)
             {
@@ -112,11 +113,7 @@ namespace VaporMMO.Clients
 
         private void OnLoginResponse(INetConnection conn, LoginReponseMessage msg)
         {
-            if (NetLogFilter.LogInfo)
-            {
-                Debug.Log($"{TAG} Login Response: {msg.Status}");
-            }
-
+            Logger.Log(LogLevel.Info, $"{TAG} Login Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<LoginReponseMessage>(msg.Status);
             if (success)
             {
@@ -135,20 +132,13 @@ namespace VaporMMO.Clients
 
         private void OnGetAccountDataResponse(INetConnection conn, GetAccountDataResponseMessage msg)
         {
-            if (NetLogFilter.LogInfo)
-            {
-                Debug.Log($"{TAG} Login Data Response: {msg.Status}");
-            }
-
+            Logger.Log(LogLevel.Info, $"{TAG} Login Data Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<GetAccountDataResponseMessage>(msg.Status);
             if (success)
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
-                    if (NetLogFilter.LogInfo)
-                    {
-                        Debug.Log($"{TAG} Login Data Result: {msg.result}");
-                    }
+                    Logger.Log(LogLevel.Info, $"{TAG} Login Data Result: {msg.result}");
                     OnRecievedLoginData?.Invoke(msg);
                 }
             }
@@ -156,21 +146,13 @@ namespace VaporMMO.Clients
 
         private void OnCharacterCreateResponse(INetConnection conn, CreateCharacterResponseMessage msg)
         {
-            if (NetLogFilter.LogInfo)
-            {
-                Debug.Log($"{TAG} Character Create Data Response: {msg.Status}");
-            }
-
+            Logger.Log(LogLevel.Info, $"{TAG} Character Create Data Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<CreateCharacterResponseMessage>(msg.Status);
             if (success)
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
-                    if (NetLogFilter.LogInfo)
-                    {
-                        Debug.Log($"{TAG} Created Character: {msg.CharacterName}");
-                    }
-
+                    Logger.Log(LogLevel.Info, $"{TAG} Created Character: {msg.CharacterName}");
                     var join = new JoinWithCharacterRequestMessage()
                     {
                         CharacterName = msg.CharacterName,

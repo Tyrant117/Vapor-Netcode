@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 using VaporNetcode;
@@ -6,7 +7,11 @@ namespace VaporMMO
 {
     public class ClientEntityModule : ClientModule
     {
-        private const string TAG = "<color=lightblue><b>[Client Entity]</b></color>";
+        protected const string TAG = "<color=lightblue><b>[Client Entity]</b></color>";
+
+        [FoldoutGroup("Logs"), SerializeField]
+        [InlineProperty, HideLabel]
+        protected NetLogger Logger;
 
         public event Action<EntityInterestPacket> UpdatePlayer;
         public event Action<EntityInterestPacket> UpdateCreature;
@@ -20,10 +25,6 @@ namespace VaporMMO
 
         private void OnProfileUpdate(INetConnection conn, SyncDataMessage msg)
         {
-            if (NetLogFilter.LogInfo && NetLogFilter.spew)
-            {
-                Debug.Log($"{TAG} Profile Updated");
-            }
             if (conn is Peer peer && peer.IsReady)
             {
                 peer.SyncBatcher.Unbatch(msg);
@@ -32,11 +33,6 @@ namespace VaporMMO
 
         private void OnInterestUpdate(INetConnection conn, InterestMessage msg)
         {
-            if (NetLogFilter.LogInfo && NetLogFilter.spew)
-            {
-                Debug.Log($"{TAG} Interest Updated");
-            }
-
             if (!conn.IsReady) { return; }
 
             foreach (var entity in msg.packets)
