@@ -207,8 +207,8 @@ namespace VaporNetcode.Editor
                 }
             }
 
-            var rect = SirenixEditorGUI.BeginVerticalList(true, false, GUILayout.MaxHeight(338));
-            _scrollList = GUILayout.BeginScrollView(_scrollList);
+            var rect = SirenixEditorGUI.BeginVerticalList(true, false, GUILayout.Height(338));
+            _scrollList = GUILayout.BeginScrollView(_scrollList, GUILayout.ExpandHeight(true));
             foreach (var cl in combinedLogs)
             {
                 GUILayout.BeginVertical(GUILayout.MaxHeight(32));
