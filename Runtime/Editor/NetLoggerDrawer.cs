@@ -57,8 +57,8 @@ namespace VaporNetcode.Editor
 
         private string _search = string.Empty;
         private bool _infoTog = true;
-        private bool _warningTog;
-        private bool _errorTog;
+        private bool _warningTog = true;
+        private bool _errorTog = true;
         private Vector2 _scrollList;
         private Vector2 _scroll;
         //private readonly HashSet<RichStringLog> _openSet = new();
