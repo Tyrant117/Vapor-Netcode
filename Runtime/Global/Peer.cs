@@ -51,6 +51,7 @@ namespace VaporNetcode
             UnreliableBatcher = new Batcher(UDPTransport.GetBatchThreshold(Channels.Unreliable));
 
             SyncBatcher = new();
+            Logger = new(false);
 
             if (source == UDPTransport.Source.Client)
             {
@@ -59,7 +60,6 @@ namespace VaporNetcode
             }
             else
             {
-                Logger = new(false, false);
             }
         }
 
