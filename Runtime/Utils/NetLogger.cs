@@ -1,25 +1,22 @@
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Diagnostics;
 using System;
 using System.Text;
 using System.Runtime.CompilerServices;
-using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
-using UnityEditor;
-using Sirenix.Utilities.Editor;
 using FuzzySearch = Sirenix.Utilities.Editor.FuzzySearch;
 #endif
 
 namespace VaporNetcode
 {
     [Serializable]
-    public struct RichStringLog : ISearchFilterable
+    public class RichStringLog : ISearchFilterable
     {
+        public int Type;
         public string Content;
         public string StackTrace;
-        public string FirstFilePath;
+        public DateTimeOffset TimeStamp;
 
         public bool IsMatch(string searchString)
         {
@@ -29,21 +26,25 @@ namespace VaporNetcode
             return false;
 #endif
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Type, Content, TimeStamp);
+        }
     }
     
     [Serializable]
     public class NetLogger
-    {
-
-        [TabGroup("Tabs", "Info", Icon = SdfIconType.InfoCircleFill, TabName = "@Info.Count")]
-        [Searchable(FilterOptions = SearchFilterOptions.ISearchFilterableInterface), ListDrawerSettings(DraggableItems = false, HideAddButton = true, HideRemoveButton = true, OnTitleBarGUI = "TitleGUIInfo")]
-        public List<RichStringLog> Info = new(1000);
-        [TabGroup("Tabs", "Warning", Icon = SdfIconType.ExclamationTriangleFill, TabName = "@Warning.Count", TextColor = "yellow")]
-        [Searchable(FilterOptions = SearchFilterOptions.ISearchFilterableInterface), ListDrawerSettings(DraggableItems = false, HideAddButton = true, HideRemoveButton = true, OnTitleBarGUI = "TitleGUIWarning")]
-        public List<RichStringLog> Warning = new(1000);
-        [TabGroup("Tabs", "Error", Icon = SdfIconType.ExclamationOctagonFill, TabName = "@Error.Count", TextColor ="red")]
-        [Searchable(FilterOptions = SearchFilterOptions.ISearchFilterableInterface), ListDrawerSettings(DraggableItems = false, HideAddButton = true, HideRemoveButton = true, OnTitleBarGUI = "TitleGUIError")]
-        public List<RichStringLog> Error = new(1000);
+    {        
+        [SerializeField]
+        private List<RichStringLog> _logs = new(1000);
+        [SerializeField]
+        private int _infoCount;
+        [SerializeField]
+        private int _warningCount;
+        [SerializeField]
+        private int _errorCount;        
+        public List<RichStringLog> Logs = new(1000);
 
         private readonly StringBuilder _sb = new();
         private readonly int _infoStraceCount = 5;
@@ -51,14 +52,10 @@ namespace VaporNetcode
         private readonly int _errorStraceCount = 20;
         private readonly bool _autoClear;
 
-        //private bool _toggleFilter;
-        //private int _selected;
-
-        //[Conditional("UNITY_EDITOR")]
-        //private void OnTitle()
-        //{
-        //    _selected = EditorGUILayout.IntPopup(_selected, new string[2] { "[Stats]", "[Items]" }, new int[2] { 1, 2 }, SirenixGUIStyles.DropDownMiniButton, GUILayout.MaxWidth(64));
-        //}
+        public NetLogger()
+        {
+            _autoClear = false;
+        }
 
         public NetLogger(bool autoClear)
         {
@@ -66,179 +63,25 @@ namespace VaporNetcode
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Log(LogLevel logLevel, string log)
+        public void Log(LogLevel logLevel, string log, int traceSkipFrames = 1)
         {
             if (_autoClear)
             {
-                if (Info.Count > 100) { InfoClear(); }
-                if (Warning.Count > 100) { WarningClear(); }
-                if (Error.Count > 100) { ErrorClear(); }
+                if (_logs.Count > 100) { _logs.Clear(); Logs.Clear(); }
             }
 
-            string firstFile;
-            switch (logLevel)
-            {
-                case LogLevel.Debug:
-                    if (NetLogFilter.LogDebug)
-                    {
-                        firstFile = _CreateStackTrace(_infoStraceCount);
-                        Info.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Info:
-                    if (NetLogFilter.LogInfo)
-                    {
-                        firstFile = _CreateStackTrace(_infoStraceCount);
-                        Info.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Warn:
-                    if (NetLogFilter.LogWarn)
-                    {
-                        firstFile = _CreateStackTrace(_warningStraceCount);
-                        Warning.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Error:
-                    if (NetLogFilter.LogError)
-                    {
-                        firstFile = _CreateStackTrace(_errorStraceCount);
-                        Error.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Fatal:
-                    if (NetLogFilter.LogFatal)
-                    {
-                        firstFile = _CreateStackTrace(_errorStraceCount);
-                        Error.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            string _CreateStackTrace(int traceCount)
-            {
-                StackTrace t = new(true);
-                int count = Mathf.Min(traceCount, t.FrameCount);
-                _sb.Clear();
-                string firstFile = string.Empty;
-                bool isfirst = true;
-                for (int i = 0; i < count; i++)
-                {
-                    var frame = t.GetFrame(i);
-                    if (frame.GetFileLineNumber() > 0)
-                    {
-                        if (isfirst)
-                        {
-                            firstFile = frame.GetFileName();
-                            isfirst = false;
-                        }
-                        _sb.AppendLine($"<b>{frame.GetMethod().Name}</b> | {frame.GetFileName()} <b>[{frame.GetFileLineNumber()}]</b>");
-                    }
-                }
-                return firstFile;
-            }
+            ToLogger(logLevel, log, traceSkipFrames);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void LogWithConsole(LogLevel logLevel, string log)
+        public void LogWithConsole(LogLevel logLevel, string log, int traceSkipFrames = 1)
         {
             if (_autoClear)
             {
-                if (Info.Count > 100) { InfoClear(); }
-                if (Warning.Count > 100) { WarningClear(); }
-                if (Error.Count > 100) { ErrorClear(); }
+                if (_logs.Count > 100) { _logs.Clear(); Logs.Clear(); }
             }
 
-            string firstFile;
-            switch (logLevel)
-            {
-                case LogLevel.Debug:
-                    if (NetLogFilter.LogDebug)
-                    {
-                        firstFile = _CreateStackTrace(_infoStraceCount);
-                        Info.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Info:
-                    if (NetLogFilter.LogInfo)
-                    {
-                        firstFile = _CreateStackTrace(_infoStraceCount);
-                        Info.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Warn:
-                    if (NetLogFilter.LogWarn)
-                    {
-                        firstFile = _CreateStackTrace(_warningStraceCount);
-                        Warning.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Error:
-                    if (NetLogFilter.LogError)
-                    {
-                        firstFile = _CreateStackTrace(_errorStraceCount);
-                        Error.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-                case LogLevel.Fatal:
-                    if (NetLogFilter.LogFatal)
-                    {
-                        firstFile = _CreateStackTrace(_errorStraceCount);
-                        Error.Add(new RichStringLog()
-                        {
-                            Content = log,
-                            StackTrace = _sb.ToString(),
-                            FirstFilePath = firstFile,
-                        });
-                    }
-                    break;
-            }
+            ToLogger(logLevel, log, traceSkipFrames);
 
             switch (logLevel)
             {
@@ -263,73 +106,101 @@ namespace VaporNetcode
                         Debug.LogError(log);
                     break;
             }
+        }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            string _CreateStackTrace(int traceCount)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ToLogger(LogLevel logLevel, string log, int traceSkipFrames)
+        {
+            switch (logLevel)
             {
-                StackTrace t = new(true);
-                int count = Mathf.Min(traceCount, t.FrameCount);
-                _sb.Clear();
-                string firstFile = string.Empty;
-                bool isfirst = true;
-                for (int i = 0; i < count; i++)
-                {
-                    var frame = t.GetFrame(i);
-                    if (frame.GetFileLineNumber() > 0)
+                case LogLevel.Debug:
+                    if (NetLogFilter.LogDebug)
                     {
-                        if (isfirst)
+                        CreateStackTrace(_infoStraceCount, traceSkipFrames);
+                        _logs.Add(new RichStringLog()
                         {
-                            firstFile = frame.GetFileName();
-                            isfirst = false;
-                        }
-                        _sb.AppendLine($"<b>{frame.GetMethod().Name}</b> | {frame.GetFileName()} <b>[{frame.GetFileLineNumber()}]</b>");
+                            Type = 0,
+                            Content = log,
+                            StackTrace = _sb.ToString(),
+                            TimeStamp = DateTimeOffset.UtcNow,
+                        });
+                        _infoCount++;
                     }
+                    break;
+                case LogLevel.Info:
+                    if (NetLogFilter.LogInfo)
+                    {
+                        CreateStackTrace(_infoStraceCount, traceSkipFrames);
+                        _logs.Add(new RichStringLog()
+                        {
+                            Type = 0,
+                            Content = log,
+                            StackTrace = _sb.ToString(),
+                            TimeStamp = DateTimeOffset.UtcNow,
+                        });
+                        _infoCount++;
+                    }
+                    break;
+                case LogLevel.Warn:
+                    if (NetLogFilter.LogWarn)
+                    {
+                        CreateStackTrace(_warningStraceCount, traceSkipFrames);
+                        _logs.Add(new RichStringLog()
+                        {
+                            Type = 1,
+                            Content = log,
+                            StackTrace = _sb.ToString(),
+                            TimeStamp = DateTimeOffset.UtcNow,
+                        });
+                        _warningCount++;
+                    }
+                    break;
+                case LogLevel.Error:
+                    if (NetLogFilter.LogError)
+                    {
+                        CreateStackTrace(_errorStraceCount, traceSkipFrames);
+                        _logs.Add(new RichStringLog()
+                        {
+                            Type = 2,
+                            Content = log,
+                            StackTrace = _sb.ToString(),
+                            TimeStamp = DateTimeOffset.UtcNow,
+                        });
+                        _errorCount++;
+                    }
+                    break;
+                case LogLevel.Fatal:
+                    if (NetLogFilter.LogFatal)
+                    {
+                        CreateStackTrace(_errorStraceCount, traceSkipFrames);
+                        _logs.Add(new RichStringLog()
+                        {
+                            Type = 2,
+                            Content = log,
+                            StackTrace = _sb.ToString(),
+                            TimeStamp = DateTimeOffset.UtcNow,
+                        });
+                        _errorCount++;
+                    }
+                    break;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void CreateStackTrace(int traceCount, int traceSkipFrames)
+        {
+            System.Diagnostics.StackTrace t = new(traceSkipFrames, true);
+            int count = Mathf.Min(traceCount, t.FrameCount);
+            _sb.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                var frame = t.GetFrame(i);
+                if (frame.GetFileLineNumber() > 0)
+                {
+                    string fileName = System.IO.Path.GetFileName(frame.GetFileName());
+                    _sb.AppendLine($"<b>{frame.GetMethod().Name}</b> | {fileName} <a cs=\"{frame.GetFileName()}\" ln=\"{frame.GetFileLineNumber()}\" cn=\"{frame.GetFileColumnNumber()}\"><b>[{frame.GetFileLineNumber()}]</b></a>");
                 }
-                return firstFile;
             }
-        }
-
-
-        [Conditional("UNITY_EDITOR")]
-        private void TitleGUIInfo()
-        {
-            if (SirenixEditorGUI.ToolbarButton(SdfIconType.XSquare))
-            {
-                InfoClear();
-            }
-        }
-
-        [Conditional("UNITY_EDITOR")]
-        private void TitleGUIWarning()
-        {
-            if (SirenixEditorGUI.ToolbarButton(SdfIconType.XSquare))
-            {
-                WarningClear();
-            }
-        }
-
-        [Conditional("UNITY_EDITOR")]
-        private void TitleGUIError()
-        {
-            if (SirenixEditorGUI.ToolbarButton(SdfIconType.XSquare))
-            {
-                ErrorClear();
-            }
-        }
-
-        private void InfoClear()
-        {
-            Info.Clear();
-        }
-
-        private void WarningClear()
-        {
-            Warning.Clear();
-        }
-
-        private void ErrorClear()
-        {
-            Error.Clear();
         }
     }
 }
