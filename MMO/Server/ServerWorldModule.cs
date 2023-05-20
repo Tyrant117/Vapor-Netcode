@@ -10,23 +10,25 @@ namespace VaporMMO
 {
     public class ServerWorldModule : ServerModule
     {
-        public const string TAG = "<color=cyan><b>[Server World]</b></color>";
-        public const string WARNING = "<color=yellow><b>[!]</b></color>";
+        public const string TAG = "<color=lightblue><b>[Server World]</b></color>";
 
         [FoldoutGroup("Interest Management"), SerializeField]
-        private int _navigationLayers = 1;
+        protected int _navigationLayers = 1;
         [FoldoutGroup("Interest Management"), SerializeField]
-        private int _playerViewRange = 100;
+        protected int _playerViewRange = 100;
         [FoldoutGroup("Interest Management"), SerializeField]
-        private float _aoiRebuildInterval = 1f;
+        protected float _aoiRebuildInterval = 1f;
+
+        [FoldoutGroup("Logs"), SerializeField]
+        [InlineProperty, HideLabel]
+        protected NetLogger Logger;
 
         //Network IDs for Objects
-        private uint _idCounter = 0;
+        protected uint _idCounter = 0;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public uint NextNetID()
         {
             _idCounter++;
-            if (NetLogFilter.LogInfo && NetLogFilter.spew) { Debug.Log($"{TAG} Generated ID: {0}"); }
             return _idCounter;
         }
 
@@ -34,8 +36,8 @@ namespace VaporMMO
         public readonly Dictionary<uint, IServerIdentity> Entities = new();
         public readonly Dictionary<uint, ITickable> Tickables = new();
 
-        private InterestManagement aoi;
-        private readonly DictionaryCleanupList<uint, IServerIdentity> _cleanup = new(200);
+        protected InterestManagement aoi;
+        protected readonly DictionaryCleanupList<uint, IServerIdentity> _cleanup = new(200);
 
         public override void Initialize()
         {
