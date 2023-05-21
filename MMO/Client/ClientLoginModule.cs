@@ -99,7 +99,7 @@ namespace VaporMMO.Clients
 
         private void OnRegistrationResponse(INetConnection conn, RegistrationResponseMessage msg)
         {
-            Logger.Log(LogLevel.Info, $"{TAG} Registration Response: {msg.Status}");
+            Logger.LogWithConsole(LogLevel.Info, $"{TAG} Registration Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<RegistrationResponseMessage>(msg.Status);
             if (success)
             {
@@ -113,13 +113,14 @@ namespace VaporMMO.Clients
 
         private void OnLoginResponse(INetConnection conn, LoginReponseMessage msg)
         {
-            Logger.Log(LogLevel.Info, $"{TAG} Login Response: {msg.Status}");
+            Logger.LogWithConsole(LogLevel.Info, $"{TAG} Login Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<LoginReponseMessage>(msg.Status);
             if (success)
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
                     conn.Authenticated(msg.ConnectionID);
+                    conn.GenericStringID = msg.StringID;
                     var requestData = new GetAccountDataRequestMessage()
                     {
 
@@ -132,13 +133,13 @@ namespace VaporMMO.Clients
 
         private void OnGetAccountDataResponse(INetConnection conn, GetAccountDataResponseMessage msg)
         {
-            Logger.Log(LogLevel.Info, $"{TAG} Login Data Response: {msg.Status}");
+            Logger.LogWithConsole(LogLevel.Info, $"{TAG} Login Data Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<GetAccountDataResponseMessage>(msg.Status);
             if (success)
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
-                    Logger.Log(LogLevel.Info, $"{TAG} Login Data Result: {msg.result}");
+                    Logger.LogWithConsole(LogLevel.Info, $"{TAG} Login Data Result: {msg.result}");
                     OnRecievedLoginData?.Invoke(msg);
                 }
             }
@@ -146,13 +147,13 @@ namespace VaporMMO.Clients
 
         private void OnCharacterCreateResponse(INetConnection conn, CreateCharacterResponseMessage msg)
         {
-            Logger.Log(LogLevel.Info, $"{TAG} Character Create Data Response: {msg.Status}");
+            Logger.LogWithConsole(LogLevel.Info, $"{TAG} Character Create Data Response: {msg.Status}");
             var success = UDPClient.ServerPeer.TriggerResponse<CreateCharacterResponseMessage>(msg.Status);
             if (success)
             {
                 if (msg.Status == ResponseStatus.Success)
                 {
-                    Logger.Log(LogLevel.Info, $"{TAG} Created Character: {msg.CharacterName}");
+                    Logger.LogWithConsole(LogLevel.Info, $"{TAG} Created Character: {msg.CharacterName}");
                     var join = new JoinWithCharacterRequestMessage()
                     {
                         CharacterName = msg.CharacterName,

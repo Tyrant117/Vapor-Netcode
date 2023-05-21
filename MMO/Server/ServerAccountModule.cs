@@ -216,6 +216,7 @@ namespace VaporMMO.Servers
                 {
                     AuthenticationService = _authenticationService,
                     ConnectionID = conn.ConnectionID,
+                    StringID = msg.accountName,
                     Status = ResponseStatus.Success
                 };
 
