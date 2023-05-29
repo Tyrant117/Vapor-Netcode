@@ -80,6 +80,14 @@ namespace VaporMMO
                 }
             }
 
+            foreach (var netID in _cleanup.Content)
+            {
+                if (Entities.TryGetValue(netID, out var entity))
+                {
+                    entity.OnCleanup();
+                }
+            }
+
             foreach (var entity in Entities.Values)
             {
                 entity.CreateInterestPacket();

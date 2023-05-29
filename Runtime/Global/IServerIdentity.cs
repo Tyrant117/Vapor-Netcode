@@ -51,6 +51,8 @@ namespace VaporNetcode
         /// <param name="serverTick"></param>
         public void Tick(float deltaTime);
 
+        public void OnCleanup();
+
         #region - Messages -
         public void AddPacket(CommandMessage msg);
 

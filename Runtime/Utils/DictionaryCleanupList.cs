@@ -9,37 +9,37 @@ namespace VaporNetcode
     /// </summary>
     public class DictionaryCleanupList<T,V>
     {
-        private int pointer;
-        public T[] content;
+        private int _pointer;
+        public T[] Content;
 
         public DictionaryCleanupList(int capacity)
         {
-            pointer = 0;
-            content = new T[capacity];
+            _pointer = 0;
+            Content = new T[capacity];
         }
 
         public void Add(T key)
         {
-            if (pointer == content.Length)
+            if (_pointer == Content.Length)
             {
-                var buffer = new T[content.Length * 2];
-                content.CopyTo(buffer, 0);
-                content = buffer;
-                content[pointer] = key;
+                var buffer = new T[Content.Length * 2];
+                Content.CopyTo(buffer, 0);
+                Content = buffer;
+                Content[_pointer] = key;
             }
             else
             {
-                content[pointer] = key;
+                Content[_pointer] = key;
             }
-            pointer++;
+            _pointer++;
         }
 
         public void RemoveAll(Dictionary<T, V> db)
         {
-            while (pointer > 0)
+            while (_pointer > 0)
             {
-                pointer--;
-                db.Remove(content[pointer]);
+                _pointer--;
+                db.Remove(Content[_pointer]);
             }
         }
     }
