@@ -32,13 +32,16 @@ namespace VaporNetcode
         // NetworkIdentities that this connection can see
         HashSet<IServerIdentity> Observing { get; }
         HashSet<IServerIdentity> JustRemovedFromObserving { get; }
-        
+
 
         public void Register(uint netID)
         {
             NetID = netID;
             IsRegistered = true;
+            OnRegistered();
         }
+
+        public void OnRegistered();
 
         public void MarkActive()
         {
