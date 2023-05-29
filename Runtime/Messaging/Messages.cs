@@ -250,4 +250,28 @@ namespace VaporNetcode
             }
         }
     }
+
+    public struct LostInterestMessage : INetMessage
+    {
+        public List<EntityLostInterestPacket> Packets;
+
+        public LostInterestMessage(NetworkReader r)
+        {
+            Packets = new();
+            int count = r.ReadInt();
+            for (int i = 0; i < count; i++)
+            {
+                Packets.Add(new EntityLostInterestPacket(r));
+            }
+        }
+
+        public void Serialize(NetworkWriter w)
+        {
+            w.WriteInt(Packets.Count);
+            for (int i = 0; i < Packets.Count; i++)
+            {
+                Packets[i].Serialize(w);
+            }
+        }
+    }
 }

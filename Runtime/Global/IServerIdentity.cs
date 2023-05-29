@@ -30,6 +30,7 @@ namespace VaporNetcode
 
         // NetworkIdentities that this connection can see
         HashSet<IServerIdentity> Observing { get; }
+        HashSet<IServerIdentity> JustRemovedFromObserving { get; }
         
 
         public void Register(uint netID)
@@ -76,7 +77,10 @@ namespace VaporNetcode
 
         public void RemoveFromObserving(IServerIdentity netIdentity)
         {
-            Observing.Remove(netIdentity);
+            if (Observing.Remove(netIdentity))
+            {
+                JustRemovedFromObserving.Add(netIdentity);
+            }
         }           
         #endregion
     }

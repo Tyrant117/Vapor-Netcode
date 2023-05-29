@@ -21,6 +21,7 @@ namespace VaporMMO
         {
             UDPClient.RegisterHandler<SyncDataMessage>(OnProfileUpdate);
             UDPClient.RegisterHandler<InterestMessage>(OnInterestUpdate);
+            UDPClient.RegisterHandler<LostInterestMessage>(OnLostInterestUpdate);
         }
 
         private void OnProfileUpdate(INetConnection conn, SyncDataMessage msg)
@@ -57,7 +58,38 @@ namespace VaporMMO
             }
         }
 
+        private void OnLostInterestUpdate(INetConnection conn, LostInterestMessage msg)
+        {
+            if (!conn.IsReady) { return; }
+
+            foreach (var entity in msg.Packets)
+            {
+                switch (entity.InterestType)
+                {
+                    case 1:
+                        if (entity.NetID == conn.NetID) { continue; } // Don't care about yourself.
+                        OnLostPlayer(entity);
+                        break;
+                    case 2:
+                        OnLostCreature(entity);
+                        break;
+                    case 3:
+                        OnLostInteractable(entity);
+                        break;
+                    case 4:
+                        OnLostLoot(entity);
+                        break;
+
+                }
+            }
+        }
+
         protected virtual void OnUpdatePlayer(EntityInterestPacket player)
+        {
+
+        }
+
+        protected virtual void OnLostPlayer(EntityLostInterestPacket player)
         {
 
         }
@@ -67,12 +99,27 @@ namespace VaporMMO
 
         }
 
+        protected virtual void OnLostCreature(EntityLostInterestPacket creature)
+        {
+
+        }
+
         protected virtual void OnUpdateInteractable(EntityInterestPacket interactable)
         {
 
         }
 
+        protected virtual void OnLostInteractable(EntityLostInterestPacket interactable)
+        {
+
+        }
+
         protected virtual void OnUpdateLoot(EntityInterestPacket interactable)
+        {
+
+        }
+
+        protected virtual void OnLostLoot(EntityLostInterestPacket interactable)
         {
 
         }
