@@ -85,6 +85,7 @@ namespace VaporMMO
                 if (Entities.TryGetValue(netID, out var entity))
                 {
                     entity.OnCleanup();
+                    entity.OnRemoveFromObservers();
                 }
             }
 

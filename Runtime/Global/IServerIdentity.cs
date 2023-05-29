@@ -57,6 +57,13 @@ namespace VaporNetcode
         public void Tick(float deltaTime);
 
         public void OnCleanup();
+        public void OnRemoveFromObservers()
+        {
+            foreach (var observer in Observers.Values)
+            {
+                observer.RemoveFromObserving(this);
+            }
+        }
 
         #region - Messages -
         public void AddPacket(CommandMessage msg);
