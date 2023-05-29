@@ -494,7 +494,7 @@ namespace VaporNetcode
             w.WriteInt(Type);
             w.WriteInt(ID);
 
-            int classCount = dirtyClasses.Count;
+            int classCount = classes.Count;
             w.WriteInt(classCount);
             if (NetLogFilter.LogDebug && NetLogFilter.syncVars)
             {

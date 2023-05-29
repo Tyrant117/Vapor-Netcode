@@ -103,7 +103,7 @@ namespace VaporNetcode
                 {
                     if (typeof(SyncClass).IsAssignableFrom(t))
                     {
-                        var id = (ushort)t.Name.GetStableHashCode();
+                        var id = /*(ushort)*/t.Name.GetStableHashCode();
                         _syncClassLookupList.Add($"{id} - {t.Name}");
                     }
                 }
