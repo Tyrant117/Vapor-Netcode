@@ -25,6 +25,7 @@ namespace VaporNetcode
         Vector3 Position { get; }
 
         EntityInterestPacket CurrentInterestPacket { get; }
+        EntityLostInterestPacket CurrentLostInterestPacket { get; }
         // <summary>The set of network connections (players) that can see this object.</summary>
         Dictionary<int, IServerIdentity> Observers { get; set; }
 
