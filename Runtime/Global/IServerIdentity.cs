@@ -58,6 +58,8 @@ namespace VaporNetcode
 
         ArraySegment<byte> CreateFullInterestPacket(NetworkWriter w);
 
+        public bool ShouldSendInterestPacket(IServerIdentity toServerIdentity);
+
         public void SendInterestPacket();
         #endregion
 
@@ -73,7 +75,7 @@ namespace VaporNetcode
         public void RemoveFromObserving(IServerIdentity netIdentity)
         {
             Observing.Remove(netIdentity);
-        }        
+        }           
         #endregion
     }
 }

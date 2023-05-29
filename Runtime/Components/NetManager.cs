@@ -99,23 +99,6 @@ namespace VaporNetcode
         public event Action ServerInitialized;
         public event Action ClientInitialized;
 
-        private void OnValidate()
-        {
-            var serverMods = transform.Find("Server Modules");
-            if(serverMods == null)
-            {
-                var go = new GameObject("Server Modules");
-                go.transform.SetParent(transform, false);
-            }
-
-            var clientMods = transform.Find("Client Modules");
-            if (clientMods == null)
-            {
-                var go = new GameObject("Client Modules");
-                go.transform.SetParent(transform, false);
-            }
-        }
-
         private void Awake()
         {
             if (Instance != null)
