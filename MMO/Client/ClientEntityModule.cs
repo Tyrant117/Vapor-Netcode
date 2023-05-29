@@ -49,6 +49,9 @@ namespace VaporMMO
                     case 3:
                         OnUpdateInteractable(entity);
                         break;
+                    case 4:
+                        OnUpdateLoot(entity);
+                        break;
 
                 }
             }
@@ -65,6 +68,11 @@ namespace VaporMMO
         }
 
         protected virtual void OnUpdateInteractable(EntityInterestPacket interactable)
+        {
+
+        }
+
+        protected virtual void OnUpdateLoot(EntityInterestPacket interactable)
         {
 
         }
