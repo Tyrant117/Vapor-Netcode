@@ -91,10 +91,34 @@ namespace VaporNetcode
             }
         }
 #if ODIN_INSPECTOR
+        [TabGroup("Tabs", "Logging"), Button, PropertyOrder(1)]
+#endif
+        private void GenerateSyncLookupData()
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            _syncClassLookupList.Clear();
+            foreach (var assembly in assemblies)
+            {
+                foreach (var t in assembly.GetTypes())
+                {
+                    if (typeof(SyncClass).IsAssignableFrom(t))
+                    {
+                        var id = (ushort)t.Name.GetStableHashCode();
+                        _syncClassLookupList.Add($"{id} - {t.Name}");
+                    }
+                }
+            }
+        }
+#if ODIN_INSPECTOR
         [TabGroup("Tabs", "Logging"), PropertyOrder(2)]
 #endif
         [Tooltip("List of ID:Type pairs for INetMessage"), SerializeField, Searchable]
         private List<string> _messageLookupList = new();
+#if ODIN_INSPECTOR
+        [TabGroup("Tabs", "Logging"), PropertyOrder(2)]
+#endif
+        [Tooltip("List of ID:Type pairs for SyncClass"), SerializeField, Searchable]
+        private List<string> _syncClassLookupList = new();
 
         public event Action ServerInitialized;
         public event Action ClientInitialized;

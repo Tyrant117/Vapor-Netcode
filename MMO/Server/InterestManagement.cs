@@ -69,10 +69,10 @@ namespace VaporMMO
 
         public void RebuildAll()
         {
-            foreach (var identity in _module.Players.Values)
-            {
-                Rebuild(identity, false);
-            }
+            //foreach (var identity in _module.Players.Values)
+            //{
+            //    Rebuild(identity, false);
+            //}
 
             foreach (var identity in _module.Entities.Values)
             {
